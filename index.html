@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BridgeOS Maritime Command Center</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Ana navigasyon">
+        <div class="brand">
+          <span class="brand-mark">B</span>
+          <div>
+            <strong>BridgeOS</strong>
+            <span>Maritime Command</span>
+          </div>
+        </div>
+
+        <nav class="nav-list">
+          <a href="#command" class="active">Command Center</a>
+          <a href="#simulator">Gemi Simülatörü</a>
+          <a href="#calculator">Hesaplayıcılar</a>
+          <a href="#academy">Eğitim & Oyunlar</a>
+          <a href="#ports">Liman Rehberi</a>
+        </nav>
+
+        <div class="mission-card">
+          <span>Aktif Görev</span>
+          <strong>Istanbul → Singapore</strong>
+          <p>Yakıt, hava ve rota kararlarını optimize et.</p>
+        </div>
+      </aside>
+
+      <main>
+        <section class="hero" id="command">
+          <div>
+            <p class="eyebrow">Live Maritime Operations</p>
+            <h1>Denizcilik öğren, hesapla, simüle et ve rotaları tek panelden yönet.</h1>
+            <p>
+              BridgeOS; gemi simülatörü, dünya haritası, hesaplayıcılar, liman
+              rehberi ve AI denizcilik asistanını tek komuta ekranında birleştirir.
+            </p>
+          </div>
+
+          <div class="hero-actions">
+            <a href="#simulator" class="primary-button">Simülasyonu Başlat</a>
+            <a href="#calculator" class="ghost-button">Hesaplayıcıları Aç</a>
+          </div>
+        </section>
+
+        <section class="command-grid">
+          <article class="map-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">World Map</p>
+                <h2>Canlı Deniz Haritası</h2>
+              </div>
+              <div class="status-pill">AIS Simulated</div>
+            </div>
+
+            <div class="ocean-map" aria-label="Simüle edilmiş dünya deniz haritası">
+              <div class="storm storm-one">Storm</div>
+              <div class="storm storm-two">High Risk</div>
+              <button class="ship ship-a selected" data-ship="orion" aria-label="MV Orion gemisi"></button>
+              <button class="ship ship-b" data-ship="atlas" aria-label="MT Atlas gemisi"></button>
+              <button class="ship ship-c" data-ship="nova" aria-label="LNG Nova gemisi"></button>
+              <button class="port port-a" data-port="istanbul" aria-label="Istanbul limanı"></button>
+              <button class="port port-b" data-port="singapore" aria-label="Singapore limanı"></button>
+              <button class="port port-c" data-port="rotterdam" aria-label="Rotterdam limanı"></button>
+              <svg viewBox="0 0 100 55" preserveAspectRatio="none" aria-hidden="true">
+                <path d="M8 18 C24 10, 35 18, 48 24 S72 36, 92 24" />
+                <path d="M12 38 C25 29, 44 30, 58 20 S76 7, 91 12" />
+                <path d="M22 12 C32 24, 52 36, 83 42" />
+              </svg>
+            </div>
+          </article>
+
+          <article class="info-panel" id="vesselInfo">
+            <p class="eyebrow">Selected Vessel</p>
+            <h2>MV Orion</h2>
+            <div class="metric-list">
+              <div><span>Speed</span><strong>17.8 kn</strong></div>
+              <div><span>Flag</span><strong>Panama</strong></div>
+              <div><span>IMO</span><strong>9387421</strong></div>
+              <div><span>Destination</span><strong>Singapore</strong></div>
+              <div><span>ETA</span><strong>14 days</strong></div>
+            </div>
+          </article>
+        </section>
+
+        <section class="simulator-section" id="simulator">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Captain Decision Engine</p>
+              <h2>Gemi Simülatörü</h2>
+            </div>
+            <button class="ghost-button small" id="resetSimulation">Sıfırla</button>
+          </div>
+
+          <div class="simulator-layout">
+            <article class="scenario-card">
+              <span id="scenarioStep">Senaryo 1 / 4</span>
+              <h3 id="scenarioTitle">Fırtına rotanın üzerinde.</h3>
+              <p id="scenarioText">
+                Bengal Körfezi'nde fırtına hattı oluştu. Kısa rota riskli, güvenli rota
+                ise 18 saat uzatıyor.
+              </p>
+              <div class="decision-buttons" id="decisionButtons"></div>
+            </article>
+
+            <article class="score-card">
+              <h3>Operasyon Skoru</h3>
+              <div class="score-grid">
+                <div><span>Kâr</span><strong id="profitScore">$82K</strong></div>
+                <div><span>Güvenlik</span><strong id="safetyScore">78</strong></div>
+                <div><span>Gecikme</span><strong id="delayScore">6 saat</strong></div>
+                <div><span>Yakıt</span><strong id="fuelScore">410 t</strong></div>
+              </div>
+              <div class="score-bar">
+                <span id="scoreBar"></span>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="tool-grid">
+          <article class="calculator-panel" id="calculator">
+            <p class="eyebrow">Maritime Calculators</p>
+            <h2>Denizcilik Hesaplayıcıları</h2>
+            <div class="tabs" role="tablist" aria-label="Hesaplayıcı seçimi">
+              <button class="active" data-calc="eta">ETA</button>
+              <button data-calc="bunker">Bunker</button>
+              <button data-calc="demurrage">Demurrage</button>
+            </div>
+            <form id="calculatorForm" class="calculator-form"></form>
+            <div class="result-box" id="calculatorResult">Değerleri gir ve hesapla.</div>
+          </article>
+
+          <article class="assistant-panel">
+            <p class="eyebrow">AI Maritime Assistant</p>
+            <h2>Denizcilik Asistanı</h2>
+            <div class="chat-window" id="chatWindow">
+              <div class="bot-message">Merhaba. Laytime, demurrage, COLREGS veya rota sorusu sorabilirsin.</div>
+            </div>
+            <form class="chat-form" id="chatForm">
+              <input id="chatInput" type="text" placeholder="What is demurrage?" />
+              <button type="submit">Sor</button>
+            </form>
+          </article>
+        </section>
+
+        <section class="academy-grid" id="academy">
+          <article>
+            <p class="eyebrow">Training Games</p>
+            <h2>Denizcilik Oyunları</h2>
+            <div class="feature-list">
+              <button>Cargo Planner <span>Containerları dengeli diz</span></button>
+              <button>Mooring Game <span>Halatları doğru bağla</span></button>
+              <button>COLREG Quiz <span>Doğru manevrayı seç</span></button>
+              <button>Navigation Challenge <span>Radar ve rota oku</span></button>
+            </div>
+          </article>
+
+          <article id="ports">
+            <p class="eyebrow">Port Guide</p>
+            <h2>Liman Rehberi</h2>
+            <div class="port-guide">
+              <div>
+                <strong>Istanbul Port</strong>
+                <span>Derinlik 14m · Pilotaj var · Yakıt hizmeti var</span>
+              </div>
+              <div>
+                <strong>Singapore</strong>
+                <span>Derinlik 16m · 24/7 operasyon · 34 rıhtım</span>
+              </div>
+              <div>
+                <strong>Rotterdam</strong>
+                <span>Derinlik 23m · Konteyner & tanker terminali</span>
+              </div>
+            </div>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
