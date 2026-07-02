@@ -3,6 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' https: http://127.0.0.1:* http://localhost:*; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; worker-src 'none'; upgrade-insecure-requests" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=(), serial=()" />
     <title>Focusea Maritime Platform</title>
     <link rel="icon" href="favicon.svg?v=focusea-badge2" type="image/svg+xml" />
     <link rel="stylesheet" href="styles.css?v=command-deck-2" />
@@ -2088,7 +2091,7 @@
               <p class="eyebrow">Market Intelligence</p>
               <h2>Denizcilik Piyasa ve Risk Merkezi</h2>
             </div>
-            <div class="status-pill">Simulated Live Feed</div>
+            <div class="status-pill">Verified / Licensed / Simulated</div>
           </div>
           <div class="intelligence-grid">
             <article>
@@ -2111,6 +2114,27 @@
               <strong data-live="security">GoA</strong>
               <small data-live-note="security">Enhanced watch recommended</small>
             </article>
+          </div>
+          <div class="market-index-terminal">
+            <div class="mini-heading">
+              <span>Baltic Index Live Connector</span>
+              <strong>BDI, BCI, BPI, BSI, BHSI, BDTI, BCTI / 1s refresh</strong>
+            </div>
+            <form class="market-index-form" id="balticFeedForm">
+              <label>
+                <span>Licensed API endpoint</span>
+                <input name="feedUrl" type="url" placeholder="https://your-licensed-feed.example/baltic" />
+              </label>
+              <label>
+                <span>Mode</span>
+                <select name="feedMode">
+                  <option value="licensed">Licensed real feed</option>
+                  <option value="locked">No license / show locked status</option>
+                </select>
+              </label>
+              <button type="submit">Baltic Feed'i Bağla</button>
+            </form>
+            <div class="broker-output" id="balticFeedResult"></div>
           </div>
           <div class="market-index-terminal">
             <div class="mini-heading">
@@ -2159,6 +2183,20 @@
               <strong>Source, update time, confidence</strong>
             </div>
             <div class="data-trust-grid" id="dataTrustLayer"></div>
+          </div>
+          <div class="data-trust-panel">
+            <div class="mini-heading">
+              <span>Security Shield</span>
+              <strong>CSP, malicious link scan, safe downloads</strong>
+            </div>
+            <form class="market-index-form" id="securityScanForm">
+              <label>
+                <span>URL / file name / pasted text</span>
+                <input name="securityTarget" placeholder="https://example.com/file.pdf veya suspicious.exe" />
+              </label>
+              <button type="submit">Güvenlik Taraması Yap</button>
+            </form>
+            <div class="data-trust-grid" id="securityShieldResult"></div>
           </div>
           <div class="live-timestamp" id="liveTimestamp">Simulated market feed initializing...</div>
         </section>
@@ -2634,6 +2672,6 @@
       </main>
     </div>
 
-    <script src="script.js?v=bunker-verified-1"></script>
+    <script src="script.js?v=baltic-security-1"></script>
   </body>
 </html>

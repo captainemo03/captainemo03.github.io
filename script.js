@@ -1330,6 +1330,16 @@ const marketIndexDefinitions = [
   { id: "sofr", short: "SOFR", name: "SOFR Funding Rate Watch", sector: "Finance", key: "sofr", unit: "%", source: "api-ready", note: "Funding and lease cost context.", brokerUse: "Time charter finance, working capital and credit exposure.", volatility: 0.03, min: 2.4, max: 6.2, decimals: 2 }
 ];
 
+const balticIndexIds = ["bdi", "bci", "bpi", "bsi", "bhsi", "bdti", "bcti"];
+const balticFeedState = {
+  endpoint: "",
+  connected: false,
+  lastChecked: "",
+  lastSource: "Baltic Exchange licensed API required",
+  lastError: "",
+  polls: 0
+};
+
 const verifiedNewsFallback = [
   {
     title: "Around $125 Billion of Vessels, Cargo Remain Stranded in Persian Gulf, Allianz Says",
@@ -1847,7 +1857,11 @@ const marketBriefResult = document.querySelector("#marketBriefResult");
 const marketIndexForm = document.querySelector("#marketIndexForm");
 const marketIndexGrid = document.querySelector("#marketIndexGrid");
 const marketIndexDetail = document.querySelector("#marketIndexDetail");
+const balticFeedForm = document.querySelector("#balticFeedForm");
+const balticFeedResult = document.querySelector("#balticFeedResult");
 const dataTrustLayer = document.querySelector("#dataTrustLayer");
+const securityScanForm = document.querySelector("#securityScanForm");
+const securityShieldResult = document.querySelector("#securityShieldResult");
 const redFlagForm = document.querySelector("#redFlagForm");
 const redFlagResult = document.querySelector("#redFlagResult");
 const recapBuilderForm = document.querySelector("#recapBuilderForm");
@@ -2196,6 +2210,77 @@ function escapeHtml(value = "") {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
+}
+
+function safeExternalUrl(value = "") {
+  try {
+    const url = new URL(String(value || ""), window.location.href);
+    if (["http:", "https:"].includes(url.protocol)) return url.href;
+  } catch (error) {
+    return "#";
+  }
+  return "#";
+}
+
+function securityFindingsForText(value = "") {
+  const text = String(value || "").trim();
+  const checks = [
+    { label: "Script injection pattern", level: "high", pattern: /<\s*script|onerror\s*=|onload\s*=|javascript:/i },
+    { label: "Executable or script file", level: "high", pattern: /\.(exe|scr|bat|cmd|ps1|vbs|js|jar|msi|dll|com)(\?|#|$)/i },
+    { label: "Encoded HTML/data URL", level: "medium", pattern: /data:text\/html|%3cscript|base64,/i },
+    { label: "Suspicious shortened link", level: "medium", pattern: /\b(bit\.ly|tinyurl\.com|t\.co|is\.gd|cutt\.ly|rebrand\.ly)\b/i },
+    { label: "Credential or wallet lure", level: "medium", pattern: /\b(password|seed phrase|private key|login urgently|verify account)\b/i },
+    { label: "Macro-enabled office file", level: "medium", pattern: /\.(docm|xlsm|pptm)(\?|#|$)/i }
+  ];
+  return checks.filter((check) => check.pattern.test(text));
+}
+
+function securityVerdict(value = "") {
+  const findings = securityFindingsForText(value);
+  const high = findings.filter((item) => item.level === "high").length;
+  const medium = findings.filter((item) => item.level === "medium").length;
+  const score = clamp(100 - high * 38 - medium * 18, 0, 100);
+  const verdict = high ? "BLOCK" : medium ? "REVIEW" : "PASS";
+  return { findings, score, verdict };
+}
+
+function renderSecurityShield(scanText = "") {
+  if (!securityShieldResult) return;
+  const verdict = securityVerdict(scanText);
+  const badge = verdict.verdict === "PASS" ? "verified" : verdict.verdict === "REVIEW" ? "licensed" : "simulated";
+  securityShieldResult.innerHTML = `
+    ${metricCards([
+      { label: "CSP", value: "active" },
+      { label: "External scripts", value: "blocked" },
+      { label: "Object/embed", value: "blocked" },
+      { label: "Scan verdict", value: verdict.verdict }
+    ])}
+    <article class="data-trust-card">
+      <div><strong>Security score</strong><em class="source-badge ${badge}">${escapeHtml(verdict.verdict)}</em></div>
+      <span>${verdict.score}/100 browser-side risk check</span>
+      <b>${scanText ? escapeHtml(scanText.slice(0, 120)) : "Paste a URL, file name or suspicious text to scan."}</b>
+      <div class="trust-meter"><span style="width:${verdict.score}%"></span></div>
+      <small>${verdict.findings.length ? verdict.findings.map((item) => escapeHtml(item.label)).join(" / ") : "No browser-side malware pattern detected. Server-side antivirus still needs backend hosting."}</small>
+    </article>
+  `;
+}
+
+function handleSecurityScan(event) {
+  event.preventDefault();
+  const values = collectFormValues(securityScanForm);
+  renderSecurityShield(values.securityTarget || "");
+}
+
+function handleSafeLinkClick(event) {
+  const anchor = event.target.closest?.("a[href]");
+  if (!anchor) return;
+  const href = anchor.getAttribute("href") || "";
+  const verdict = securityVerdict(href);
+  if (verdict.verdict !== "BLOCK") return;
+  event.preventDefault();
+  renderSecurityShield(href);
+  const timestamp = document.querySelector("#liveTimestamp");
+  if (timestamp) timestamp.textContent = "Security Shield blocked a suspicious link pattern. Review the scan panel before opening.";
 }
 
 function applyVerifiedBunkerSnapshot() {
@@ -3793,10 +3878,10 @@ function dataTrustRows() {
     },
     {
       name: "Market indexes",
-      provider: `${licensedCount} licensed benchmarks, ${apiReadyCount} API-ready feeds`,
+      provider: `${licensedCount} licensed benchmarks, ${apiReadyCount} API-ready feeds; Baltic connector ${balticFeedState.connected ? "connected" : "locked"}`,
       badge: "licensed",
-      confidence: 62,
-      updated: now,
+      confidence: balticFeedState.connected ? 86 : 62,
+      updated: balticFeedState.lastChecked || now,
       value: `BDI ${liveFeedState.bdi.toLocaleString("en-US")} / SCFI ${liveFeedState.scfi.toLocaleString("en-US")}`,
       usage: "Baltic-style values are marked as licensed placeholders until a paid feed is connected."
     },
@@ -4371,9 +4456,100 @@ function marketIndexValue(definition) {
   return liveFeedState[definition.key] ?? 0;
 }
 
+function isBalticIndex(definition) {
+  return !!definition && balticIndexIds.includes(definition.id);
+}
+
+function balticDefinitions() {
+  return balticIndexIds
+    .map((id) => marketIndexDefinitions.find((definition) => definition.id === id))
+    .filter(Boolean);
+}
+
+function setBalticEndpoint(endpoint) {
+  balticFeedState.endpoint = String(endpoint || "").trim();
+  safeLocalSet("focusea-baltic-feed-endpoint-v1", balticFeedState.endpoint);
+}
+
+function loadBalticEndpoint() {
+  balticFeedState.endpoint = safeLocalGet("focusea-baltic-feed-endpoint-v1", "") || "";
+  const input = balticFeedForm?.querySelector('[name="feedUrl"]');
+  if (input) input.value = balticFeedState.endpoint;
+}
+
+function readBalticValue(payload, definition) {
+  const keys = [definition.id, definition.id.toUpperCase(), definition.short, definition.key];
+  for (const key of keys) {
+    const value = Number(payload?.[key]);
+    if (Number.isFinite(value)) return value;
+  }
+  return null;
+}
+
+function applyBalticPayload(payload = {}) {
+  const rows = balticDefinitions();
+  rows.forEach((definition) => {
+    const next = readBalticValue(payload, definition);
+    if (next !== null) liveFeedState[definition.key] = next;
+  });
+  balticFeedState.connected = true;
+  balticFeedState.lastError = "";
+  balticFeedState.lastSource = payload.source || "Licensed Baltic feed";
+  balticFeedState.lastChecked = payload.timestamp || new Date().toLocaleTimeString();
+}
+
+async function refreshBalticLicensedFeed() {
+  balticFeedState.polls += 1;
+  balticFeedState.lastChecked = new Date().toLocaleTimeString();
+  if (!balticFeedState.endpoint) {
+    balticFeedState.connected = false;
+    balticFeedState.lastSource = "Baltic Exchange licensed API required";
+    balticFeedState.lastError = "No licensed endpoint connected.";
+    renderBalticFeedPanel();
+    return;
+  }
+
+  try {
+    const response = await fetchWithTimeout(balticFeedState.endpoint, 900);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const payload = await response.json();
+    applyBalticPayload(payload);
+  } catch (error) {
+    balticFeedState.connected = false;
+    balticFeedState.lastError = error.message || "Feed failed.";
+  }
+  renderBalticFeedPanel();
+}
+
+function renderBalticFeedPanel() {
+  if (!balticFeedResult) return;
+  const rows = balticDefinitions();
+  const status = balticFeedState.connected ? "connected" : "licensed required";
+  const badge = balticFeedState.connected ? "verified" : "licensed";
+  balticFeedResult.innerHTML = `
+    ${metricCards([
+      { label: "Status", value: `<em class="source-badge ${badge}">${sourceBadgeText(badge)}</em>` },
+      { label: "Refresh", value: "1s" },
+      { label: "Polls", value: balticFeedState.polls },
+      { label: "Last check", value: escapeHtml(balticFeedState.lastChecked || "waiting") }
+    ])}
+    <div class="confidence-list">
+      ${rows.map((definition) => `
+        <div class="confidence-row">
+          <strong>${escapeHtml(definition.short)}</strong>
+          <span>${formatMarketIndexValue(definition, marketIndexValue(definition))}</span>
+          <em class="source-badge ${badge}">${status}</em>
+        </div>
+      `).join("")}
+    </div>
+    <small>${escapeHtml(balticFeedState.lastSource)} / ${escapeHtml(balticFeedState.lastError || "Licensed feed is active.")}</small>
+  `;
+}
+
 function marketIndexDelta(definition) {
   const bunkerChange = bunkerChangeForDefinition(definition);
   if (bunkerChange !== null) return Number(bunkerChange.toFixed(definition.decimals ?? 1));
+  if (isBalticIndex(definition) && !balticFeedState.connected) return 0;
   const seconds = Date.now() / 1000;
   const seed = definition.id.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0);
   const swing = Math.sin((seconds + seed) / 18) * (definition.volatility || 1);
@@ -4385,7 +4561,11 @@ function marketIndexDelta(definition) {
 
 function marketIndexInsight(definition, value, delta) {
   const sign = delta > 0 ? "rising" : delta < 0 ? "easing" : "flat";
-  const feedName = definition.source === "verified" ? `verified ${verifiedBunkerSnapshot.sourceName} snapshot` : "demo feed";
+  const feedName = definition.source === "verified"
+    ? `verified ${verifiedBunkerSnapshot.sourceName} snapshot`
+    : definition.source === "licensed"
+      ? "licensed source layer"
+      : "demo feed";
   const riskTone = definition.sector === "Port / Risk" && value > 65
     ? "High operational risk; add buffer before fixing."
     : definition.sector === "Bunker" && value > 680
@@ -4433,7 +4613,7 @@ function renderMarketIndexes(focusId = "") {
     const delta = marketIndexDelta(definition);
     const trendClass = delta > 0.2 ? "positive" : delta < -0.2 ? "negative" : "neutral";
     const trendText = delta > 0 ? `+${delta}` : `${delta}`;
-    const trendSource = definition.source === "verified" ? "source" : "demo";
+    const trendSource = definition.source === "verified" ? "source" : definition.source === "licensed" ? "licensed" : "demo";
     return `
       <button class="market-index-card ${definition.id === selectedMarketIndexId ? "active" : ""}" type="button" data-market-index="${definition.id}">
         <span>${escapeHtml(definition.sector)}</span>
@@ -4468,7 +4648,7 @@ function renderMarketIndexes(focusId = "") {
       <div>
         <h3>Decision note</h3>
         <p>${escapeHtml(marketIndexInsight(selected, selectedValue, selectedDelta))}</p>
-        <small>${selected.source === "verified" ? `Source: ${escapeHtml(bunkerSourceNote())}` : "Values marked simulated/API-ready are demo signals until a verified market data source is connected."}</small>
+        <small>${selected.source === "verified" ? `Source: ${escapeHtml(bunkerSourceNote())}` : selected.source === "licensed" ? "Licensed market data stays locked until a paid/source-approved feed is connected." : "Values marked simulated/API-ready are demo signals until a verified market data source is connected."}</small>
       </div>
     </div>
     <div class="related-indexes">
@@ -9769,13 +9949,6 @@ function updateLiveFeed() {
     const next = clamp(Number(liveFeedState[key] || 0) + wave * volatility + Math.random() * volatility - volatility / 2, min, max);
     liveFeedState[key] = Number(next.toFixed(decimals));
   };
-  moveIndex("bdi", 900, 3600, 18);
-  moveIndex("bci", 1200, 5200, 32);
-  moveIndex("bpi", 800, 3300, 22);
-  moveIndex("bsi", 550, 2400, 14);
-  moveIndex("bhsi", 350, 1300, 9);
-  moveIndex("bdti", 600, 1800, 16);
-  moveIndex("bcti", 450, 1400, 12);
   moveIndex("vlccTd3c", 38, 115, 1.8, 1);
   moveIndex("aframaxWs", 80, 260, 3.4);
   moveIndex("mrAtlantic", 90, 280, 3.2);
@@ -9846,6 +10019,7 @@ function updateLiveFeed() {
   renderNotifications();
   renderDataSources();
   renderDataTrustLayer();
+  renderBalticFeedPanel();
   renderMarketBrief();
   renderTerminalAlarms();
   if (document.body.dataset.activePage === "market") {
@@ -10189,10 +10363,10 @@ function renderNews(items, query) {
 
   newsGrid.innerHTML = items.map((item) => `
     <article class="news-card">
-      <span>${item.source}</span>
-      <strong>${item.title}</strong>
+      <span>${escapeHtml(item.source)}</span>
+      <strong>${escapeHtml(item.title)}</strong>
       <small>${item.date ? item.date.toLocaleString() : "Date unavailable"}</small>
-      <a href="${item.link}" target="_blank" rel="noreferrer">Haberi aç</a>
+      <a href="${escapeHtml(safeExternalUrl(item.link))}" target="_blank" rel="noopener noreferrer">Haberi aç</a>
     </article>
   `).join("");
 
@@ -10633,6 +10807,21 @@ if (marketIndexForm) {
   marketIndexForm.addEventListener("change", () => renderMarketIndexes());
 }
 
+if (balticFeedForm) {
+  balticFeedForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const values = collectFormValues(balticFeedForm);
+    setBalticEndpoint(values.feedMode === "licensed" ? values.feedUrl : "");
+    refreshBalticLicensedFeed();
+  });
+}
+
+if (securityScanForm) {
+  securityScanForm.addEventListener("submit", handleSecurityScan);
+}
+
+document.addEventListener("click", handleSafeLinkClick);
+
 const handleMarketIndexSelect = (event) => {
   const button = event.target.closest("[data-market-index]");
   if (!button) return;
@@ -10884,6 +11073,7 @@ chatForm.addEventListener("submit", (event) => {
 
 applyVerifiedBunkerSnapshot();
 applyBunkerDefaultsToForms();
+loadBalticEndpoint();
 populatePortSelects();
 setPort("istanbul");
 renderGlobalPortAtlas();
@@ -10930,6 +11120,8 @@ runAllBrokerOs();
 runFullDecisionLab();
 renderMarketIndexes();
 renderDataTrustLayer();
+renderBalticFeedPanel();
+renderSecurityShield();
 renderPythonHistory();
 renderCommandDeck();
 initializeSmartOps();
@@ -10937,4 +11129,6 @@ updateLiveFeed();
 setupPageSections();
 activatePage(pageFromHash(), false);
 setInterval(updateLiveFeed, 1000);
+setInterval(refreshBalticLicensedFeed, 1000);
+refreshBalticLicensedFeed();
 loadMaritimeNews();
