@@ -167,6 +167,7 @@ a {
 .deal-iq-panel,
 .decision-lab-panel,
 .python-engine-panel,
+.command-deck-panel,
 .assistant-panel,
 .academy-grid article,
 .route-panel,
@@ -417,6 +418,7 @@ main {
 .ops-board article,
 .intelligence-panel,
 .smart-ops-panel,
+.command-deck-panel,
 .intelligence-grid article {
   border: 1px solid var(--line);
   background: rgba(18, 16, 62, 0.72);
@@ -425,6 +427,7 @@ main {
 
 .intelligence-panel,
 .smart-ops-panel,
+.command-deck-panel,
 .broker-panel,
 .broker-pro-panel,
 .operations-panel,
@@ -477,6 +480,266 @@ main {
   background:
     radial-gradient(circle at 18% 0%, rgba(100, 97, 255, 0.12), transparent 28%),
     rgba(18, 16, 62, 0.72);
+}
+
+.command-deck-panel {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(40, 240, 198, 0.18), transparent 30%),
+    radial-gradient(circle at 92% 10%, rgba(100, 97, 255, 0.2), transparent 30%),
+    linear-gradient(135deg, rgba(6, 19, 29, 0.92), rgba(24, 20, 70, 0.82)),
+    rgba(18, 16, 62, 0.76);
+}
+
+.command-deck-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.38;
+  background:
+    linear-gradient(rgba(40, 240, 198, 0.09) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(138, 134, 255, 0.08) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.7), transparent 88%);
+}
+
+.command-deck-panel > * {
+  position: relative;
+  z-index: 1;
+}
+
+.command-deck-hero {
+  display: grid;
+  grid-template-columns: minmax(230px, 0.38fr) minmax(0, 1fr);
+  gap: 18px;
+  align-items: stretch;
+}
+
+.command-radar {
+  position: relative;
+  display: grid;
+  min-height: 260px;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(40, 240, 198, 0.28);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle, rgba(40, 240, 198, 0.14) 0 2px, transparent 3px),
+    radial-gradient(circle at 50% 50%, rgba(40, 240, 198, 0.12), rgba(100, 97, 255, 0.08) 44%, rgba(5, 7, 26, 0.76) 72%);
+  box-shadow: inset 0 0 48px rgba(40, 240, 198, 0.08);
+}
+
+.command-radar span {
+  position: absolute;
+  inset: 18%;
+  border: 1px solid rgba(40, 240, 198, 0.22);
+  border-radius: 999px;
+}
+
+.command-radar span:nth-child(2) {
+  inset: 32%;
+}
+
+.command-radar span:nth-child(3) {
+  inset: 46%;
+  border-color: rgba(162, 145, 255, 0.34);
+}
+
+.command-radar::after {
+  content: "";
+  position: absolute;
+  width: 52%;
+  height: 1px;
+  transform-origin: 100% 50%;
+  background: linear-gradient(90deg, transparent, rgba(40, 240, 198, 0.85));
+  animation: radarSweep 6s linear infinite;
+}
+
+.command-radar strong,
+.command-radar small {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+.command-radar strong {
+  font-size: clamp(3rem, 8vw, 5rem);
+  line-height: 0.9;
+}
+
+.command-radar small {
+  max-width: 160px;
+  color: #8fffe9;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.command-deck-copy {
+  display: grid;
+  align-content: center;
+  gap: 12px;
+  min-width: 0;
+  min-height: 260px;
+  padding: 22px;
+  border: 1px solid rgba(138, 134, 255, 0.24);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.command-deck-copy span,
+.command-kpi-grid span,
+.command-documents span,
+.command-timeline span,
+.command-brief span {
+  color: var(--accent-2);
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.command-deck-copy h3 {
+  max-width: 100%;
+  margin: 0;
+  font-size: clamp(1.55rem, 2.65vw, 2.25rem);
+  line-height: 1.08;
+  overflow-wrap: break-word;
+}
+
+.command-deck-copy p {
+  max-width: 100%;
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.65;
+  overflow-wrap: break-word;
+}
+
+.command-scenario-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.command-scenario-row button {
+  min-height: 38px;
+  padding: 0 13px;
+  border: 1px solid rgba(40, 240, 198, 0.26);
+  border-radius: 8px;
+  background: rgba(40, 240, 198, 0.08);
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.command-scenario-row button.active,
+.command-scenario-row button:hover {
+  border-color: rgba(40, 240, 198, 0.62);
+  color: #071421;
+  background: #6fffe3;
+}
+
+.command-kpi-grid,
+.command-workflow-grid {
+  display: grid;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.command-kpi-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.command-workflow-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(300px, 0.9fr);
+}
+
+.command-kpi-grid article,
+.command-workflow-grid article {
+  padding: 16px;
+  border: 1px solid rgba(138, 134, 255, 0.24);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.command-kpi-grid strong {
+  display: block;
+  margin: 8px 0 4px;
+  font-size: clamp(1.35rem, 3vw, 2rem);
+}
+
+.command-kpi-grid small,
+.command-timeline small,
+.command-brief small,
+.command-documents small {
+  display: block;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.command-timeline,
+.command-brief,
+.command-documents {
+  display: grid;
+  gap: 10px;
+}
+
+.command-timeline div,
+.command-brief div,
+.command-documents div {
+  display: grid;
+  gap: 4px;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 8px;
+  background: rgba(5, 7, 26, 0.28);
+}
+
+.command-timeline div {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+}
+
+.command-timeline b {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 999px;
+  color: #071421;
+  background: #6fffe3;
+  font-size: 0.78rem;
+}
+
+.command-brief strong,
+.command-documents strong {
+  color: var(--text);
+}
+
+.presentation-strip {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 16px;
+  padding: 12px 14px;
+  border: 1px solid rgba(40, 240, 198, 0.28);
+  border-radius: 8px;
+  background: rgba(40, 240, 198, 0.08);
+  color: var(--muted);
+}
+
+.presentation-strip strong {
+  color: #8fffe9;
+}
+
+@keyframes radarSweep {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .broker-panel {
@@ -3063,6 +3326,9 @@ main {
   .nav-list,
   .dashboard-strip,
   .ops-board,
+  .command-deck-hero,
+  .command-kpi-grid,
+  .command-workflow-grid,
   .broker-grid,
   .broker-pro-grid,
   .ops-suite-grid,
@@ -3120,6 +3386,7 @@ main {
 
   .hero,
   .calculator-panel,
+  .command-deck-panel,
   .broker-panel,
   .broker-pro-panel,
   .operations-panel,
@@ -3144,6 +3411,9 @@ main {
   .nav-list,
   .dashboard-strip,
   .ops-board,
+  .command-deck-hero,
+  .command-kpi-grid,
+  .command-workflow-grid,
   .broker-grid,
   .broker-pro-grid,
   .ops-suite-grid,
@@ -3194,6 +3464,25 @@ main {
   .detail-columns,
   .heatmap-row {
     grid-template-columns: 1fr;
+  }
+
+  .command-deck-copy,
+  .command-kpi-grid article,
+  .command-workflow-grid article {
+    min-width: 0;
+  }
+
+  .command-radar {
+    min-height: 220px;
+  }
+
+  .command-timeline div {
+    grid-template-columns: 1fr;
+  }
+
+  .presentation-strip {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .timeline-step,

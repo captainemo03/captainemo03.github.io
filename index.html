@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Focusea Maritime Platform</title>
     <link rel="icon" href="favicon.svg?v=focusea-badge2" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=decision-lab-suite" />
+    <link rel="stylesheet" href="styles.css?v=command-deck-2" />
   </head>
   <body>
     <div class="app-shell">
@@ -54,6 +54,7 @@
           </div>
 
           <div class="hero-actions">
+            <button type="button" class="ghost-button" data-command-presentation>Sunum Modu</button>
             <a href="#broker" class="primary-button" data-page-link="broker">Broker Desk'i Aç</a>
             <a href="#tools" class="ghost-button" data-page-link="tools">Hesaplayıcıları Aç</a>
           </div>
@@ -101,6 +102,73 @@
               <div><span>Schedule Risk</span><strong data-live="scheduleRisk">Medium</strong></div>
             </div>
           </article>
+        </section>
+
+        <section class="command-deck-panel" id="commandDeck">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Focusea Command Deck</p>
+              <h2>Tek tik broker demo: tekliften risk, para, evrak ve aksiyona.</h2>
+            </div>
+            <div class="status-pill">Presentation Ready</div>
+          </div>
+
+          <div class="command-deck-hero">
+            <div class="command-radar" aria-label="Deal risk radar">
+              <span></span>
+              <span></span>
+              <span></span>
+              <strong id="commandDeckScore">--</strong>
+              <small id="commandDeckDecision">Scenario loading</small>
+            </div>
+            <div class="command-deck-copy">
+              <span>One-click maritime workflow</span>
+              <h3>Hocaya gosterilecek en guclu akis: fixture mailini al, Focusea isi uctan uca cozsun.</h3>
+              <p>
+                Senaryo secilince sistem broker gibi dusunur: cargo ve rota cikarir,
+                TCE/P&L hesaplar, risk radari kurar, belge paketini hazirlar ve bir sonraki
+                ticari aksiyonu onerir.
+              </p>
+              <div class="command-scenario-row" aria-label="Demo scenarios">
+                <button type="button" data-command-scenario="coal">Coal Fixture</button>
+                <button type="button" data-command-scenario="grain">Grain Voyage</button>
+                <button type="button" data-command-scenario="container">Container Spot</button>
+                <button type="button" data-command-scenario="lng">LNG Risk</button>
+                <button type="button" data-command-presentation>Sunum Modu</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="command-kpi-grid">
+            <article><span>Net P&L</span><strong id="commandDeckPnl">--</strong><small id="commandDeckPnlNote">Waiting scenario</small></article>
+            <article><span>TCE</span><strong id="commandDeckTce">--</strong><small id="commandDeckTceNote">Daily result</small></article>
+            <article><span>ETA / Delay</span><strong id="commandDeckEta">--</strong><small id="commandDeckEtaNote">Live-adjusted</small></article>
+            <article><span>Document Pack</span><strong id="commandDeckDocCount">--</strong><small id="commandDeckDocNote">Auto generated</small></article>
+          </div>
+
+          <div class="command-workflow-grid">
+            <article>
+              <div class="mini-heading"><span>Workflow Timeline</span><strong>Offer to close</strong></div>
+              <div class="command-timeline" id="commandDeckTimeline"></div>
+            </article>
+            <article>
+              <div class="mini-heading"><span>Decision Brief</span><strong>Fix / Watch / Avoid</strong></div>
+              <div class="command-brief" id="commandDeckBrief"></div>
+            </article>
+            <article>
+              <div class="mini-heading"><span>Document Pack</span><strong>PDF ready</strong></div>
+              <div class="command-documents" id="commandDeckDocuments"></div>
+              <div class="button-row">
+                <button type="button" class="primary-button small" id="downloadCommandDeckReport">Command Report PDF</button>
+                <button type="button" class="ghost-button small" id="startPresentationMode" data-command-presentation>Hoca Sunum Modu</button>
+              </div>
+            </article>
+          </div>
+
+          <div class="presentation-strip" id="presentationStrip" hidden>
+            <strong>3 dakikalik sunum akisi hazir:</strong>
+            <span>Problem -> veri guven etiketi -> broker hesap motoru -> risk radari -> belge paketi -> stabilite yan sitesi -> gelistirme yol haritasi.</span>
+          </div>
         </section>
 
         <section class="smart-ops-panel" id="smartOps">
@@ -2478,6 +2546,6 @@
       </main>
     </div>
 
-    <script src="script.js?v=decision-lab-suite"></script>
+    <script src="script.js?v=command-deck-5"></script>
   </body>
 </html>

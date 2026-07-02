@@ -1328,6 +1328,25 @@ const readinessBar = document.querySelector("#readinessBar");
 const opsReport = document.querySelector("#opsReport");
 const opsRiskLevel = document.querySelector("#opsRiskLevel");
 const downloadOpsReport = document.querySelector("#downloadOpsReport");
+const commandDeckPanel = document.querySelector("#commandDeck");
+const commandDeckScore = document.querySelector("#commandDeckScore");
+const commandDeckDecision = document.querySelector("#commandDeckDecision");
+const commandDeckPnl = document.querySelector("#commandDeckPnl");
+const commandDeckPnlNote = document.querySelector("#commandDeckPnlNote");
+const commandDeckTce = document.querySelector("#commandDeckTce");
+const commandDeckTceNote = document.querySelector("#commandDeckTceNote");
+const commandDeckEta = document.querySelector("#commandDeckEta");
+const commandDeckEtaNote = document.querySelector("#commandDeckEtaNote");
+const commandDeckDocCount = document.querySelector("#commandDeckDocCount");
+const commandDeckDocNote = document.querySelector("#commandDeckDocNote");
+const commandDeckTimeline = document.querySelector("#commandDeckTimeline");
+const commandDeckBrief = document.querySelector("#commandDeckBrief");
+const commandDeckDocuments = document.querySelector("#commandDeckDocuments");
+const commandScenarioButtons = document.querySelectorAll("[data-command-scenario]");
+const downloadCommandDeckReport = document.querySelector("#downloadCommandDeckReport");
+const startPresentationMode = document.querySelector("#startPresentationMode");
+const commandPresentationButtons = document.querySelectorAll("[data-command-presentation]");
+const presentationStrip = document.querySelector("#presentationStrip");
 const fixtureForm = document.querySelector("#fixtureForm");
 const fixtureResult = document.querySelector("#fixtureResult");
 const voyageEstimateForm = document.querySelector("#voyageEstimateForm");
@@ -1596,6 +1615,9 @@ const brokerExamForm = document.querySelector("#brokerExamForm");
 const brokerExamResult = document.querySelector("#brokerExamResult");
 let activeNewsQuery = "maritime shipping";
 let generatedOpsEmailText = "";
+let selectedCommandScenarioId = "coal";
+let commandDeckPresentationActive = false;
+let lastCommandDeckReport = "";
 let lastParsedOffer = null;
 let lastCopilotReport = null;
 let lastTceOptimization = null;
@@ -1758,7 +1780,7 @@ function escapeHtml(value = "") {
 }
 
 const pageGroups = {
-  dashboard: ["#command", ".dashboard-strip", ".ops-board", "#smartOps"],
+  dashboard: ["#command", ".dashboard-strip", ".ops-board", "#commandDeck", "#smartOps"],
   broker: ["#brokerDesk", "#brokerPro", "#brokerOps"],
   terminal: ["#platformCore", "#brokerIntelligence", "#commandTerminal"],
   edge: ["#edgeSuite"],
@@ -1773,6 +1795,211 @@ const pageGroups = {
   academyPage: ["#academyCenter", "#academicLibrary", "#accountCenter"],
   portsPage: ["#academy"]
 };
+
+const commandDeckScenarios = {
+  coal: {
+    label: "Coal Fixture",
+    cargo: "55,000 mt coal",
+    route: "Indonesia -> India",
+    counterparty: "Atlas Commodities",
+    quantity: 55000,
+    freight: 18.8,
+    unit: "pmt",
+    fuel: 610,
+    bunkerBase: 620,
+    bunkerExposure: 1.15,
+    portCost: 98000,
+    dailyHire: 15200,
+    days: 21.5,
+    delayBase: 1.2,
+    baseRisk: 44,
+    commission: 26000,
+    eta: "21d",
+    docs: ["Fixture recap", "Voyage estimate", "Laytime basis", "Demurrage exposure", "Cargo compatibility"],
+    timeline: ["Offer parsed", "Counter wording prepared", "Voyage estimate checked", "Risk radar scored", "Recap and mail generated"],
+    actions: ["Ask owner to confirm discharge port rotation.", "Protect NOR and weather exceptions in recap.", "Check India port waiting time before subjects lifted."]
+  },
+  grain: {
+    label: "Grain Voyage",
+    cargo: "52,000 mt grain",
+    route: "Santos -> Singapore",
+    counterparty: "Pacific Grain Desk",
+    quantity: 52000,
+    freight: 21.4,
+    unit: "pmt",
+    fuel: 720,
+    bunkerBase: 612,
+    bunkerExposure: 0.9,
+    portCost: 116000,
+    dailyHire: 14600,
+    days: 29.2,
+    delayBase: 1.7,
+    baseRisk: 52,
+    commission: 27800,
+    eta: "29d",
+    docs: ["Fixture recap", "Phytosanitary document list", "SOF checklist", "Rain letter reminder", "Client summary"],
+    timeline: ["Cargo terms extracted", "Rain risk detected", "Draft/port limits checked", "Client brief generated", "Follow-up deadline created"],
+    actions: ["Request fumigation and phytosanitary document status.", "Add rain stoppage evidence note to SOF checklist.", "Compare Santos lineup before confirming laycan."]
+  },
+  container: {
+    label: "Container Spot",
+    cargo: "2,400 TEU containers",
+    route: "Shanghai -> Istanbul",
+    counterparty: "EastWest Line",
+    quantity: 2400,
+    freight: 1180,
+    unit: "per TEU",
+    fuel: 940,
+    bunkerBase: 640,
+    bunkerExposure: 1.35,
+    portCost: 184000,
+    dailyHire: 23800,
+    days: 25.8,
+    delayBase: 1.4,
+    baseRisk: 49,
+    commission: 42000,
+    eta: "26d",
+    docs: ["Slot summary", "Bunker sensitivity", "Port congestion note", "Client ETA brief", "Ops alarm pack"],
+    timeline: ["Spot rate captured", "Bunker spread checked", "ETA risk scored", "Client portal summary staged", "Ops alarm created"],
+    actions: ["Watch Shanghai cut-off and transshipment window.", "Re-price if VLSFO moves above trigger.", "Send client ETA brief with source/confidence label."]
+  },
+  lng: {
+    label: "LNG Risk",
+    cargo: "145,000 cbm LNG",
+    route: "Qatar -> Rotterdam",
+    counterparty: "NorthSea Energy",
+    quantity: 145000,
+    freight: 1.42,
+    unit: "per cbm",
+    fuel: 860,
+    bunkerBase: 650,
+    bunkerExposure: 1.6,
+    portCost: 238000,
+    dailyHire: 82000,
+    days: 18.4,
+    delayBase: 2.1,
+    baseRisk: 61,
+    commission: 54000,
+    eta: "18d",
+    docs: ["Terminal compatibility", "Vetting checklist", "ETS/CO2 note", "Weather delay model", "CP red flag list"],
+    timeline: ["Terminal window checked", "Vetting risk reviewed", "ETS exposure estimated", "Weather delay linked", "Counter wording drafted"],
+    actions: ["Confirm terminal acceptance window before firming.", "Add vetting and boil-off wording to recap.", "Run EU ETS sensitivity before final counter."]
+  }
+};
+
+function evaluateCommandDeck(scenarioId = selectedCommandScenarioId) {
+  const scenario = commandDeckScenarios[scenarioId] || commandDeckScenarios.coal;
+  const bunker = Number(liveFeedState?.bunker || scenario.bunkerBase);
+  const congestion = Number(liveFeedState?.congestion || 37);
+  const weather = Number(liveFeedState?.weather || 9);
+  const delayDays = Number((scenario.delayBase + congestion / 46 + weather / 18).toFixed(1));
+  const revenue = scenario.quantity * scenario.freight;
+  const bunkerCost = scenario.fuel * bunker;
+  const delayCost = delayDays * scenario.dailyHire * 0.62;
+  const hireCost = scenario.days * scenario.dailyHire;
+  const netPnl = revenue - bunkerCost - scenario.portCost - hireCost - scenario.commission - delayCost;
+  const tce = (revenue - bunkerCost - scenario.portCost - scenario.commission - delayCost) / Math.max(scenario.days + delayDays, 1);
+  const bunkerShock = Math.max(0, bunker - scenario.bunkerBase) * scenario.bunkerExposure;
+  const risk = clamp(Math.round(scenario.baseRisk + congestion * 0.14 + weather * 1.2 + bunkerShock / 8), 0, 100);
+  const decision = risk >= 74 ? "WATCH / protect subjects" : risk >= 58 ? "FIX with guards" : "FIX candidate";
+  const confidence = risk >= 74 ? "62%" : risk >= 58 ? "74%" : "86%";
+  const docs = scenario.docs.map((doc, index) => ({
+    name: doc,
+    status: index < 2 ? "ready" : index < 4 ? "drafted" : "queued"
+  }));
+  return { scenario, bunker, congestion, weather, delayDays, revenue, bunkerCost, delayCost, hireCost, netPnl, tce, risk, decision, confidence, docs };
+}
+
+function buildCommandDeckReport(result) {
+  const { scenario } = result;
+  return [
+    "FOCUSEA COMMAND DECK REPORT",
+    `Generated: ${new Date().toLocaleString()}`,
+    "",
+    `Scenario: ${scenario.label}`,
+    `Cargo: ${scenario.cargo}`,
+    `Route: ${scenario.route}`,
+    `Counterparty: ${scenario.counterparty}`,
+    `Decision: ${result.decision}`,
+    `Risk score: ${result.risk}/100`,
+    `Confidence: ${result.confidence}`,
+    "",
+    "Commercial",
+    `Gross freight: ${money(result.revenue)}`,
+    `Bunker cost: ${money(result.bunkerCost)}`,
+    `Port cost: ${money(scenario.portCost)}`,
+    `Hire cost: ${money(result.hireCost)}`,
+    `Delay exposure: ${money(result.delayCost)}`,
+    `Net P&L: ${money(result.netPnl)}`,
+    `TCE: ${money(result.tce)}/day`,
+    "",
+    "Workflow",
+    ...scenario.timeline.map((item, index) => `${index + 1}. ${item}`),
+    "",
+    "Documents",
+    ...result.docs.map((doc) => `- ${doc.name}: ${doc.status}`),
+    "",
+    "Next actions",
+    ...scenario.actions.map((action) => `- ${action}`),
+    "",
+    "Note: Planning/demo output. Verify with licensed market data, CP wording and approved operational documents before commercial use."
+  ].join("\n");
+}
+
+function renderCommandDeck(scenarioId = selectedCommandScenarioId) {
+  if (!commandDeckPanel) return;
+  selectedCommandScenarioId = scenarioId;
+  const result = evaluateCommandDeck(scenarioId);
+  const { scenario } = result;
+  const score = 100 - result.risk;
+  commandDeckScore.textContent = String(score);
+  commandDeckDecision.textContent = result.decision;
+  commandDeckPnl.textContent = money(result.netPnl);
+  commandDeckPnlNote.textContent = `${scenario.cargo} / ${scenario.route}`;
+  commandDeckTce.textContent = `${money(result.tce)}/d`;
+  commandDeckTceNote.textContent = `${scenario.freight.toLocaleString("en-US")} ${scenario.unit} freight`;
+  commandDeckEta.textContent = `${scenario.eta} +${result.delayDays}d`;
+  commandDeckEtaNote.textContent = `Congestion ${result.congestion}% / weather ${result.weather}`;
+  commandDeckDocCount.textContent = `${result.docs.length}/5`;
+  commandDeckDocNote.textContent = `${result.docs.filter((doc) => doc.status === "ready").length} ready, ${result.docs.filter((doc) => doc.status === "drafted").length} drafted`;
+
+  commandScenarioButtons.forEach((button) => {
+    button.classList.toggle("active", button.dataset.commandScenario === selectedCommandScenarioId);
+  });
+
+  commandDeckTimeline.innerHTML = scenario.timeline.map((item, index) => `
+    <div>
+      <b>${index + 1}</b>
+      <p><span>${escapeHtml(index === 0 ? scenario.label : "Workflow")}</span><strong>${escapeHtml(item)}</strong><small>${escapeHtml(index === 0 ? scenario.route : "Auto-generated from scenario and live risk layer")}</small></p>
+    </div>
+  `).join("");
+
+  commandDeckBrief.innerHTML = `
+    <div><span>Decision</span><strong>${escapeHtml(result.decision)}</strong><small>Risk ${result.risk}/100, confidence ${result.confidence}. Lower score on radar means more risk to protect.</small></div>
+    <div><span>Commercial exposure</span><strong>${money(result.delayCost)} delay cost</strong><small>Bunker ${money(result.bunkerCost)} at ${money(result.bunker)}/t, port cost ${money(scenario.portCost)}.</small></div>
+    <div><span>Next best action</span><strong>${escapeHtml(scenario.actions[0])}</strong><small>Focusea converts the scenario into broker action, not just a static calculation.</small></div>
+  `;
+  if (commandDeckPresentationActive) {
+    commandDeckBrief.insertAdjacentHTML("beforeend", `
+      <div><span>Presentation script</span><strong>Hocaya anlatim cumlesi</strong><small>Bu panel Focusea'nin farkini gosterir: veri, hesap, risk, evrak ve aksiyon tek akista birlesiyor.</small></div>
+    `);
+  }
+
+  commandDeckDocuments.innerHTML = result.docs.map((doc) => `
+    <div><span>${escapeHtml(doc.status)}</span><strong>${escapeHtml(doc.name)}</strong><small>Included in Command Report PDF.</small></div>
+  `).join("");
+
+  lastCommandDeckReport = buildCommandDeckReport(result);
+}
+
+function startCommandDeckPresentation() {
+  if (!commandDeckPanel || !presentationStrip) return;
+  commandDeckPresentationActive = true;
+  presentationStrip.hidden = false;
+  commandDeckPanel.classList.add("presentation-active");
+  renderCommandDeck(selectedCommandScenarioId);
+  commandDeckPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+}
 
 function pageFromHash() {
   const hash = window.location.hash.replace("#", "");
@@ -9084,6 +9311,7 @@ function updateLiveFeed() {
   const timestamp = document.querySelector("#liveTimestamp");
   if (timestamp) timestamp.textContent = `Simulated live feed · last update ${now.toLocaleTimeString()} · values are demo data`;
   renderOpsWorkspace();
+  renderCommandDeck(selectedCommandScenarioId);
   renderPortCostRisk();
   renderDailyBrief();
   renderNotifications();
@@ -9850,6 +10078,23 @@ if (databaseForm) {
 if (refreshDataSources) refreshDataSources.addEventListener("click", renderDataSources);
 if (refreshMarketBrief) refreshMarketBrief.addEventListener("click", renderMarketBrief);
 
+commandScenarioButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    renderCommandDeck(button.dataset.commandScenario);
+  });
+});
+
+if (downloadCommandDeckReport) {
+  downloadCommandDeckReport.addEventListener("click", () => {
+    if (!lastCommandDeckReport) renderCommandDeck(selectedCommandScenarioId);
+    downloadPdfFile("focusea-command-deck-report.pdf", "Focusea Command Deck Report", lastCommandDeckReport);
+  });
+}
+
+commandPresentationButtons.forEach((button) => {
+  button.addEventListener("click", startCommandDeckPresentation);
+});
+
 if (marketIndexForm) {
   marketIndexForm.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -10154,6 +10399,7 @@ runFullDecisionLab();
 renderMarketIndexes();
 renderDataTrustLayer();
 renderPythonHistory();
+renderCommandDeck();
 initializeSmartOps();
 updateLiveFeed();
 setupPageSections();
