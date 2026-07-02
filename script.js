@@ -2529,7 +2529,7 @@ function renderCommandDeck(scenarioId = selectedCommandScenarioId) {
   `;
   if (commandDeckPresentationActive) {
     commandDeckBrief.insertAdjacentHTML("beforeend", `
-      <div><span>Presentation script</span><strong>Hocaya anlatim cumlesi</strong><small>Bu panel Focusea'nin farkini gosterir: veri, hesap, risk, evrak ve aksiyon tek akista birlesiyor.</small></div>
+      <div><span>Demo narrative</span><strong>Broker workflow özeti</strong><small>Bu panel Focusea'nın farkını gösterir: veri, hesap, risk, evrak ve aksiyon tek akışta birleşiyor.</small></div>
     `);
   }
 
