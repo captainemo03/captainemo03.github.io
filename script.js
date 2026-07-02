@@ -1767,6 +1767,7 @@ const pageGroups = {
   autopilot: ["#autopilotSuite"],
   dealIQ: ["#dealIqSuite"],
   decisionLab: ["#decisionLabSuite"],
+  pythonEngine: ["#pythonEngineSuite"],
   market: ["#intelligence", "#newsBulletin"],
   tools: ["#route", "#assistantCareer", "#vesselFinder"],
   academyPage: ["#academyCenter", "#academicLibrary", "#accountCenter"],
@@ -8208,6 +8209,366 @@ function runFullDecisionLab() {
   renderDecisionHeader();
 }
 
+let lastPythonEngineResult = null;
+
+const pythonEngineSamples = {
+  "parse-offer": "50k coal Indonesia to India laycan 10/15 Jul freight 18.50 pmt demurrage USD 18,000/day Supramax. Subjects stem and receiver approval. Commission 2.5 pct total.",
+  "sof-laytime": "NOR tendered 10 Jul 0800. Berthed 10 Jul 1800. Loading started 11 Jul 0600. Rain stop 12 Jul 0300-0900. Completed 14 Jul 2200. Allowed laytime 72h. Demurrage USD 18,000/day. Dispatch USD 9,000/day.",
+  "voyage-estimate": "Cargo coal quantity 50000 mt, freight 18.50 pmt, distance 5800 nm, speed 13 kn, sea consumption 28 mt/day, port days 5, bunker 620 usd/mt, port cost 68000, daily hire 14500, commission 2.5 pct.",
+  "cp-diff": "ORIGINAL: NOR valid only when vessel is in berth and free pratique granted. Weather delays to be excluded from laytime.\n---\nREVISED: NOR valid whether in berth or not. Time lost waiting for berth shall count as laytime. Weather delays excepted unless used.",
+  stability: "LOADS: H1 coal 8500 mt x -72 y -1 kg 8.5; H2 coal 9500 mt x -36 y 1 kg 8.2; H3 containers 5200 mt x 0 y 3 kg 15.8; H4 grain 7800 mt x 35 y -2 kg 9.4; H5 project 2600 mt x 71 y 4 kg 13.5. BALLAST: fore peak 700 mt, aft peak 500 mt, port wing 350 mt."
+};
+
+function pythonEngineRunbookText() {
+  return [
+    "FOCUSEA PYTHON BACKEND RUNBOOK",
+    "",
+    "1. Install dependencies",
+    "python -m pip install -r backend/requirements.txt",
+    "",
+    "2. Start API",
+    "python -m uvicorn backend.main:app --reload",
+    "",
+    "3. Open docs",
+    "http://127.0.0.1:8000/docs",
+    "",
+    "4. Use from Focusea",
+    "Open #pythonEngine, keep API base as http://127.0.0.1:8000, then run a job.",
+    "",
+    "Production note: GitHub Pages is static, so deploy the backend separately on Render, Railway, Fly.io, VPS or another Python host."
+  ].join("\n");
+}
+
+function pythonHistory() {
+  return safeLocalGet("focusea-python-history-v1", []);
+}
+
+function savePythonHistory(entry) {
+  const history = [entry, ...pythonHistory()].slice(0, 8);
+  safeLocalSet("focusea-python-history-v1", history);
+  renderPythonHistory();
+}
+
+function renderPythonHistory() {
+  const target = document.querySelector("#pythonReportHistory");
+  if (!target) return;
+  const history = pythonHistory();
+  if (!history.length) {
+    target.innerHTML = "<small>Henüz Python Engine işi çalışmadı. API console'dan bir job başlat.</small>";
+    return;
+  }
+  target.innerHTML = `
+    <table class="mini-table">
+      <thead><tr><th>Time</th><th>Job</th><th>Mode</th><th>Verdict</th></tr></thead>
+      <tbody>${history.map((item) => `<tr><td>${escapeHtml(item.time)}</td><td>${escapeHtml(item.job)}</td><td>${escapeHtml(item.mode)}</td><td>${escapeHtml(item.verdict)}</td></tr>`).join("")}</tbody>
+    </table>
+  `;
+}
+
+function numberFromText(text, pattern, fallback = 0) {
+  const match = String(text).match(pattern);
+  if (!match) return fallback;
+  return Number(String(match[1]).replace(/,/g, "")) || fallback;
+}
+
+function cargoTypeFromText(text) {
+  const normalized = String(text).toLowerCase();
+  if (normalized.includes("lng")) return "lng";
+  if (normalized.includes("crude") || normalized.includes("oil")) return "crudeOil";
+  if (normalized.includes("iron")) return "ironOre";
+  if (normalized.includes("container") || normalized.includes("teu")) return "container";
+  if (normalized.includes("grain") || normalized.includes("wheat")) return "grain";
+  if (normalized.includes("chemical")) return "chemicals";
+  if (normalized.includes("project")) return "projectCargo";
+  return "coal";
+}
+
+function pythonPayloadForJob(jobType, inputText) {
+  const cargoType = cargoTypeFromText(inputText);
+  if (jobType === "parse-offer") {
+    return { text: inputText };
+  }
+  if (jobType === "sof-laytime") {
+    return {
+      sof_text: inputText,
+      allowed_hours: numberFromText(inputText, /allowed\s+laytime[^0-9]*(\d+(?:[.,]\d+)?)/i, 72),
+      demurrage_rate: numberFromText(inputText, /demurrage[^0-9]*(\d+(?:[,\d]*)(?:\.\d+)?)/i, 18000),
+      dispatch_rate: numberFromText(inputText, /dispatch[^0-9]*(\d+(?:[,\d]*)(?:\.\d+)?)/i, 9000)
+    };
+  }
+  if (jobType === "voyage-estimate") {
+    return {
+      cargo_type: cargoType,
+      cargo_qty: numberFromText(inputText, /(?:quantity|cargo)\D*(\d+(?:[,\d]*)(?:\.\d+)?)/i, 50000),
+      freight_rate: numberFromText(inputText, /freight\D*(\d+(?:[.,]\d+)?)/i, 18.5),
+      distance: numberFromText(inputText, /distance\D*(\d+(?:[,\d]*)(?:\.\d+)?)/i, 5800),
+      speed: numberFromText(inputText, /speed\D*(\d+(?:[.,]\d+)?)/i, 13),
+      sea_cons: numberFromText(inputText, /sea\s+consumption\D*(\d+(?:[.,]\d+)?)/i, 28),
+      port_cons: 4,
+      port_days: numberFromText(inputText, /port\s+days\D*(\d+(?:[.,]\d+)?)/i, 5),
+      bunker_price: numberFromText(inputText, /bunker\D*(\d+(?:[,\d]*)(?:\.\d+)?)/i, 620),
+      port_costs: numberFromText(inputText, /port\s+cost\D*(\d+(?:[,\d]*)(?:\.\d+)?)/i, 68000),
+      canal_costs: numberFromText(inputText, /canal\D*(\d+(?:[,\d]*)(?:\.\d+)?)/i, 0),
+      daily_hire: numberFromText(inputText, /daily\s+hire\D*(\d+(?:[,\d]*)(?:\.\d+)?)/i, 14500),
+      commission: numberFromText(inputText, /commission\D*(\d+(?:[.,]\d+)?)/i, 2.5)
+    };
+  }
+  if (jobType === "cp-diff") {
+    const [original = inputText, revised = ""] = String(inputText).split(/\n---+\n/);
+    return { original_clause: original.replace(/^ORIGINAL:\s*/i, ""), revised_clause: revised.replace(/^REVISED:\s*/i, "") || inputText };
+  }
+  return {
+    vessel: { displacement: 65000, km: 14.2, lcf: 0, mct_1cm: 820, beam: 32.2 },
+    loads_text: inputText
+  };
+}
+
+function localSofLaytime(inputText) {
+  const payload = pythonPayloadForJob("sof-laytime", inputText);
+  const { events, rainEvents } = osExtractSofEvents(inputText);
+  const start = events.find((event) => event.key === "started")?.date || events.find((event) => event.key === "berthed")?.date || events.find((event) => event.key === "nor")?.date;
+  const end = events.find((event) => event.key === "completed")?.date;
+  const usedHours = start && end ? Math.max(0, (end - start) / 3600000) : 0;
+  const excludedHours = rainEvents.reduce((sum, item) => sum + item.hours, 0);
+  const netHours = Math.max(0, usedHours - excludedHours);
+  const balanceHours = netHours - payload.allowed_hours;
+  const demurrage = balanceHours > 0 ? balanceHours / 24 * payload.demurrage_rate : 0;
+  const dispatch = balanceHours < 0 ? Math.abs(balanceHours) / 24 * payload.dispatch_rate : 0;
+  return {
+    events: events.map((event) => ({ label: event.label, date: osFormatDate(event.date) })),
+    stoppages: rainEvents.map((event) => ({ label: event.label, start: osFormatDate(event.start), end: osFormatDate(event.end), hours: Number(event.hours.toFixed(1)) })),
+    allowed_hours: payload.allowed_hours,
+    used_hours: Number(usedHours.toFixed(1)),
+    excluded_hours: Number(excludedHours.toFixed(1)),
+    net_hours: Number(netHours.toFixed(1)),
+    balance_hours: Number(balanceHours.toFixed(1)),
+    demurrage_amount: Math.round(demurrage),
+    dispatch_amount: Math.round(dispatch),
+    verdict: demurrage > 0 ? "DEMURRAGE" : dispatch > 0 ? "DISPATCH" : "BALANCED",
+    source: "frontend-local-demo"
+  };
+}
+
+function localVoyageEstimate(inputText) {
+  const payload = pythonPayloadForJob("voyage-estimate", inputText);
+  const result = calculateVoyageEstimate({
+    cargoType: payload.cargo_type,
+    cargoQty: payload.cargo_qty,
+    freightRate: payload.freight_rate,
+    distance: payload.distance,
+    speed: payload.speed,
+    seaCons: payload.sea_cons,
+    portCons: payload.port_cons,
+    portDays: payload.port_days,
+    bunkerPrice: payload.bunker_price,
+    portCosts: payload.port_costs,
+    canalCosts: payload.canal_costs,
+    dailyHire: payload.daily_hire,
+    commission: payload.commission
+  });
+  return {
+    ...result,
+    verdict: result.pnl > 0 ? "PROFITABLE" : "LOSS WATCH",
+    source: "frontend-local-demo"
+  };
+}
+
+function localCpDiff(inputText) {
+  const payload = pythonPayloadForJob("cp-diff", inputText);
+  const original = payload.original_clause.toLowerCase();
+  const revised = payload.revised_clause.toLowerCase();
+  const findings = [
+    revised.includes("whether in berth") && !original.includes("whether in berth") ? "NOR widened to WIBON style wording." : "",
+    revised.includes("waiting for berth") && !original.includes("waiting for berth") ? "Waiting time now counts toward laytime; owner-favouring change." : "",
+    revised.includes("unless used") && !original.includes("unless used") ? "Weather exception narrowed by unless-used wording." : ""
+  ].filter(Boolean);
+  return {
+    findings,
+    risk_score: clamp(28 + findings.length * 22, 0, 100),
+    posture: findings.length >= 2 ? "Owner leaning / negotiate" : findings.length ? "Review wording" : "No major red flag",
+    counter_wording: "Clarify NOR validity, waiting time and weather exceptions before subjects are lifted.",
+    source: "frontend-local-demo"
+  };
+}
+
+function localStabilityEvaluation(inputText) {
+  const loadPattern = /(H\d)\s+([a-z]+)?\s*(\d+(?:[.,]\d+)?)\s*mt\s*x\s*(-?\d+(?:[.,]\d+)?)\s*y\s*(-?\d+(?:[.,]\d+)?)\s*kg\s*(\d+(?:[.,]\d+)?)/gi;
+  const loads = [];
+  let match = loadPattern.exec(inputText);
+  while (match) {
+    loads.push({
+      hold: match[1],
+      cargo: match[2] || "cargo",
+      weight: Number(match[3].replace(",", ".")),
+      x: Number(match[4].replace(",", ".")),
+      y: Number(match[5].replace(",", ".")),
+      kg: Number(match[6].replace(",", "."))
+    });
+    match = loadPattern.exec(inputText);
+  }
+  const fallbackLoads = loads.length ? loads : [
+    { hold: "H1", cargo: "coal", weight: 8500, x: -72, y: -1, kg: 8.5 },
+    { hold: "H2", cargo: "coal", weight: 9500, x: -36, y: 1, kg: 8.2 },
+    { hold: "H3", cargo: "containers", weight: 5200, x: 0, y: 3, kg: 15.8 },
+    { hold: "H4", cargo: "grain", weight: 7800, x: 35, y: -2, kg: 9.4 },
+    { hold: "H5", cargo: "project", weight: 2600, x: 71, y: 4, kg: 13.5 }
+  ];
+  const totalWeight = fallbackLoads.reduce((sum, load) => sum + load.weight, 0);
+  const lcg = fallbackLoads.reduce((sum, load) => sum + load.weight * load.x, 0) / Math.max(totalWeight, 1);
+  const tcg = fallbackLoads.reduce((sum, load) => sum + load.weight * load.y, 0) / Math.max(totalWeight, 1);
+  const kg = fallbackLoads.reduce((sum, load) => sum + load.weight * load.kg, 0) / Math.max(totalWeight, 1);
+  const km = 14.2;
+  const gm = km - kg;
+  const trimMeters = lcg * totalWeight / 65000 / 6.8;
+  const heelDegrees = Math.atan2(tcg, Math.max(gm, 0.2)) * 57.2958;
+  const maxHold = fallbackLoads.reduce((winner, load) => load.weight > winner.weight ? load : winner, fallbackLoads[0]);
+  const verdict = gm < 0.8 || Math.abs(heelDegrees) > 5 || Math.abs(trimMeters) > 2.5 ? "ALERT" : gm < 1.4 || Math.abs(heelDegrees) > 3 ? "WATCH" : "PASS";
+  return {
+    loads: fallbackLoads,
+    total_weight: Math.round(totalWeight),
+    kg: Number(kg.toFixed(2)),
+    km,
+    gm: Number(gm.toFixed(2)),
+    lcg: Number(lcg.toFixed(2)),
+    tcg: Number(tcg.toFixed(2)),
+    trim_m: Number(trimMeters.toFixed(2)),
+    heel_deg: Number(heelDegrees.toFixed(2)),
+    shear_force_proxy: Math.round(Math.abs(lcg) * totalWeight / 100),
+    bending_moment_proxy: Math.round(fallbackLoads.reduce((sum, load) => sum + Math.abs(load.x) * load.weight, 0) / 1000),
+    verdict,
+    recommendation: `${maxHold.hold} is the heaviest hold. Shift high KG cargo toward H3 and correct port/stbd offset with ballast before final load plan.`,
+    source: "frontend-local-demo"
+  };
+}
+
+function simulatePythonJob(jobType, inputText) {
+  if (jobType === "parse-offer") {
+    const parsed = parseOfferText(inputText);
+    const risk = scoreParsedOffer(parsed);
+    return { parsed, risk, verdict: risk.label, source: "frontend-local-demo" };
+  }
+  if (jobType === "sof-laytime") return localSofLaytime(inputText);
+  if (jobType === "voyage-estimate") return localVoyageEstimate(inputText);
+  if (jobType === "cp-diff") return localCpDiff(inputText);
+  return localStabilityEvaluation(inputText);
+}
+
+function pythonEngineRoute(jobType) {
+  return {
+    "parse-offer": "/api/broker/parse-offer",
+    "sof-laytime": "/api/laytime/sof",
+    "voyage-estimate": "/api/voyage/estimate",
+    "cp-diff": "/api/charterparty/diff",
+    stability: "/api/stability/evaluate"
+  }[jobType] || "/api/broker/parse-offer";
+}
+
+async function callPythonEngineApi(values) {
+  const base = String(values.apiBase || "").replace(/\/+$/, "");
+  if (!base) throw new Error("API base empty");
+  const response = await fetch(`${base}${pythonEngineRoute(values.jobType)}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(pythonPayloadForJob(values.jobType, values.inputText || ""))
+  });
+  if (!response.ok) throw new Error(`Python API HTTP ${response.status}`);
+  return response.json();
+}
+
+function pythonReportText(result) {
+  return [
+    "FOCUSEA PYTHON ENGINE REPORT",
+    `Job: ${result.jobType}`,
+    `Mode: ${result.mode}`,
+    `Generated: ${result.generatedAt}`,
+    "",
+    JSON.stringify(result.data, null, 2)
+  ].join("\n");
+}
+
+function renderPythonEngineOutput(result) {
+  const target = document.querySelector("#pythonEngineResult");
+  const headline = document.querySelector("#pythonEngineHeadline");
+  const summary = document.querySelector("#pythonEngineSummary");
+  if (!target) return;
+  const data = result.data || {};
+  const verdict = data.verdict || data.posture || data.risk?.label || data.risk?.score || "Ready";
+  const source = data.source || result.mode;
+  if (headline) headline.textContent = `${result.jobLabel} tamamlandi: ${verdict}`;
+  if (summary) summary.textContent = result.mode === "api"
+    ? "FastAPI backend cevap verdi. Bu akisi deploy edince statik site profesyonel hesap motoruna baglanir."
+    : "Backend'e erisilemedi; ayni is lokal demo motoruyla calisti. API'yi baslatinca otomatik gercek backend'e gecer.";
+  target.innerHTML = `
+    ${metricCards([
+      { label: "Job", value: escapeHtml(result.jobLabel) },
+      { label: "Mode", value: result.mode === "api" ? "FastAPI" : "Local demo" },
+      { label: "Verdict", value: escapeHtml(String(verdict)) },
+      { label: "Source", value: escapeHtml(String(source)) }
+    ])}
+    <pre>${escapeHtml(JSON.stringify(data, null, 2))}</pre>
+  `;
+}
+
+async function runPythonEngine(event) {
+  event?.preventDefault();
+  const form = document.querySelector("#pythonEngineForm");
+  if (!form) return;
+  const values = collectFormValues(form);
+  const jobSelect = form.elements.jobType;
+  const jobLabel = jobSelect?.selectedOptions?.[0]?.textContent || values.jobType;
+  let mode = "api";
+  let data;
+  try {
+    data = await callPythonEngineApi(values);
+  } catch (error) {
+    mode = "local-demo";
+    data = simulatePythonJob(values.jobType, values.inputText || "");
+    data.api_error = error.message;
+  }
+  lastPythonEngineResult = {
+    jobType: values.jobType,
+    jobLabel,
+    mode,
+    data,
+    generatedAt: new Date().toLocaleString()
+  };
+  renderPythonEngineOutput(lastPythonEngineResult);
+  savePythonHistory({
+    time: lastPythonEngineResult.generatedAt,
+    job: jobLabel,
+    mode,
+    verdict: data.verdict || data.posture || data.risk?.label || "Ready"
+  });
+}
+
+function updatePythonSample() {
+  const job = document.querySelector("#pythonEngineJob");
+  const input = document.querySelector("#pythonEngineInput");
+  if (!job || !input) return;
+  input.value = pythonEngineSamples[job.value] || pythonEngineSamples["parse-offer"];
+}
+
+function handlePythonDownload(type) {
+  if (!lastPythonEngineResult) {
+    lastPythonEngineResult = {
+      jobType: "parse-offer",
+      jobLabel: "Broker Inbox Parser",
+      mode: "local-demo",
+      data: simulatePythonJob("parse-offer", pythonEngineSamples["parse-offer"]),
+      generatedAt: new Date().toLocaleString()
+    };
+  }
+  if (type === "json") {
+    downloadJsonFile("focusea-python-engine-result.json", lastPythonEngineResult);
+  } else if (type === "pdf") {
+    downloadPdfFile("focusea-python-engine-report.pdf", "Focusea Python Engine Report", pythonReportText(lastPythonEngineResult));
+  } else {
+    downloadTextFile("focusea-python-backend-runbook.txt", pythonEngineRunbookText());
+  }
+  const target = document.querySelector("#pythonEngineResult");
+  target?.insertAdjacentHTML("beforeend", `<small class="download-confirm">Downloaded: ${escapeHtml(window.focuseaLastDownload?.filename || type)}</small>`);
+}
+
 function setEdgeDownloadNotice(type, filename) {
   const prefix = type.split("-")[0];
   const targets = {
@@ -9458,6 +9819,21 @@ document.addEventListener("click", (event) => {
   handleDecisionLabDownload(button.dataset.downloadLab);
 });
 
+const pythonEngineForm = document.querySelector("#pythonEngineForm");
+const pythonEngineJob = document.querySelector("#pythonEngineJob");
+
+if (pythonEngineForm) {
+  pythonEngineForm.addEventListener("submit", runPythonEngine);
+}
+
+if (pythonEngineJob) {
+  pythonEngineJob.addEventListener("change", updatePythonSample);
+}
+
+document.querySelectorAll("[data-download-python]").forEach((button) => {
+  button.addEventListener("click", () => handlePythonDownload(button.dataset.downloadPython));
+});
+
 if (databaseForm) {
   databaseForm.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -9777,6 +10153,7 @@ runAllBrokerOs();
 runFullDecisionLab();
 renderMarketIndexes();
 renderDataTrustLayer();
+renderPythonHistory();
 initializeSmartOps();
 updateLiveFeed();
 setupPageSections();

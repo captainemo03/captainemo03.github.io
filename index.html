@@ -27,6 +27,7 @@
           <a href="#autopilot" data-page-link="autopilot">Autopilot Pro</a>
           <a href="#dealIQ" data-page-link="dealIQ">Deal IQ</a>
           <a href="#decisionLab" data-page-link="decisionLab">Decision Lab</a>
+          <a href="#pythonEngine" data-page-link="pythonEngine">Python Engine</a>
           <a href="#market" data-page-link="market">Market & News</a>
           <a href="#tools" data-page-link="tools">Tools</a>
           <a class="side-site-link" href="stability.html" target="_blank" rel="noopener">Yan Site: Yuk-Stabilite Lab</a>
@@ -1940,6 +1941,75 @@
                 <button type="submit">Cevabi Kontrol Et</button>
               </form>
               <div class="broker-output" id="brokerExamResult"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="python-engine-panel" id="pythonEngineSuite">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Focusea Python Engine</p>
+              <h2>FastAPI backend, PDF, SOF laytime, fixture parser ve hesap motoru</h2>
+            </div>
+            <div class="status-pill">Backend Ready</div>
+          </div>
+
+          <div class="python-engine-hero">
+            <div>
+              <span>Live API bridge</span>
+              <strong id="pythonEngineHeadline">Python backend kapaliysa panel lokal demo ile calisir.</strong>
+              <p id="pythonEngineSummary">Backend'i calistirdiginda bu sayfa ayni formla FastAPI endpointlerine baglanir; GitHub Pages statik kaldigi icin Python ayri deploy edilir.</p>
+            </div>
+            <div class="python-runbook">
+              <code>python -m pip install -r backend/requirements.txt</code>
+              <code>python -m uvicorn backend.main:app --reload</code>
+            </div>
+          </div>
+
+          <div class="python-engine-grid">
+            <article class="wide-card">
+              <div class="mini-heading"><span>1. API Test Console</span><strong>Backend varsa gercek API, yoksa local demo</strong></div>
+              <form class="broker-form single-column" id="pythonEngineForm">
+                <div class="auto-deal-controls">
+                  <label><span>API base</span><input name="apiBase" value="http://127.0.0.1:8000" /></label>
+                  <label><span>Job</span><select name="jobType" id="pythonEngineJob"><option value="parse-offer">Broker Inbox Parser</option><option value="sof-laytime">SOF to Laytime</option><option value="voyage-estimate">Voyage Estimate</option><option value="cp-diff">CP Clause Diff</option><option value="stability">Loadicator Stability</option></select></label>
+                </div>
+                <label><span>Input text / payload</span><textarea name="inputText" id="pythonEngineInput">50k coal Indonesia to India laycan 10/15 Jul freight 18.50 pmt demurrage USD 18,000/day Supramax. Subjects stem and receiver approval. Commission 2.5 pct total.</textarea></label>
+                <button type="submit">Python Engine Calistir</button>
+              </form>
+              <div class="button-row">
+                <button type="button" class="ghost-button small" data-download-python="json">Sonucu JSON Indir</button>
+                <button type="button" class="ghost-button small" data-download-python="pdf">PDF Rapor Indir</button>
+                <button type="button" class="ghost-button small" data-download-python="runbook">Backend Runbook Indir</button>
+              </div>
+              <div class="broker-output python-engine-output" id="pythonEngineResult"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>2. Backend Capabilities</span><strong>Python tarafinda eklenenler</strong></div>
+              <div class="python-capability-list">
+                <div><span>/api/broker/parse-offer</span><strong>Mail / WhatsApp teklifini deal kartina cevirir.</strong></div>
+                <div><span>/api/laytime/sof</span><strong>NOR, berth, rain, completion olayindan demurrage/dispatch hesaplar.</strong></div>
+                <div><span>/api/voyage/estimate</span><strong>TCE, bunker, hire, port cost ve net P&L cikarir.</strong></div>
+                <div><span>/api/charterparty/diff</span><strong>Iki clause metninde riskli farklari bulur.</strong></div>
+                <div><span>/api/stability/evaluate</span><strong>GM, trim, heel, KG, shear/bending proxy ve ballast onerisi verir.</strong></div>
+                <div><span>/api/reports/{type}/pdf</span><strong>Fixture, laytime, voyage veya load plan PDF dondurur.</strong></div>
+              </div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>3. Storage & Alarms</span><strong>Gercek backend akisi</strong></div>
+              <ul class="compact-list">
+                <li>Offer, fixture, CRM, vault ve report history JSON storage ile baslar.</li>
+                <li>Sonraki asamada SQLite / PostgreSQL'e tasinmaya hazir schema mantigi var.</li>
+                <li>Laycan, subject deadline, time bar ve bunker alertleri scheduler ile baglanabilir.</li>
+                <li>OCR icin PDF/fotograf okuma modulu backend'e eklenebilir.</li>
+              </ul>
+            </article>
+
+            <article class="wide-card">
+              <div class="mini-heading"><span>4. Python Report History</span><strong>Son calisan isler</strong></div>
+              <div class="broker-output" id="pythonReportHistory"></div>
             </article>
           </div>
         </section>
