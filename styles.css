@@ -640,10 +640,15 @@ main {
 .command-radar::after {
   content: "";
   position: absolute;
-  width: 52%;
-  height: 1px;
-  transform-origin: 100% 50%;
-  background: linear-gradient(90deg, transparent, rgba(40, 240, 198, 0.85));
+  left: 50%;
+  top: 50%;
+  width: min(32%, 128px);
+  height: 2px;
+  border-radius: 999px;
+  transform: translateY(-50%) rotate(0deg);
+  transform-origin: 0 50%;
+  background: linear-gradient(90deg, rgba(40, 240, 198, 0.88), rgba(40, 240, 198, 0.18), transparent);
+  box-shadow: 0 0 18px rgba(40, 240, 198, 0.42);
   animation: radarSweep 6s linear infinite;
 }
 
@@ -825,10 +830,10 @@ main {
 
 @keyframes radarSweep {
   from {
-    transform: rotate(0deg);
+    transform: translateY(-50%) rotate(0deg);
   }
   to {
-    transform: rotate(360deg);
+    transform: translateY(-50%) rotate(360deg);
   }
 }
 
