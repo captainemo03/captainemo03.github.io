@@ -8,7 +8,7 @@
     <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=(), serial=()" />
     <title>Focusea Maritime Platform</title>
     <link rel="icon" href="favicon.svg?v=focusea-badge2" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=command-theater-1" />
+    <link rel="stylesheet" href="styles.css?v=workflow-control-1" />
   </head>
   <body>
     <div class="app-shell">
@@ -22,7 +22,7 @@
 
         <nav class="nav-list" data-page-nav>
           <a href="#dashboard" class="active" data-page-link="dashboard">Dashboard</a>
-          <a href="#theater" data-page-link="theater">Command Theater</a>
+          <a href="#theater" data-page-link="theater">Workflow Control</a>
           <a href="#broker" data-page-link="broker">Broker Desk</a>
           <a href="#terminal" data-page-link="terminal">Command Terminal</a>
           <a href="#edge" data-page-link="edge">Edge Suite</a>
@@ -2125,36 +2125,60 @@ TRALI,Aliaga Nemrut Bay,Turkiye,Turkiye,Tanker / Bulk / Container,20</textarea><
         <section class="command-theater-panel" id="commandTheaterPanel">
           <div class="panel-heading">
             <div>
-              <p class="eyebrow">Focusea Command Theater</p>
-              <h2>Show modu: fixture, claim, market, port ve loadicator hikayesini tek sahnede anlat</h2>
+              <p class="eyebrow">Focusea Workflow Control</p>
+              <h2>Fixture, claim, market, port ve loadicator kararlarini tek is akisine bagla</h2>
             </div>
-            <div class="status-pill">Presentation Ready</div>
+            <div class="status-pill">Operational Layer</div>
           </div>
 
           <div class="theater-stage">
             <div class="theater-stage-copy">
-              <span>Live product story</span>
-              <strong id="theaterHeadline">Broker War Room: fixture mailini al, riski ve aksiyonu aninda cikar.</strong>
+              <span>Practical workflow engine</span>
+              <strong id="theaterHeadline">Broker Intake: fixture mailini al, riski ve aksiyonu aninda cikar.</strong>
               <p id="theaterSummary">Focusea sadece hesap makinesi gibi durmaz; kullaniciya karar, belge, mail, risk ve kaynak guveniyle tam is akisi verir.</p>
             </div>
             <div class="theater-score">
               <span id="theaterScore">94</span>
-              <small id="theaterDecision">Show ready</small>
+              <small id="theaterDecision">Fix with guards</small>
             </div>
           </div>
 
           <div class="theater-controls" id="theaterControls">
-            <button type="button" class="active" data-theater-scenario="broker">Broker War Room</button>
+            <button type="button" class="active" data-theater-scenario="broker">Broker Intake</button>
             <button type="button" data-theater-scenario="turkiye">Turkiye Port Ops</button>
-            <button type="button" data-theater-scenario="claim">Claim Battle</button>
-            <button type="button" data-theater-scenario="market">Market Shock</button>
-            <button type="button" data-theater-scenario="loadicator">Loadicator Engineering</button>
-            <button type="button" data-theater-scenario="investor">Investor Demo</button>
+            <button type="button" data-theater-scenario="claim">Claim Control</button>
+            <button type="button" data-theater-scenario="market">Market Risk</button>
+            <button type="button" data-theater-scenario="loadicator">Load Plan Bridge</button>
+            <button type="button" data-theater-scenario="investor">Product Roadmap</button>
           </div>
 
           <div class="theater-grid">
+            <article class="wide-card workflow-gate-card">
+              <div class="mini-heading"><span>Deal Quality Gate</span><strong>Fix / Watch / Avoid karar kapisi</strong></div>
+              <form class="broker-form single-column" id="workflowGateForm">
+                <label><span>Fixture / broker mail / recap text</span><textarea name="dealText">Firm offer: 50k coal Indonesia to India laycan 10/15 Jul freight USD 18.50 pmt demurrage USD 18,000/day Supramax. Subjects receiver approval by 1700 LT. NOR WIBON/WIPON and time lost waiting berth to count as laytime.</textarea></label>
+                <div class="auto-deal-controls">
+                  <label><span>Cargo</span><select name="cargoType" data-cargo-select><option value="coal">Coal</option><option value="grain">Grain</option><option value="container">Container</option><option value="ironOre">Iron Ore</option><option value="crudeOil">Crude Oil</option><option value="lng">LNG</option><option value="chemicals">Chemicals</option><option value="projectCargo">Project Cargo</option></select></label>
+                  <label><span>TR Port</span><select name="portId"><option value="mersin">Mersin</option><option value="ambarli">Ambarli / Kumport</option><option value="izmir">Izmir / Alsancak</option><option value="aliaga">Aliaga / Nemrut</option><option value="gemlik">Gemlik</option><option value="izmit">Kocaeli / Izmit</option><option value="tekirdag">Tekirdag</option><option value="iskenderun">Iskenderun</option><option value="samsun">Samsun</option></select></label>
+                  <label><span>Target TCE $/day</span><input name="targetTce" type="number" value="22000" step="500" /></label>
+                  <label><span>Daily hire $</span><input name="dailyHire" type="number" value="14500" step="100" /></label>
+                  <label><span>Bunker $/t</span><input name="bunkerPrice" type="number" value="686.5" step="0.1" /></label>
+                  <label><span>Draft m</span><input name="draft" type="number" value="12.8" step="0.1" /></label>
+                  <label><span>Port delay days</span><input name="portDelay" type="number" value="2" min="0" step="0.1" /></label>
+                  <label><span>Subject deadline h</span><input name="subjectHours" type="number" value="18" min="0" step="1" /></label>
+                </div>
+                <button type="submit">Deal Gate Calistir</button>
+              </form>
+              <div class="button-row">
+                <button type="button" class="ghost-button small" data-download-workflow="pdf">Gate PDF</button>
+                <button type="button" class="ghost-button small" data-download-workflow="json">Gate JSON</button>
+                <button type="button" class="ghost-button small" data-download-workflow="mail">Action Mail TXT</button>
+              </div>
+              <div class="broker-output workflow-gate-output" id="workflowGateResult"></div>
+            </article>
+
             <article class="wide-card theater-main-card">
-              <div class="mini-heading"><span>Executive Storyline</span><strong>Sunum akisi</strong></div>
+              <div class="mini-heading"><span>Workflow Timeline</span><strong>Is akisi</strong></div>
               <div class="broker-output theater-output" id="theaterStory"></div>
             </article>
 
@@ -2164,27 +2188,27 @@ TRALI,Aliaga Nemrut Bay,Turkiye,Turkiye,Tanker / Bulk / Container,20</textarea><
             </article>
 
             <article>
-              <div class="mini-heading"><span>Proof Stack</span><strong>Neden ciddi duruyor?</strong></div>
+              <div class="mini-heading"><span>Proof Stack</span><strong>Neden is goruyor?</strong></div>
               <div class="broker-output" id="theaterProof"></div>
             </article>
 
             <article>
-              <div class="mini-heading"><span>Live Demo Script</span><strong>Hoca/arkadas sunum metni</strong></div>
+              <div class="mini-heading"><span>Action Script</span><strong>Broker aksiyon metni</strong></div>
               <div class="broker-output" id="theaterScript"></div>
             </article>
 
             <article class="wide-card">
-              <div class="mini-heading"><span>Feature Firepower Matrix</span><strong>Fark yaratan moduller</strong></div>
+              <div class="mini-heading"><span>Capability Matrix</span><strong>Fark yaratan moduller</strong></div>
               <div class="theater-matrix-grid" id="theaterMatrix"></div>
             </article>
 
             <article class="wide-card">
-              <div class="mini-heading"><span>Export Pack</span><strong>Indirilebilir sunum kaniti</strong></div>
-              <p class="theater-export-copy">Senaryo sec, sonra raporu indir. JSON teknik veri, PDF sunum raporu, TXT ise hoca karsisinda okunacak demo akisi olarak calisir.</p>
+              <div class="mini-heading"><span>Workflow Export Pack</span><strong>Indirilebilir is ciktisi</strong></div>
+              <p class="theater-export-copy">Senaryo veya deal gate calistir, sonra raporu indir. JSON teknik veri, PDF karar raporu, TXT ise broker aksiyon/mail metni olarak calisir.</p>
               <div class="button-row">
-                <button type="button" class="ghost-button small" data-download-theater="pdf">Theater PDF</button>
-                <button type="button" class="ghost-button small" data-download-theater="json">Theater JSON</button>
-                <button type="button" class="ghost-button small" data-download-theater="script">Demo Script TXT</button>
+                <button type="button" class="ghost-button small" data-download-theater="pdf">Workflow PDF</button>
+                <button type="button" class="ghost-button small" data-download-theater="json">Workflow JSON</button>
+                <button type="button" class="ghost-button small" data-download-theater="script">Action TXT</button>
               </div>
             </article>
           </div>
@@ -2983,6 +3007,6 @@ TRALI,Aliaga Nemrut Bay,Turkiye,Turkiye,Tanker / Bulk / Container,20</textarea><
       </main>
     </div>
 
-    <script src="script.js?v=command-theater-1"></script>
+    <script src="script.js?v=workflow-control-1"></script>
   </body>
 </html>

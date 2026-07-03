@@ -1147,6 +1147,43 @@ main {
     rgba(255, 255, 255, 0.045);
 }
 
+.workflow-gate-card {
+  border-color: rgba(245, 200, 75, 0.22) !important;
+  background:
+    linear-gradient(135deg, rgba(245, 200, 75, 0.08), transparent 45%),
+    linear-gradient(90deg, rgba(40, 240, 198, 0.08), transparent 62%),
+    rgba(255, 255, 255, 0.045) !important;
+}
+
+.workflow-gate-output {
+  display: grid;
+  gap: 12px;
+}
+
+.workflow-gate-grid {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.9fr) minmax(220px, 1fr) minmax(240px, 1.2fr);
+  gap: 12px;
+}
+
+.workflow-gate-grid > div {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(2, 13, 18, 0.3);
+}
+
+.workflow-gate-grid > div > span {
+  display: block;
+  margin-bottom: 9px;
+  color: #6fffe3;
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
 .theater-output {
   display: grid;
   gap: 12px;
@@ -4031,6 +4068,7 @@ main {
   .copilot-output-grid,
   .risk-radar-grid,
   .port-intel-grid,
+  .workflow-gate-grid,
   .theater-matrix-grid,
   .smart-ops-grid,
   .news-grid,

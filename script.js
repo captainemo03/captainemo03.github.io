@@ -2262,6 +2262,8 @@ const theaterRadar = document.querySelector("#theaterRadar");
 const theaterProof = document.querySelector("#theaterProof");
 const theaterScript = document.querySelector("#theaterScript");
 const theaterMatrix = document.querySelector("#theaterMatrix");
+const workflowGateForm = document.querySelector("#workflowGateForm");
+const workflowGateResult = document.querySelector("#workflowGateResult");
 let activeNewsQuery = "maritime shipping";
 let generatedOpsEmailText = "";
 let selectedCommandScenarioId = "coal";
@@ -2269,6 +2271,7 @@ let selectedTheaterScenario = "broker";
 let commandDeckPresentationActive = false;
 let lastCommandDeckReport = "";
 let lastTheaterReport = null;
+let lastWorkflowGate = null;
 let lastParsedOffer = null;
 let lastCopilotReport = null;
 let lastTceOptimization = null;
@@ -9966,7 +9969,7 @@ function runFullDecisionLab() {
 
 const commandTheaterScenarios = {
   broker: {
-    title: "Broker War Room",
+    title: "Broker Intake",
     headline: "Fixture mailini al, Focusea ticari karari ve aksiyonu uretsin.",
     summary: "Tek bir offer metninden cargo, rota, freight, demurrage, risk, TCE, recap ve broker maili cikarilir.",
     score: 94,
@@ -10041,7 +10044,7 @@ const commandTheaterScenarios = {
     ]
   },
   claim: {
-    title: "Claim Battle",
+    title: "Claim Control",
     headline: "SOF, NOR ve clause metninden demurrage savas dosyasi.",
     summary: "Statement of Facts olaylari zaman cizelgesine ayrilir, laytime/demurrage hesaplanir, evidence checklist ve claim letter uretilir.",
     score: 89,
@@ -10078,7 +10081,7 @@ const commandTheaterScenarios = {
     ]
   },
   market: {
-    title: "Market Shock",
+    title: "Market Risk",
     headline: "Index, bunker, haber ve port gecikmesini deal riskine bagla.",
     summary: "Market terminali BDI/BDTI/BCTI/SCFI alanlarini, bunker snapshot'ini, haberleri ve weather/port riskini tek karar skoruna baglar.",
     score: 87,
@@ -10115,7 +10118,7 @@ const commandTheaterScenarios = {
     ]
   },
   loadicator: {
-    title: "Loadicator Engineering",
+    title: "Load Plan Bridge",
     headline: "Yuk plani, trim, heel, GM, ballast ve rapor akisi sahnede.",
     summary: "Ana site ticari karari verir, yan Load-Stability Lab ise yuk dagilimi, sancak/iskele, ballast, SF/BM ve auto-balance mantigini gostermek icin acilir.",
     score: 90,
@@ -10152,8 +10155,8 @@ const commandTheaterScenarios = {
     ]
   },
   investor: {
-    title: "Investor Demo",
-    headline: "Focusea'yi okul projesi degil, urun gibi anlat.",
+    title: "Product Roadmap",
+    headline: "Focusea'yi okul projesi degil, gercek urun gibi konumlandir.",
     summary: "Moduller tek urun diline baglanir: broker terminali, market intelligence, claim automation, port ops, loadicator bridge, academy ve backend-ready roadmap.",
     score: 96,
     decision: "Pitch ready",
@@ -10179,7 +10182,7 @@ const commandTheaterScenarios = {
       "1. Bu proje bir landing page degil; broker'in gunluk isini bitiren terminal.",
       "2. Farkimiz: kullanici metin giriyor, sistem hesapliyor, riskliyor, belge ve mail uretiyor.",
       "3. Sonraki seviye backend, hesapli kullanici, OCR ve lisansli veri kaynaklari.",
-      "4. Yani Focusea hem egitim hem ticari operasyon hem de muhendislik demonstrasyonu."
+      "4. Yani Focusea hem egitim hem ticari operasyon hem de muhendislik araci olarak genisler."
     ],
     matrix: [
       ["Broker terminal", "Offer -> TCE -> risk -> mail", "Ready"],
@@ -10198,10 +10201,10 @@ function theaterStatusClass(status) {
 }
 
 function theaterReportText(scenario = commandTheaterScenarios[selectedTheaterScenario]) {
-  return reportLines("FOCUSEA COMMAND THEATER REPORT", [
+  return reportLines("FOCUSEA WORKFLOW CONTROL REPORT", [
     `Scenario: ${scenario.title}`,
     `Decision: ${scenario.decision}`,
-    `Show score: ${scenario.score}/100`,
+    `Workflow score: ${scenario.score}/100`,
     "",
     "Executive summary:",
     scenario.summary,
@@ -10215,7 +10218,7 @@ function theaterReportText(scenario = commandTheaterScenarios[selectedTheaterSce
     "Proof stack:",
     ...scenario.proof.map(([title, text]) => `- ${title}: ${text}`),
     "",
-    "Demo script:",
+    "Action script:",
     ...scenario.script,
     "",
     "Feature matrix:",
@@ -10238,7 +10241,7 @@ function renderCommandTheater(id = selectedTheaterScenario) {
       ${metricCards([
         { label: "Scenario", value: escapeHtml(scenario.title) },
         { label: "Decision", value: escapeHtml(scenario.decision) },
-        { label: "Show score", value: `${scenario.score}/100` },
+        { label: "Workflow score", value: `${scenario.score}/100` },
         { label: "Export pack", value: "PDF / JSON / TXT" }
       ])}
       <div class="theater-timeline">${scenario.story.map((item, index) => `
@@ -10305,13 +10308,216 @@ function handleTheaterDownload(type) {
   if (!lastTheaterReport) renderCommandTheater(selectedTheaterScenario);
   const scenario = commandTheaterScenarios[selectedTheaterScenario] || commandTheaterScenarios.broker;
   const actions = {
-    pdf: () => downloadPdfFile("focusea-command-theater-report.pdf", "Focusea Command Theater Report", lastTheaterReport.reportText),
-    json: () => downloadJsonFile("focusea-command-theater-report.json", lastTheaterReport),
-    script: () => downloadTextFile("focusea-command-theater-demo-script.txt", scenario.script.join("\n"))
+    pdf: () => downloadPdfFile("focusea-workflow-control-report.pdf", "Focusea Workflow Control Report", lastTheaterReport.reportText),
+    json: () => downloadJsonFile("focusea-workflow-control-report.json", lastTheaterReport),
+    script: () => downloadTextFile("focusea-workflow-action-script.txt", scenario.script.join("\n"))
   };
   actions[type]?.();
   theaterStory?.querySelector(".download-confirm")?.remove();
   theaterStory?.insertAdjacentHTML("beforeend", `<small class="download-confirm">Downloaded: ${escapeHtml(window.focuseaLastDownload?.filename || type)}</small>`);
+}
+
+function defaultQuantityForCargo(cargo) {
+  if (cargo.unit === "TEU") return 2400;
+  if (cargo.unit === "cbm") return 145000;
+  if (cargo.unit === "lot") return 1;
+  return 50000;
+}
+
+function workflowGateContext(values = {}) {
+  const parsed = parseOfferText(values.dealText || "");
+  const cargoType = values.cargoType || parsed.cargoType || "coal";
+  const cargo = getCargoProfile(cargoType);
+  const { id: portId, port, ops } = turkiyePortProfile(values.portId || "mersin");
+  const quantity = parsed.quantity || defaultQuantityForCargo(cargo);
+  const freight = parsed.freight || cargo.baseFreight * cargo.freightMultiplier;
+  const commission = parsed.commission || 2.5;
+  const demurrageRate = parsed.demurrage || 15000 * cargo.demurrageMultiplier;
+  const portDelay = Number(values.portDelay) || 0;
+  const bunkerPrice = Number(values.bunkerPrice) || liveFeedState.bunker || verifiedBunkerSnapshot.ports.singapore.vlsfo;
+  const dailyHire = Number(values.dailyHire) || 14500;
+  const targetTce = Number(values.targetTce) || 22000;
+  const subjectHours = Number(values.subjectHours) || 0;
+  const voyageDays = Math.max(7, 17 + portDelay + cargo.risk / 28);
+  const seaCons = cargo.unit === "TEU" ? 52 : cargo.unit === "cbm" ? 76 : cargo.unit === "lot" ? 18 : 28;
+  const bunkerTons = voyageDays * seaCons * cargo.bunkerMultiplier;
+  const grossFreight = quantity * freight;
+  const brokerage = grossFreight * (commission / 100);
+  const bunkerCost = bunkerTons * bunkerPrice;
+  const portCost = portCostBase(port) * ops.costFactor * cargo.portCostMultiplier;
+  const hireCost = voyageDays * dailyHire;
+  const netPnl = grossFreight - brokerage - bunkerCost - portCost - hireCost;
+  const tce = (grossFreight - brokerage - bunkerCost - portCost) / voyageDays;
+  const draftMargin = turkiyeDraftMargin(port, values.draft);
+  const parsedRisk = scoreParsedOffer({ ...parsed, cargoType });
+  const portRisk = clamp(turkiyeWaitingRisk(portId, portDelay, cargo.risk) + (draftMargin < 0 ? 30 : draftMargin < 1 ? 14 : 0), 0, 100);
+  const legalRisk = /wibon|wipon|time lost waiting|reachable on arrival|whether in berth|weather delays excepted unless used/i.test(values.dealText || "") ? 76 : /nor|laytime|demurrage/i.test(values.dealText || "") ? 42 : 34;
+  const subjectRisk = subjectHours && subjectHours <= 12 ? 72 : subjectHours <= 24 ? 52 : 30;
+  const commercialRisk = clamp(Math.round(52 + (targetTce - tce) / 450), 0, 100);
+  const marketRisk = clamp(Math.round(cargo.risk + liveFeedState.congestion * 0.2 + Math.max(0, bunkerPrice - 620) * 0.07), 0, 100);
+  const risk = clamp(Math.round(parsedRisk.score * 0.2 + portRisk * 0.2 + legalRisk * 0.2 + subjectRisk * 0.12 + commercialRisk * 0.18 + marketRisk * 0.1), 0, 100);
+  const decision = risk >= 76 ? "AVOID until protected" : risk >= 58 ? "WATCH / counter first" : "FIX candidate";
+  const blockers = [
+    ...parsed.missing.map((item) => `Missing ${item}`),
+    tce < targetTce && `TCE below target by ${money(targetTce - tce)}/day`,
+    draftMargin < 0 && `Draft exceeds ${port.name} depth by ${Math.abs(draftMargin).toFixed(1)} m`,
+    draftMargin >= 0 && draftMargin < 1 && `Draft margin only ${draftMargin.toFixed(1)} m`,
+    portRisk >= 65 && `Port/delay risk high at ${port.name}`,
+    legalRisk >= 65 && "NOR / waiting time wording can create demurrage exposure",
+    subjectHours <= 12 && "Subject deadline is too close"
+  ].filter(Boolean);
+  const protections = [
+    "Confirm full load/discharge port rotation, berth restrictions and agency PDA before lifting subjects.",
+    "Counter with clear NOR, weather exception, waiting time and laytime commencement wording.",
+    "Ask owner/charterer to confirm demurrage, dispatch, commission and time-bar language in recap.",
+    "Keep bunker sensitivity open until fixture is fixed; rerun TCE if bunker changes materially.",
+    draftMargin < 1 ? "Obtain berth-specific UKC/draft confirmation from agent before fixing." : "Keep draft margin note in recap and final voyage estimate."
+  ];
+  const documents = [
+    "Fixture recap",
+    "Voyage estimate",
+    "Port/agency PDA request",
+    "Clause comment list",
+    "Subject deadline reminder",
+    "Client action mail"
+  ];
+  const actionMail = [
+    "Dear all,",
+    "",
+    `We have reviewed the proposed ${cargo.label} fixture basis ${parsed.loadPort || "load port TBC"} / ${parsed.dischargePort || "discharge port TBC"}.`,
+    `Current Focusea gate decision: ${decision} (risk ${risk}/100).`,
+    "",
+    "Before we can recommend lifting subjects, please confirm:",
+    ...[...blockers.slice(0, 5), ...protections.slice(0, 2)].map((item) => `- ${item}`),
+    "",
+    `Commercial snapshot: estimated TCE ${money(tce)}/day vs target ${money(targetTce)}/day, net P&L ${money(netPnl)}.`,
+    "",
+    "Best regards,"
+  ].join("\n");
+  return {
+    generatedAt: new Date().toLocaleString(),
+    values,
+    parsed,
+    cargoType,
+    cargo,
+    portId,
+    port,
+    quantity,
+    freight,
+    commission,
+    demurrageRate,
+    voyageDays,
+    bunkerTons,
+    bunkerCost,
+    portCost,
+    hireCost,
+    grossFreight,
+    brokerage,
+    netPnl,
+    tce,
+    targetTce,
+    draftMargin,
+    parsedRisk,
+    portRisk,
+    legalRisk,
+    subjectRisk,
+    commercialRisk,
+    marketRisk,
+    risk,
+    decision,
+    blockers: blockers.length ? blockers : ["No hard blocker detected in the local model."],
+    protections,
+    documents,
+    actionMail
+  };
+}
+
+function workflowGateReportText(result = lastWorkflowGate) {
+  if (!result) return "No workflow gate report generated.";
+  return reportLines("FOCUSEA DEAL QUALITY GATE", [
+    `Decision: ${result.decision}`,
+    `Risk: ${result.risk}/100`,
+    `Cargo: ${result.cargo.label}`,
+    `Port: ${result.port.name}`,
+    `Quantity / freight: ${result.quantity.toLocaleString("en-US")} ${result.cargo.unit} @ ${money(result.freight, result.cargo.unit === "TEU" ? 0 : 2)}`,
+    `Demurrage basis: ${money(result.demurrageRate)}/day`,
+    `Estimated TCE: ${money(result.tce)}/day vs target ${money(result.targetTce)}/day`,
+    `Net P&L: ${money(result.netPnl)}`,
+    `Draft margin: ${result.draftMargin.toFixed(1)} m`,
+    "",
+    "Risk gates:",
+    `- Parsed offer risk: ${result.parsedRisk.score}/100 (${result.parsedRisk.label})`,
+    `- Port / draft risk: ${result.portRisk}/100`,
+    `- Clause risk: ${result.legalRisk}/100`,
+    `- Subject risk: ${result.subjectRisk}/100`,
+    `- Commercial risk: ${result.commercialRisk}/100`,
+    `- Market risk: ${result.marketRisk}/100`,
+    "",
+    "Blockers / missing items:",
+    ...result.blockers.map((item) => `- ${item}`),
+    "",
+    "Protections:",
+    ...result.protections.map((item) => `- ${item}`),
+    "",
+    "Documents to prepare:",
+    ...result.documents.map((item) => `- ${item}`),
+    "",
+    "Action mail:",
+    result.actionMail
+  ]);
+}
+
+function renderWorkflowGate() {
+  if (!workflowGateForm || !workflowGateResult) return;
+  const values = collectFormValues(workflowGateForm);
+  const result = workflowGateContext(values);
+  lastWorkflowGate = result;
+  workflowGateResult.innerHTML = `
+    ${metricCards([
+      { label: "Decision", value: escapeHtml(result.decision) },
+      { label: "Risk", value: `${result.risk}/100` },
+      { label: "TCE", value: `${money(result.tce)}/day` },
+      { label: "Net P&L", value: `<em class="${result.netPnl >= 0 ? "positive" : "negative"}">${money(result.netPnl)}</em>` },
+      { label: "Draft margin", value: `${result.draftMargin.toFixed(1)} m` },
+      { label: "Docs", value: result.documents.length }
+    ])}
+    <div class="workflow-gate-grid">
+      <div>
+        <span>Risk gates</span>
+        ${[
+          ["Offer", result.parsedRisk.score],
+          ["Port", result.portRisk],
+          ["Clause", result.legalRisk],
+          ["Subjects", result.subjectRisk],
+          ["Commercial", result.commercialRisk],
+          ["Market", result.marketRisk]
+        ].map(([label, score]) => `
+          <div class="theater-radar-row"><span>${label}</span><div><i style="width:${clamp(score, 0, 100)}%"></i></div><strong>${score}</strong></div>
+        `).join("")}
+      </div>
+      <div>
+        <span>Blockers / missing</span>
+        <ul class="compact-list">${result.blockers.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+      </div>
+      <div>
+        <span>Protection actions</span>
+        <ul class="compact-list">${result.protections.slice(0, 5).map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+      </div>
+    </div>
+    <pre>${escapeHtml(result.actionMail)}</pre>
+  `;
+}
+
+function handleWorkflowDownload(type) {
+  if (!lastWorkflowGate) renderWorkflowGate();
+  const actions = {
+    pdf: () => downloadPdfFile("focusea-deal-quality-gate.pdf", "Focusea Deal Quality Gate", workflowGateReportText(lastWorkflowGate)),
+    json: () => downloadJsonFile("focusea-deal-quality-gate.json", lastWorkflowGate || {}),
+    mail: () => downloadTextFile("focusea-deal-action-mail.txt", lastWorkflowGate?.actionMail || "No action mail generated.")
+  };
+  actions[type]?.();
+  workflowGateResult?.querySelector(".download-confirm")?.remove();
+  workflowGateResult?.insertAdjacentHTML("beforeend", `<small class="download-confirm">Downloaded: ${escapeHtml(window.focuseaLastDownload?.filename || type)}</small>`);
 }
 
 const superSuiteFeatures = [
@@ -12202,6 +12408,7 @@ bindBrokerForm(disputeSimulatorForm, renderDisputeSimulator);
 bindBrokerForm(watchlistForm, renderWatchlist);
 bindBrokerForm(portHeatmapForm, renderPortHeatmap);
 bindBrokerForm(brokerExamForm, renderBrokerExam);
+bindBrokerForm(workflowGateForm, renderWorkflowGate);
 bindBrokerForm(superSuiteForm, renderSuperSuite);
 
 if (offerTrackerForm) {
@@ -12306,6 +12513,12 @@ document.addEventListener("click", (event) => {
   const button = event.target.closest("[data-download-theater]");
   if (!button) return;
   handleTheaterDownload(button.dataset.downloadTheater);
+});
+
+document.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-download-workflow]");
+  if (!button) return;
+  handleWorkflowDownload(button.dataset.downloadWorkflow);
 });
 
 document.addEventListener("click", (event) => {
@@ -12692,6 +12905,7 @@ renderClientPortal();
 runAllBrokerOs();
 runFullDecisionLab();
 renderCommandTheater();
+renderWorkflowGate();
 renderAllSuperSuite();
 renderMarketIndexes();
 renderDataTrustLayer();
