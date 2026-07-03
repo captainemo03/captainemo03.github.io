@@ -50,6 +50,168 @@ const ports = {
     productivity: "42 moves/hour",
     note: "Bosphorus traffic density must be checked before arrival."
   },
+  ambarli: {
+    name: "Ambarli / Kumport",
+    country: "Turkiye",
+    type: "Container, Ro-Ro, general cargo",
+    depth: "16 m",
+    pilotage: "Compulsory",
+    berth: "Marmara container and Ro-Ro terminals",
+    cranes: "STS cranes, RTG yard, Ro-Ro ramps",
+    fuel: "Available by arrangement",
+    weather: "Marmara northerly wind / fog watch",
+    vhf: "VHF 12 / 16",
+    documents: ["Cargo manifest", "Crew list", "Port clearance", "ISPS declaration", "Customs filing"],
+    services: ["Container terminal", "Ro-Ro", "Bunker by arrangement", "Agency", "Truck gate", "Reefer support"],
+    risks: ["Marmara traffic", "Terminal cut-off", "Truck gate congestion", "Winter fog"],
+    costs: { pilotage: 7800, tug: 13200, berth: 21200, portDues: 10400 },
+    productivity: "92 moves/hour",
+    note: "Primary Marmara container gateway; gate and berth windows should be checked before fixing."
+  },
+  mersin: {
+    name: "Mersin International Port",
+    country: "Turkiye",
+    type: "Container, dry bulk, Ro-Ro, project cargo",
+    depth: "15.5 m",
+    pilotage: "Compulsory",
+    berth: "Container, bulk and general cargo berths",
+    cranes: "STS cranes, mobile harbor cranes, bulk equipment",
+    fuel: "Available by arrangement",
+    weather: "Eastern Mediterranean wind / summer heat watch",
+    vhf: "VHF 12 / 16",
+    documents: ["Cargo manifest", "Customs declaration", "Crew list", "Port clearance", "ISPS declaration"],
+    services: ["Container terminal", "Rail connection", "Ro-Ro", "Bulk handling", "Project cargo", "Warehousing"],
+    risks: ["Gate congestion", "Customs cut-off", "Heat operations", "Eastern Med weather"],
+    costs: { pilotage: 7600, tug: 12900, berth: 20600, portDues: 10200 },
+    productivity: "88 moves/hour",
+    note: "Key Eastern Mediterranean gateway for Anatolia, Iraq/Syria transit and container/bulk cargo."
+  },
+  izmir: {
+    name: "Izmir / Alsancak",
+    country: "Turkiye",
+    type: "Container, general cargo, cruise",
+    depth: "11 m",
+    pilotage: "Compulsory",
+    berth: "Alsancak general cargo, container and passenger berths",
+    cranes: "STS cranes, mobile cranes",
+    fuel: "Available by arrangement",
+    weather: "Aegean wind watch",
+    vhf: "VHF 12 / 16",
+    documents: ["Cargo manifest", "Customs declaration", "Crew list", "Port clearance", "Passenger documents if applicable"],
+    services: ["Container handling", "General cargo", "Cruise support", "Agency", "Bunker by arrangement", "Warehousing"],
+    risks: ["Draft limitation", "Urban port traffic", "Aegean wind", "Terminal schedule pressure"],
+    costs: { pilotage: 6900, tug: 11800, berth: 18800, portDues: 9100 },
+    productivity: "55 moves/hour",
+    note: "Useful Aegean gateway; draft and berth window should be checked carefully."
+  },
+  aliaga: {
+    name: "Aliaga / Nemrut Bay",
+    country: "Turkiye",
+    type: "Tanker, dry bulk, container, petrochemical",
+    depth: "20 m",
+    pilotage: "Compulsory",
+    berth: "Industrial jetties, tanker terminals and bulk/container berths",
+    cranes: "Bulk grabs, shore cranes, liquid cargo arms",
+    fuel: "Available by arrangement",
+    weather: "Aegean northerly wind watch",
+    vhf: "VHF 12 / 16",
+    documents: ["Terminal safety checklist", "Cargo manifest", "Dangerous goods declaration", "Crew list", "Port clearance"],
+    services: ["Liquid bulk", "Dry bulk", "Container feeder", "Agency", "Survey", "Industrial logistics"],
+    risks: ["Terminal-specific rules", "Dangerous cargo controls", "Wind delay", "Draft/berth compatibility"],
+    costs: { pilotage: 8300, tug: 14600, berth: 22400, portDues: 11600 },
+    productivity: "62 moves/hour",
+    note: "Industrial Aegean cluster; terminal approval and cargo compatibility matter before fixing."
+  },
+  gemlik: {
+    name: "Gemlik",
+    country: "Turkiye",
+    type: "Container, Ro-Ro, automotive, general cargo",
+    depth: "14 m",
+    pilotage: "Compulsory",
+    berth: "Gemlik Bay container, Ro-Ro and general cargo terminals",
+    cranes: "STS cranes, mobile harbor cranes, Ro-Ro ramps",
+    fuel: "Available by arrangement",
+    weather: "Marmara wind / fog watch",
+    vhf: "VHF 12 / 16",
+    documents: ["Cargo manifest", "Customs declaration", "Crew list", "Port clearance", "ISPS declaration"],
+    services: ["Automotive Ro-Ro", "Container terminal", "General cargo", "Agency", "Warehousing", "Truck gate"],
+    risks: ["Automotive peak pressure", "Berth window", "Fog", "Truck gate congestion"],
+    costs: { pilotage: 7200, tug: 12600, berth: 19800, portDues: 9600 },
+    productivity: "74 moves/hour",
+    note: "Strong Marmara automotive and container cluster; Ro-Ro schedule should be protected."
+  },
+  izmit: {
+    name: "Kocaeli / Izmit Gulf",
+    country: "Turkiye",
+    type: "Container, tanker, dry bulk, Ro-Ro, industrial",
+    depth: "20 m",
+    pilotage: "Compulsory",
+    berth: "Industrial terminals, container berths and liquid bulk jetties",
+    cranes: "STS cranes, mobile cranes, grabs, liquid cargo arms",
+    fuel: "Available by arrangement",
+    weather: "Marmara wind / visibility watch",
+    vhf: "VHF 12 / 16",
+    documents: ["Cargo manifest", "Terminal safety checklist", "Dangerous goods declaration", "Crew list", "Port clearance"],
+    services: ["Industrial cargo", "Container terminal", "Liquid bulk", "Dry bulk", "Agency", "Survey"],
+    risks: ["Terminal allocation", "Dangerous cargo compliance", "Marmara traffic", "Draft/berth match"],
+    costs: { pilotage: 8600, tug: 15200, berth: 23600, portDues: 12200 },
+    productivity: "82 moves/hour",
+    note: "Major industrial port zone; exact terminal, cargo class and berth compatibility drive the estimate."
+  },
+  tekirdag: {
+    name: "Tekirdag",
+    country: "Turkiye",
+    type: "Dry bulk, Ro-Ro, container, general cargo",
+    depth: "18 m",
+    pilotage: "Compulsory",
+    berth: "Bulk, general cargo, Ro-Ro and container berths",
+    cranes: "Mobile harbor cranes, grabs, Ro-Ro ramps",
+    fuel: "Available by arrangement",
+    weather: "Marmara northerly wind watch",
+    vhf: "VHF 12 / 16",
+    documents: ["Cargo manifest", "Crew list", "Port clearance", "Customs declaration", "ISPS declaration"],
+    services: ["Bulk cargo", "Ro-Ro", "Container handling", "Agency", "Truck gate", "Warehousing"],
+    risks: ["Wind delay", "Gate/road pressure", "Berth window", "Marmara traffic"],
+    costs: { pilotage: 6500, tug: 11200, berth: 17400, portDues: 8700 },
+    productivity: "58 moves/hour",
+    note: "Useful Thrace/Marmara alternative for bulk, Ro-Ro and container operations."
+  },
+  iskenderun: {
+    name: "Iskenderun",
+    country: "Turkiye",
+    type: "Container, steel, dry bulk, project cargo",
+    depth: "15.5 m",
+    pilotage: "Compulsory",
+    berth: "Container, bulk and steel cargo berths",
+    cranes: "STS cranes, mobile cranes, bulk grabs",
+    fuel: "Available by arrangement",
+    weather: "Eastern Mediterranean wind / heat watch",
+    vhf: "VHF 12 / 16",
+    documents: ["Cargo manifest", "Customs declaration", "Crew list", "Port clearance", "ISPS declaration"],
+    services: ["Container handling", "Steel cargo", "Dry bulk", "Project cargo", "Agency", "Survey"],
+    risks: ["Earthquake resilience checks", "Terminal availability", "Heat operations", "Cargo damage survey"],
+    costs: { pilotage: 7200, tug: 13100, berth: 20100, portDues: 9900 },
+    productivity: "70 moves/hour",
+    note: "Eastern Mediterranean steel/bulk gateway; terminal status and survey evidence should be checked."
+  },
+  samsun: {
+    name: "Samsun",
+    country: "Turkiye",
+    type: "Dry bulk, Ro-Ro, general cargo, container feeder",
+    depth: "12 m",
+    pilotage: "Compulsory",
+    berth: "Black Sea bulk, general cargo and ferry/Ro-Ro berths",
+    cranes: "Mobile cranes, grabs, Ro-Ro ramps",
+    fuel: "Available by arrangement",
+    weather: "Black Sea swell / winter wind watch",
+    vhf: "VHF 12 / 16",
+    documents: ["Cargo manifest", "Crew list", "Port clearance", "Customs declaration", "ISPS declaration"],
+    services: ["Bulk cargo", "Ro-Ro/ferry", "General cargo", "Agency", "Warehousing", "Rail/road link"],
+    risks: ["Black Sea weather", "Draft limitation", "Winter swell", "Berth window"],
+    costs: { pilotage: 6100, tug: 10400, berth: 16200, portDues: 7900 },
+    productivity: "44 moves/hour",
+    note: "Black Sea gateway; weather and draft should be included in voyage estimates."
+  },
   singapore: {
     name: "Singapore",
     country: "Singapore",
@@ -1071,6 +1233,27 @@ OMDQM|Duqm|Oman|Middle East|Multipurpose|18
 QAHMD|Hamad Port|Qatar|Middle East|Container / Ro-Ro|17
 KWSWK|Shuwaikh|Kuwait|Middle East|Container / General cargo|12
 BHKBS|Khalifa Bin Salman|Bahrain|Middle East|Container|15
+TRIST|Istanbul Port|Turkiye|Turkiye|Container / General cargo / Ro-Ro|14
+TRAMR|Ambarli / Kumport|Turkiye|Turkiye|Container / Ro-Ro|16
+TRMER|Mersin International Port|Turkiye|Turkiye|Container / Bulk / Ro-Ro|15.5
+TRIZM|Izmir Alsancak|Turkiye|Turkiye|Container / General cargo / Cruise|11
+TRALI|Aliaga / Nemrut Bay|Turkiye|Turkiye|Tanker / Bulk / Container|20
+TRGEM|Gemlik|Turkiye|Turkiye|Container / Ro-Ro / Automotive|14
+TRIZT|Kocaeli / Izmit Gulf|Turkiye|Turkiye|Container / Tanker / Industrial|20
+TRTEK|Tekirdag|Turkiye|Turkiye|Bulk / Ro-Ro / Container|18
+TRBAN|Bandirma|Turkiye|Turkiye|Bulk / General cargo / Ro-Ro|12
+TRDRC|Derince|Turkiye|Turkiye|Ro-Ro / Bulk / General cargo|14
+TRISK|Iskenderun|Turkiye|Turkiye|Container / Steel / Bulk|15.5
+TRSSX|Samsun|Turkiye|Turkiye|Bulk / Ro-Ro / General cargo|12
+TRTZX|Trabzon|Turkiye|Turkiye|General cargo / Ro-Ro / Bulk|10
+TRAYT|Antalya|Turkiye|Turkiye|Cruise / General cargo / Ro-Ro|10
+TRGUL|Gulluk|Turkiye|Turkiye|Bulk / General cargo|12
+TRERE|Eregli|Turkiye|Turkiye|Steel / Bulk / General cargo|12
+TRZON|Zonguldak|Turkiye|Turkiye|Bulk / General cargo|10
+TRCEY|Ceyhan / Yumurtalik|Turkiye|Turkiye|Tanker / Oil terminal|18
+TRHAY|Haydarpasa|Turkiye|Turkiye|General cargo / Ro-Ro / Rail link|12
+TRHOP|Hopa|Turkiye|Turkiye|General cargo / Bulk|9
+TRYAL|Yalova|Turkiye|Turkiye|Ro-Ro / Shipyard / General cargo|10
 NLRTM|Rotterdam|Netherlands|Europe|Container / Tanker / Bulk|23
 BEANR|Antwerp-Bruges|Belgium|Europe|Container / Chemical|16
 DEHAM|Hamburg|Germany|Europe|Container / Project|14.5
@@ -9535,6 +9718,7 @@ function renderAllEdgeSuite() {
 
 function portRegionFromCountry(country = "") {
   const normalized = country.toLowerCase();
+  if (/turkiye|turkey|türkiye/.test(normalized)) return "Turkiye";
   if (/united states|canada|mexico/.test(normalized)) return "North America";
   if (/brazil|argentina|uruguay|chile|peru|ecuador|colombia|venezuela|trinidad|jamaica|bahamas|dominican/.test(normalized)) return "South America";
   if (/south africa|mozambique|tanzania|kenya|djibouti|somalia|sudan|nigeria|ghana|cote|senegal|morocco|tunisia|algeria|libya|egypt|namibia|angola|congo/.test(normalized)) return "Africa";
@@ -9581,6 +9765,15 @@ function portRecordFromDetailed(id, port) {
     detailedId: id,
     code: {
       istanbul: "TRIST",
+      ambarli: "TRAMR",
+      mersin: "TRMER",
+      izmir: "TRIZM",
+      aliaga: "TRALI",
+      gemlik: "TRGEM",
+      izmit: "TRIZT",
+      tekirdag: "TRTEK",
+      iskenderun: "TRISK",
+      samsun: "TRSSX",
       singapore: "SGSIN",
       rotterdam: "NLRTM",
       shanghai: "CNSHA",
