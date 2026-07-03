@@ -2241,6 +2241,17 @@ const portHeatmapForm = document.querySelector("#portHeatmapForm");
 const portHeatmapResult = document.querySelector("#portHeatmapResult");
 const brokerExamForm = document.querySelector("#brokerExamForm");
 const brokerExamResult = document.querySelector("#brokerExamResult");
+const runSuperSuite = document.querySelector("#runSuperSuite");
+const superSuiteHeadline = document.querySelector("#superSuiteHeadline");
+const superSuiteSummary = document.querySelector("#superSuiteSummary");
+const superSuiteForm = document.querySelector("#superSuiteForm");
+const superSuiteResult = document.querySelector("#superSuiteResult");
+const superTerminalNoteForm = document.querySelector("#superTerminalNoteForm");
+const superTerminalNotesResult = document.querySelector("#superTerminalNotesResult");
+const clearSuperNotes = document.querySelector("#clearSuperNotes");
+const superReportHistory = document.querySelector("#superReportHistory");
+const superFeatureGrid = document.querySelector("#superFeatureGrid");
+const superBuildQueue = document.querySelector("#superBuildQueue");
 let activeNewsQuery = "maritime shipping";
 let generatedOpsEmailText = "";
 let selectedCommandScenarioId = "coal";
@@ -2319,6 +2330,8 @@ let lastDisputeSimulation = null;
 let lastWatchlist = null;
 let lastPortHeatmap = null;
 let lastBrokerExam = null;
+let lastSuperSuite = null;
+let activeSuperFilter = "All";
 let decisionRateMemory = [
   { cargoType: "coal", route: "Indonesia / India", freightRate: 18.5, demurrageRate: 18000, fixtureStatus: "Fixed", tce: 21400 },
   { cargoType: "grain", route: "Black Sea / Egypt", freightRate: 24.2, demurrageRate: 16500, fixtureStatus: "On subjects", tce: 18800 },
@@ -2538,6 +2551,7 @@ const pageGroups = {
   autopilot: ["#autopilotSuite"],
   dealIQ: ["#dealIqSuite"],
   decisionLab: ["#decisionLabSuite"],
+  superSuite: ["#superSuitePanel"],
   pythonEngine: ["#pythonEngineSuite"],
   market: ["#intelligence", "#newsBulletin"],
   tools: ["#route", "#assistantCareer", "#vesselFinder"],
@@ -9937,6 +9951,325 @@ function runFullDecisionLab() {
   renderDecisionHeader();
 }
 
+const superSuiteFeatures = [
+  { category: "Broker", title: "Fixture Autopilot", output: "Offer card, recap, risk, TCE, email and PDF", action: "Paste fixture mail and run all modules." },
+  { category: "Broker", title: "Deal Room", output: "Offer, counter, recap, CP, SOF, laytime, claim, invoice", action: "Use Super report as deal-room cover sheet." },
+  { category: "Broker", title: "Comparable Fixtures", output: "Route/cargo rate memory and market comparison", action: "Save comparable fixture after each real deal." },
+  { category: "Broker", title: "Negotiation Coach", output: "Counter level, spread and acceptance posture", action: "Counter before subjects if spread is wide." },
+  { category: "Broker", title: "Subject Deadline Alarm", output: "Subject, laycan and time-bar watch list", action: "Create alarm before lifting subjects." },
+  { category: "Ops", title: "Port Call Timeline", output: "ETA, NOR, pilot, berth, loading, docs, sailing", action: "Send timeline to agent and receiver." },
+  { category: "Ops", title: "Agency Proforma Builder", output: "Pilotage, tug, berth, port dues, agency estimate", action: "Replace estimate with official PDA when received." },
+  { category: "Ops", title: "Port Delay Predictor", output: "Waiting risk from port, cargo, weather and congestion", action: "Add waiting cost to voyage estimate." },
+  { category: "Ops", title: "Turkiye Port Desk", output: "Local docs, customs, cabotage and agency notes", action: "Keep terminal-specific notes in local database." },
+  { category: "Ops", title: "Terminal Notes Database", output: "Personal port/agency memory stored in browser", action: "Record rain letter, docs and cost quirks." },
+  { category: "Claim", title: "CP Clause Diff Tool", output: "Changed wording, deleted protection and risk bias", action: "Do not lift subjects before CP changes are checked." },
+  { category: "Claim", title: "Demurrage Claim Pack", output: "SOF, NOR, rain log, invoice and claim letter", action: "Export claim PDF and evidence checklist." },
+  { category: "Claim", title: "Time Bar Calendar", output: "Claim, invoice, CP comment and laycan dates", action: "Put red dates into broker daily brief." },
+  { category: "Claim", title: "Evidence Checklist", output: "Missing NOR, SOF, logs, photos and invoice proof", action: "Ask agent for missing evidence immediately." },
+  { category: "Claim", title: "Clause Battle Library", output: "Owner/charterer wording and counter language", action: "Use counter wording in recap/CP comments." },
+  { category: "Market", title: "Market Confidence Badge", output: "Verified, simulated, input or licensed labels", action: "Never show fake live data as verified." },
+  { category: "Market", title: "Cargo Market Pulse", output: "Coal, grain, container, LNG, crude and chemical pulse", action: "Attach cargo sentiment to negotiation note." },
+  { category: "Market", title: "Bunker Sensitivity Alerts", output: "P&L impact when bunker changes", action: "Rerun TCE when bunker moves above trigger." },
+  { category: "Market", title: "Baltic / SCFI / Tanker Index Panel", output: "Licensed-source-ready market panel", action: "Connect paid/licensed endpoint for true live feed." },
+  { category: "Market", title: "Broker Daily Brief", output: "Today’s risks, market, inbox and port alarms", action: "Start each day from this panel." },
+  { category: "Engineering", title: "Loadicator Pro 2.0", output: "GM, trim, heel, draft, ballast and SF/BM bridge", action: "Open side Load-Stability Lab for 3D plan." },
+  { category: "Engineering", title: "Cargo Stowage Planner", output: "Container, coal, grain, ore and project cargo logic", action: "Check cargo-port suitability before loading." },
+  { category: "Engineering", title: "Auto Balance", output: "Move cargo / ballast suggestions", action: "Apply recommendation in stability lab." },
+  { category: "Engineering", title: "Loading Sequence", output: "Step-by-step loading plan with changing risk", action: "Export engineer report before final plan." },
+  { category: "Engineering", title: "Engineer Report PDF", output: "Load plan, GM, trim, heel and warnings", action: "Keep report history for class presentation." },
+  { category: "AI", title: "Document AI Hub", output: "CP, SOF, NOR, LOI and invoice parser", action: "Paste documents and find contradictions." },
+  { category: "AI", title: "OCR Upload Ready", output: "Backend-ready PDF/photo extraction lane", action: "Add Python OCR endpoint when backend is deployed." },
+  { category: "AI", title: "Broker Email Studio", output: "Firm offer, counter, recap, subjects lifted, claim reminder", action: "Generate client-safe English email." },
+  { category: "AI", title: "AI Tutor", output: "Explains demurrage, laytime and clause reasons", action: "Use in academy and classroom mode." },
+  { category: "AI", title: "CV + Career AI", output: "Professional seafarer CV and interview prep", action: "Export CV from Academy & Account." },
+  { category: "Academy", title: "Interactive Case Studies", output: "Mersin rain stop, NOR and laytime scenarios", action: "Turn real cases into quizzes." },
+  { category: "Academy", title: "Broker Exam Mode", output: "Scenario scoring, badges and certificate PDF", action: "Use exam mode for class demo." },
+  { category: "Academy", title: "Charter Party Simulator", output: "Clause choices show commercial consequences", action: "Compare owner vs charterer wording." },
+  { category: "Academy", title: "Port Operations Course", output: "Pilotage, tug, berth, docs, SOF and NOR modules", action: "Add port notes as lesson examples." },
+  { category: "Academy", title: "Stability Academy", output: "GM, KG, KM, trim, heel and FSE learning path", action: "Link each lesson to 3D loadicator." },
+  { category: "Product", title: "Client Portal", output: "Voyage estimate, ETA, P&L, claim and PDF link", action: "Export client summary from Super Suite." },
+  { category: "Product", title: "Admin Panel", output: "Cargo multipliers, data sources, port defaults", action: "Tune demo defaults before presentation." },
+  { category: "Product", title: "User Accounts Ready", output: "Offer tracker, CRM, reports and vault schema", action: "Move localStorage to backend auth later." },
+  { category: "Product", title: "Report History", output: "Saved Super/Python/claim/load reports", action: "Use history as real product proof." },
+  { category: "Product", title: "Mobile Broker Mode", output: "Inbox, risk, mail and report first layout", action: "Keep only critical controls on phone." }
+];
+
+function getSuperNotes() {
+  return safeLocalGet("focusea-super-terminal-notes-v1", []) || [];
+}
+
+function setSuperNotes(notes) {
+  safeLocalSet("focusea-super-terminal-notes-v1", notes);
+}
+
+function getSuperHistory() {
+  return safeLocalGet("focusea-super-report-history-v1", []) || [];
+}
+
+function setSuperHistory(history) {
+  safeLocalSet("focusea-super-report-history-v1", history);
+}
+
+function superFeatureRows() {
+  return [
+    ["category", "title", "output", "next_action"],
+    ...superSuiteFeatures.map((feature) => [feature.category, feature.title, feature.output, feature.action])
+  ];
+}
+
+function superSuiteContext(values) {
+  const parsed = parseOfferText(values.dealText || "");
+  const cargoType = values.cargoType || parsed.cargoType || "coal";
+  const cargo = getCargoProfile(cargoType);
+  const portProfile = turkiyePortProfile(values.turkiyePortId || "mersin");
+  const quantity = parsed.quantity || (cargo.unit === "TEU" ? 2400 : cargo.unit === "cbm" ? 145000 : 50000);
+  const freight = parsed.freight || cargo.baseFreight * cargo.freightMultiplier;
+  const gross = quantity * freight;
+  const portDelay = Number(values.portDelay) || 0;
+  const bunkerPrice = Number(values.bunkerPrice) || liveFeedState.bunker;
+  const bunkerTons = (18 + portDelay) * (cargo.unit === "TEU" ? 54 : cargo.unit === "cbm" ? 76 : 28) * cargo.bunkerMultiplier;
+  const bunkerCost = bunkerTons * bunkerPrice;
+  const portCost = portCostBase(portProfile.port) * portProfile.ops.costFactor * cargo.portCostMultiplier;
+  const hireCost = (18 + portDelay + cargo.risk / 22) * (Number(values.dailyHire) || 14500);
+  const netPnl = gross - bunkerCost - portCost - hireCost;
+  const tce = netPnl / Math.max(1, 18 + portDelay);
+  const targetTce = Number(values.targetTce) || 22000;
+  const parsedRisk = scoreParsedOffer(parsed);
+  const draftMargin = turkiyeDraftMargin(portProfile.port, values.draft);
+  const portRisk = turkiyeWaitingRisk(portProfile.id, portDelay, cargo.risk);
+  const legalRisk = /wibon|wipon|time lost waiting|weather delays excepted unless used/i.test(values.dealText || "") ? 72 : 38;
+  const marketRisk = clamp(Math.round(cargo.risk + liveFeedState.congestion * 0.22 + (bunkerPrice - 620) * 0.08), 0, 100);
+  const overallRisk = clamp(Math.round((parsedRisk.score + portRisk + legalRisk + marketRisk + cargo.risk) / 5), 0, 100);
+  const decision = overallRisk >= 72 ? "WATCH / protect subjects" : overallRisk >= 52 ? "FIX with guards" : "FIX candidate";
+  return { values, parsed, cargoType, cargo, portProfile, quantity, freight, gross, bunkerTons, bunkerCost, portCost, hireCost, netPnl, tce, targetTce, parsedRisk, draftMargin, portRisk, legalRisk, marketRisk, overallRisk, decision };
+}
+
+function superFeatureStatus(feature, context) {
+  const base = {
+    Broker: Math.round(100 - context.parsedRisk.score),
+    Ops: Math.round(100 - context.portRisk),
+    Claim: Math.round(100 - context.legalRisk),
+    Market: Math.round(100 - context.marketRisk),
+    Engineering: Math.round(context.draftMargin < 1 ? 48 : 78),
+    AI: 82,
+    Academy: 88,
+    Product: 76
+  }[feature.category] || 70;
+  const readiness = clamp(base, 12, 98);
+  const status = readiness >= 78 ? "Ready" : readiness >= 55 ? "Watch" : "Needs data";
+  return { readiness, status };
+}
+
+function renderSuperFeatureGrid(filter = activeSuperFilter) {
+  if (!superFeatureGrid) return;
+  activeSuperFilter = filter || "All";
+  const context = lastSuperSuite?.context || superSuiteContext(superSuiteForm ? collectFormValues(superSuiteForm) : {});
+  const rows = superSuiteFeatures
+    .filter((feature) => activeSuperFilter === "All" || feature.category === activeSuperFilter)
+    .map((feature) => ({ ...feature, ...superFeatureStatus(feature, context) }));
+  document.querySelectorAll("[data-super-filter]").forEach((button) => {
+    button.classList.toggle("active", button.dataset.superFilter === activeSuperFilter);
+  });
+  superFeatureGrid.innerHTML = rows.map((feature) => `
+    <article class="super-feature-card">
+      <div><span>${escapeHtml(feature.category)}</span><em class="source-badge ${feature.status === "Ready" ? "verified" : feature.status === "Watch" ? "api-ready" : "simulated"}">${escapeHtml(feature.status)}</em></div>
+      <strong>${escapeHtml(feature.title)}</strong>
+      <p>${escapeHtml(feature.output)}</p>
+      <div class="trust-meter"><span style="width:${feature.readiness}%"></span></div>
+      <small>${escapeHtml(feature.action)}</small>
+    </article>
+  `).join("");
+}
+
+function superSuiteReportText(result = lastSuperSuite) {
+  if (!result) return "No Super Suite report generated.";
+  const c = result.context;
+  return reportLines("FOCUSEA SUPER SUITE REPORT", [
+    `Mode: ${c.values.mode}`,
+    `Decision: ${c.decision}`,
+    `Overall risk: ${c.overallRisk}/100`,
+    `Cargo: ${c.cargo.label}`,
+    `Port: ${c.portProfile.port.name}`,
+    `Quantity / freight: ${c.quantity.toLocaleString("en-US")} ${c.cargo.unit} @ ${money(c.freight, c.cargo.unit === "TEU" ? 0 : 2)}`,
+    `Net P&L: ${money(c.netPnl)}`,
+    `TCE: ${money(c.tce)}/day vs target ${money(c.targetTce)}/day`,
+    `Draft margin: ${c.draftMargin.toFixed(1)} m`,
+    "",
+    "Activated feature families:",
+    ...result.featureSummary.map((item) => `- ${item.category}: ${item.ready}/${item.total} ready, avg ${item.average}%`),
+    "",
+    "Next actions:",
+    ...result.nextActions.map((item) => `- ${item}`),
+    "",
+    "Client summary:",
+    result.clientText
+  ]);
+}
+
+function saveSuperReportHistory(result) {
+  const history = getSuperHistory();
+  const item = {
+    id: `SUP-${Date.now()}`,
+    time: new Date().toLocaleString(),
+    decision: result.context.decision,
+    cargo: result.context.cargo.label,
+    port: result.context.portProfile.port.name,
+    risk: result.context.overallRisk,
+    pnl: Math.round(result.context.netPnl)
+  };
+  setSuperHistory([item, ...history].slice(0, 20));
+}
+
+function renderSuperReportHistory() {
+  if (!superReportHistory) return;
+  const history = getSuperHistory();
+  superReportHistory.innerHTML = history.length ? `
+    <div class="ops-list">${history.slice(0, 8).map((item) => `
+      <div>
+        <strong>${escapeHtml(item.id)} · ${escapeHtml(item.decision)}</strong>
+        <span>${escapeHtml(item.time)} · ${escapeHtml(item.cargo)} · ${escapeHtml(item.port)} · risk ${item.risk}/100 · P&L ${money(item.pnl)}</span>
+      </div>
+    `).join("")}</div>
+  ` : `<small>No Super Suite report yet. Run the suite to create history.</small>`;
+}
+
+function renderSuperBuildQueue() {
+  if (!superBuildQueue) return;
+  const queue = [
+    ["Backend auth", "Move localStorage offers, notes, reports and vault to user accounts."],
+    ["Licensed market feed", "Connect Baltic/SCFI/tanker/bunker endpoints with source badges."],
+    ["OCR pipeline", "Python OCR for PDF/photo SOF, NOR, invoice and CP uploads."],
+    ["3D loadicator sync", "Send cargo plan from main site to side Load-Stability Lab."],
+    ["Client portal links", "Generate shareable read-only client status links."],
+    ["Notification worker", "Subject, laycan, time bar, bunker and port delay alarms."]
+  ];
+  superBuildQueue.innerHTML = `
+    ${metricCards([
+      { label: "Queued modules", value: queue.length },
+      { label: "Current layer", value: "Frontend product demo" },
+      { label: "Next serious step", value: "Backend + accounts" },
+      { label: "Differentiator", value: "Paste -> calculate -> document -> action" }
+    ])}
+    <div class="ops-list">${queue.map(([title, text]) => `<div><strong>${escapeHtml(title)}</strong><span>${escapeHtml(text)}</span></div>`).join("")}</div>
+  `;
+}
+
+function renderSuperTerminalNotes() {
+  if (!superTerminalNotesResult) return;
+  const notes = getSuperNotes();
+  superTerminalNotesResult.innerHTML = notes.length ? `
+    ${metricCards([
+      { label: "Saved notes", value: notes.length },
+      { label: "Latest port", value: escapeHtml(notes[0]?.portName || "-") }
+    ])}
+    <div class="ops-list">${notes.slice(0, 8).map((note) => `
+      <div>
+        <strong>${escapeHtml(note.portName)} · ${escapeHtml(note.noteType)}</strong>
+        <span>${escapeHtml(note.time)} · ${escapeHtml(note.noteText)}</span>
+      </div>
+    `).join("")}</div>
+  ` : `<small>No terminal notes yet. Save one to build your own port memory.</small>`;
+}
+
+function addSuperTerminalNote(event) {
+  event?.preventDefault();
+  if (!superTerminalNoteForm) return;
+  const values = collectFormValues(superTerminalNoteForm);
+  const note = {
+    ...values,
+    time: new Date().toLocaleString()
+  };
+  setSuperNotes([note, ...getSuperNotes()].slice(0, 50));
+  renderSuperTerminalNotes();
+}
+
+function renderSuperSuite() {
+  if (!superSuiteForm || !superSuiteResult) return;
+  const values = collectFormValues(superSuiteForm);
+  const context = superSuiteContext(values);
+  const featureRows = superSuiteFeatures.map((feature) => ({ ...feature, ...superFeatureStatus(feature, context) }));
+  const categories = [...new Set(featureRows.map((feature) => feature.category))];
+  const featureSummary = categories.map((category) => {
+    const items = featureRows.filter((feature) => feature.category === category);
+    return {
+      category,
+      total: items.length,
+      ready: items.filter((feature) => feature.status === "Ready").length,
+      average: Math.round(items.reduce((sum, feature) => sum + feature.readiness, 0) / Math.max(items.length, 1))
+    };
+  });
+  const nextActions = [
+    context.parsed.missing?.length ? `Close missing offer fields: ${context.parsed.missing.join(", ")}.` : "Offer fields are usable for a first recap draft.",
+    context.tce < context.targetTce ? `TCE is below target by ${money(context.targetTce - context.tce)}/day; counter freight or reduce delay.` : "TCE beats target; protect legal and ops wording before fixing.",
+    context.portRisk >= 60 ? `Port delay risk is ${context.portRisk}/100 at ${context.portProfile.port.name}; ask agent for berth/PDA confirmation.` : "Port risk is workable; keep agency updates in SOF.",
+    context.legalRisk >= 60 ? "NOR/waiting/weather wording is risky; use Clause Battle before subjects lifted." : "Clause posture is not flashing red in the local model.",
+    context.draftMargin < 1 ? `Draft margin ${context.draftMargin.toFixed(1)} m is tight; confirm berth-specific depth.` : `Draft margin ${context.draftMargin.toFixed(1)} m is acceptable in the local model.`,
+    "Open Load-Stability Lab for 3D stowage/GM/trim/heel if cargo plan changes."
+  ];
+  const clientText = [
+    `Fixture status: ${context.decision}`,
+    `Cargo/port: ${context.cargo.label} / ${context.portProfile.port.name}`,
+    `Commercial: estimated P&L ${money(context.netPnl)}, TCE ${money(context.tce)}/day.`,
+    `Risk: overall ${context.overallRisk}/100, port ${context.portRisk}/100, market ${context.marketRisk}/100.`,
+    `Next: ${nextActions[0]} ${nextActions[1]}`
+  ].join("\n");
+  lastSuperSuite = {
+    generatedAt: new Date().toLocaleString(),
+    context,
+    featureRows,
+    featureSummary,
+    nextActions,
+    clientText
+  };
+  if (superSuiteHeadline) superSuiteHeadline.textContent = `${context.decision}: ${context.cargo.label} / ${context.portProfile.port.name}`;
+  if (superSuiteSummary) superSuiteSummary.textContent = `Risk ${context.overallRisk}/100, P&L ${money(context.netPnl)}, TCE ${money(context.tce)}/day. ${nextActions[0]}`;
+  superSuiteResult.innerHTML = `
+    ${metricCards([
+      { label: "Decision", value: escapeHtml(context.decision) },
+      { label: "Overall risk", value: `${context.overallRisk}/100` },
+      { label: "Net P&L", value: `<em class="${context.netPnl >= 0 ? "positive" : "negative"}">${money(context.netPnl)}</em>` },
+      { label: "TCE", value: `${money(context.tce)}/day` },
+      { label: "Port", value: escapeHtml(context.portProfile.port.name) },
+      { label: "Feature layer", value: `${superSuiteFeatures.length} modules` }
+    ])}
+    <div class="super-summary-grid">
+      ${featureSummary.map((item) => `<div><span>${escapeHtml(item.category)}</span><strong>${item.ready}/${item.total} ready</strong><small>avg ${item.average}%</small></div>`).join("")}
+    </div>
+    <ul class="compact-list">${nextActions.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+    <pre>${escapeHtml(clientText)}</pre>
+  `;
+  saveSuperReportHistory(lastSuperSuite);
+  renderSuperFeatureGrid(activeSuperFilter);
+  renderSuperReportHistory();
+  renderSuperBuildQueue();
+}
+
+function superClientText() {
+  if (!lastSuperSuite) renderSuperSuite();
+  return lastSuperSuite?.clientText || "No Super Suite client report.";
+}
+
+function handleSuperDownload(type) {
+  if (!lastSuperSuite) renderSuperSuite();
+  const actions = {
+    pdf: () => downloadPdfFile("focusea-super-suite-report.pdf", "Focusea Super Suite Report", superSuiteReportText(lastSuperSuite)),
+    json: () => downloadJsonFile("focusea-super-suite-report.json", lastSuperSuite || {}),
+    client: () => downloadTextFile("focusea-super-suite-client-summary.txt", superClientText()),
+    matrix: () => downloadCsvFile("focusea-super-suite-feature-matrix.csv", superFeatureRows())
+  };
+  actions[type]?.();
+  superSuiteResult?.querySelector(".download-confirm")?.remove();
+  superSuiteResult?.insertAdjacentHTML("beforeend", `<small class="download-confirm">Downloaded: ${escapeHtml(window.focuseaLastDownload?.filename || type)}</small>`);
+}
+
+function renderAllSuperSuite() {
+  renderSuperSuite();
+  renderSuperTerminalNotes();
+  renderSuperReportHistory();
+  renderSuperFeatureGrid();
+  renderSuperBuildQueue();
+}
+
 let lastPythonEngineResult = null;
 
 const pythonEngineSamples = {
@@ -11506,6 +11839,7 @@ bindBrokerForm(disputeSimulatorForm, renderDisputeSimulator);
 bindBrokerForm(watchlistForm, renderWatchlist);
 bindBrokerForm(portHeatmapForm, renderPortHeatmap);
 bindBrokerForm(brokerExamForm, renderBrokerExam);
+bindBrokerForm(superSuiteForm, renderSuperSuite);
 
 if (offerTrackerForm) {
   offerTrackerForm.addEventListener("input", renderKanbanBoard);
@@ -11537,6 +11871,14 @@ if (applyAutoDealToTracker) applyAutoDealToTracker.addEventListener("click", app
 if (addRateMemory) addRateMemory.addEventListener("click", addRateMemoryEntry);
 if (pushSimulatedEmail) pushSimulatedEmail.addEventListener("click", pushSimulatedEmailToInbox);
 if (addWatchlistCompany) addWatchlistCompany.addEventListener("click", addWatchlistEntry);
+if (runSuperSuite) runSuperSuite.addEventListener("click", renderAllSuperSuite);
+if (superTerminalNoteForm) superTerminalNoteForm.addEventListener("submit", addSuperTerminalNote);
+if (clearSuperNotes) {
+  clearSuperNotes.addEventListener("click", () => {
+    setSuperNotes([]);
+    renderSuperTerminalNotes();
+  });
+}
 bindBrokerOsDownloadButtons();
 
 pageNavLinks.forEach((link) => {
@@ -11583,6 +11925,18 @@ document.addEventListener("click", (event) => {
   const button = event.target.closest("[data-download-lab]");
   if (!button) return;
   handleDecisionLabDownload(button.dataset.downloadLab);
+});
+
+document.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-download-super]");
+  if (!button) return;
+  handleSuperDownload(button.dataset.downloadSuper);
+});
+
+document.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-super-filter]");
+  if (!button) return;
+  renderSuperFeatureGrid(button.dataset.superFilter || "All");
 });
 
 const pythonEngineForm = document.querySelector("#pythonEngineForm");
@@ -11962,6 +12316,7 @@ renderSustainabilityDesk();
 renderClientPortal();
 runAllBrokerOs();
 runFullDecisionLab();
+renderAllSuperSuite();
 renderMarketIndexes();
 renderDataTrustLayer();
 renderBalticFeedPanel();

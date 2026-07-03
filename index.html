@@ -8,7 +8,7 @@
     <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=(), serial=()" />
     <title>Focusea Maritime Platform</title>
     <link rel="icon" href="favicon.svg?v=focusea-badge2" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=turkiye-desk-1" />
+    <link rel="stylesheet" href="styles.css?v=super-suite-1" />
   </head>
   <body>
     <div class="app-shell">
@@ -30,6 +30,7 @@
           <a href="#autopilot" data-page-link="autopilot">Autopilot Pro</a>
           <a href="#dealIQ" data-page-link="dealIQ">Deal IQ</a>
           <a href="#decisionLab" data-page-link="decisionLab">Decision Lab</a>
+          <a href="#superSuite" data-page-link="superSuite">Super Suite</a>
           <a href="#pythonEngine" data-page-link="pythonEngine">Python Engine</a>
           <a href="#market" data-page-link="market">Market & News</a>
           <a href="#tools" data-page-link="tools">Tools</a>
@@ -2120,6 +2121,92 @@ TRALI,Aliaga Nemrut Bay,Turkiye,Turkiye,Tanker / Bulk / Container,20</textarea><
           </div>
         </section>
 
+        <section class="super-suite-panel" id="superSuitePanel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Focusea Super Suite</p>
+              <h2>Broker, operasyon, claim, market, loadicator, AI ve akademi tek komuta merkezinde</h2>
+            </div>
+            <div class="status-pill">All-in-One Product Layer</div>
+          </div>
+
+          <div class="super-suite-hero">
+            <div>
+              <span>One click maritime operating system</span>
+              <strong id="superSuiteHeadline">Fixture mailini ver, Focusea tum is akislarini hazirlasin.</strong>
+              <p id="superSuiteSummary">Bu katman onceki tum fikirleri tek ekranda toplar: fixture autopilot, deal room, port ops, claim pack, market alert, loadicator bridge, document AI, akademi, client portal ve admin/product merkezi.</p>
+            </div>
+            <button type="button" class="primary-button" id="runSuperSuite">Run Super Suite</button>
+          </div>
+
+          <div class="super-suite-grid">
+            <article class="wide-card super-suite-main-card">
+              <div class="mini-heading"><span>Master Scenario</span><strong>Tum modulleri ayni deal uzerinden calistir</strong></div>
+              <form class="broker-form single-column" id="superSuiteForm">
+                <label><span>Fixture / SOF / clause / broker mail</span><textarea name="dealText">Firm offer: 50k coal Indonesia to India laycan 10/15 Jul freight USD 18.50 pmt demurrage USD 18,000/day Supramax. NOR WIBON/WIPON and time lost waiting berth to count as laytime. Subjects receiver approval by 1700 LT. NOR tendered 10 Jul 0800, berthed 10 Jul 1800, loading started 11 Jul 0600, rain stop 12 Jul 0300-0900, completed 14 Jul 2200.</textarea></label>
+                <div class="auto-deal-controls">
+                  <label><span>Cargo</span><select name="cargoType" data-cargo-select><option value="coal">Coal</option><option value="grain">Grain</option><option value="container">Container</option><option value="ironOre">Iron Ore</option><option value="crudeOil">Crude Oil</option><option value="lng">LNG</option><option value="chemicals">Chemicals</option><option value="projectCargo">Project Cargo</option></select></label>
+                  <label><span>Port</span><select name="turkiyePortId"><option value="mersin">Mersin</option><option value="ambarli">Ambarli / Kumport</option><option value="izmir">Izmir / Alsancak</option><option value="aliaga">Aliaga / Nemrut</option><option value="gemlik">Gemlik</option><option value="izmit">Kocaeli / Izmit</option><option value="tekirdag">Tekirdag</option><option value="iskenderun">Iskenderun</option><option value="samsun">Samsun</option></select></label>
+                  <label><span>Target TCE</span><input name="targetTce" type="number" value="22000" step="500" /></label>
+                  <label><span>Daily hire</span><input name="dailyHire" type="number" value="14500" step="100" /></label>
+                  <label><span>Port delay days</span><input name="portDelay" type="number" value="2" min="0" step="0.1" /></label>
+                  <label><span>Bunker $/t</span><input name="bunkerPrice" type="number" value="686.5" min="0" step="0.1" /></label>
+                  <label><span>Draft m</span><input name="draft" type="number" value="12.8" min="0" step="0.1" /></label>
+                  <label><span>Mode</span><select name="mode"><option>Broker demo</option><option>Class presentation</option><option>Commercial review</option><option>Training lab</option></select></label>
+                </div>
+                <button type="submit">Tum Modulleri Calistir</button>
+              </form>
+              <div class="button-row">
+                <button type="button" class="ghost-button small" data-download-super="pdf">Super PDF</button>
+                <button type="button" class="ghost-button small" data-download-super="json">Super JSON</button>
+                <button type="button" class="ghost-button small" data-download-super="client">Client TXT</button>
+                <button type="button" class="ghost-button small" data-download-super="matrix">Feature Matrix CSV</button>
+              </div>
+              <div class="broker-output super-suite-output" id="superSuiteResult"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>Terminal Notes Database</span><strong>Kendi liman/acente hafizan</strong></div>
+              <form class="broker-form" id="superTerminalNoteForm">
+                <label><span>Port / terminal</span><input name="portName" value="Mersin / container terminal" /></label>
+                <label><span>Note type</span><select name="noteType"><option>Agency</option><option>Rain evidence</option><option>Docs</option><option>Cost</option><option>Delay</option><option>Client warning</option></select></label>
+                <label class="wide-label"><span>Note</span><textarea name="noteText">Ask agent to preserve terminal stop/start log and customs cut-off confirmation before NOR is accepted.</textarea></label>
+                <button type="submit">Notu Kaydet</button>
+              </form>
+              <div class="button-row">
+                <button type="button" class="ghost-button small" id="clearSuperNotes">Notlari Temizle</button>
+              </div>
+              <div class="broker-output" id="superTerminalNotesResult"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>Report History</span><strong>Indirilen / uretilen rapor kaydi</strong></div>
+              <div class="broker-output" id="superReportHistory"></div>
+            </article>
+
+            <article class="wide-card">
+              <div class="mini-heading"><span>Feature Matrix</span><strong>Eklenen tum fikir aileleri</strong></div>
+              <div class="super-feature-toolbar">
+                <button type="button" class="ghost-button small" data-super-filter="All">All</button>
+                <button type="button" class="ghost-button small" data-super-filter="Broker">Broker</button>
+                <button type="button" class="ghost-button small" data-super-filter="Ops">Ops</button>
+                <button type="button" class="ghost-button small" data-super-filter="Claim">Claim</button>
+                <button type="button" class="ghost-button small" data-super-filter="Market">Market</button>
+                <button type="button" class="ghost-button small" data-super-filter="Engineering">Engineering</button>
+                <button type="button" class="ghost-button small" data-super-filter="AI">AI</button>
+                <button type="button" class="ghost-button small" data-super-filter="Academy">Academy</button>
+                <button type="button" class="ghost-button small" data-super-filter="Product">Product</button>
+              </div>
+              <div class="super-feature-grid" id="superFeatureGrid"></div>
+            </article>
+
+            <article class="wide-card">
+              <div class="mini-heading"><span>Next Build Queue</span><strong>Backend, hesap motoru ve veri derinligi</strong></div>
+              <div class="broker-output" id="superBuildQueue"></div>
+            </article>
+          </div>
+        </section>
+
         <section class="python-engine-panel" id="pythonEngineSuite">
           <div class="panel-heading">
             <div>
@@ -2827,6 +2914,6 @@ TRALI,Aliaga Nemrut Bay,Turkiye,Turkiye,Tanker / Bulk / Container,20</textarea><
       </main>
     </div>
 
-    <script src="script.js?v=turkiye-desk-1"></script>
+    <script src="script.js?v=super-suite-1"></script>
   </body>
 </html>

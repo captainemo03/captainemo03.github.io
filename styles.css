@@ -166,6 +166,7 @@ a {
 .autopilot-panel,
 .deal-iq-panel,
 .decision-lab-panel,
+.super-suite-panel,
 .python-engine-panel,
 .command-deck-panel,
 .assistant-panel,
@@ -921,6 +922,15 @@ main {
     rgba(18, 16, 62, 0.78);
 }
 
+.super-suite-panel {
+  background:
+    radial-gradient(circle at 9% 0%, rgba(40, 240, 198, 0.18), transparent 28%),
+    radial-gradient(circle at 70% 6%, rgba(100, 97, 255, 0.2), transparent 30%),
+    radial-gradient(circle at 98% 22%, rgba(245, 200, 75, 0.1), transparent 26%),
+    linear-gradient(135deg, rgba(5, 18, 30, 0.92), rgba(22, 18, 72, 0.82)),
+    rgba(18, 16, 62, 0.8);
+}
+
 .broker-os-hero,
 .autopilot-hero,
 .deal-iq-hero {
@@ -965,6 +975,47 @@ main {
   background:
     linear-gradient(135deg, rgba(245, 200, 75, 0.1), transparent 42%),
     rgba(2, 13, 18, 0.28);
+}
+
+.super-suite-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 18px;
+  padding: 18px;
+  border: 1px solid rgba(40, 240, 198, 0.26);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(40, 240, 198, 0.12), transparent 45%),
+    linear-gradient(90deg, rgba(100, 97, 255, 0.12), transparent 60%),
+    rgba(2, 13, 18, 0.32);
+}
+
+.super-suite-hero span,
+.super-suite-hero p {
+  color: var(--muted);
+}
+
+.super-suite-hero span {
+  display: block;
+  font-size: 0.76rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.super-suite-hero strong {
+  display: block;
+  margin-top: 5px;
+  color: var(--text);
+  font-size: 1.55rem;
+  overflow-wrap: anywhere;
+}
+
+.super-suite-hero p {
+  max-width: 900px;
+  margin: 6px 0 0;
+  line-height: 1.5;
 }
 
 .decision-lab-hero span,
@@ -1090,6 +1141,13 @@ main {
   align-items: start;
 }
 
+.super-suite-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
 .broker-grid article,
 .broker-pro-grid article,
 .ops-suite-grid article,
@@ -1101,7 +1159,8 @@ main {
 .broker-os-grid article,
 .autopilot-grid article,
 .deal-iq-grid article,
-.decision-lab-grid article {
+.decision-lab-grid article,
+.super-suite-grid article {
   display: grid;
   align-content: start;
   gap: 12px;
@@ -1123,6 +1182,7 @@ main {
 .autopilot-grid .wide-card,
 .deal-iq-grid .wide-card,
 .decision-lab-grid .wide-card,
+.super-suite-grid .wide-card,
 .broker-form .wide-label {
   grid-column: 1 / -1;
 }
@@ -1809,6 +1869,98 @@ main {
     linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
     rgba(5, 15, 28, 0.52);
   background-size: 34px 34px;
+}
+
+.super-suite-main-card {
+  border-color: rgba(40, 240, 198, 0.3);
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    radial-gradient(circle at 10% 0%, rgba(40, 240, 198, 0.11), transparent 34%),
+    rgba(5, 15, 28, 0.5);
+  background-size: 36px 36px, 36px 36px, auto, auto;
+}
+
+.super-suite-output {
+  border-color: rgba(40, 240, 198, 0.24);
+  background: rgba(2, 13, 18, 0.32);
+}
+
+.super-summary-grid,
+.super-feature-grid {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.super-summary-grid {
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+}
+
+.super-summary-grid div,
+.super-feature-card {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: rgba(2, 13, 18, 0.28);
+}
+
+.super-summary-grid span,
+.super-summary-grid small,
+.super-feature-card span,
+.super-feature-card small,
+.super-feature-card p {
+  color: var(--muted);
+}
+
+.super-summary-grid span,
+.super-feature-card span {
+  display: block;
+  font-size: 0.74rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.super-summary-grid strong,
+.super-feature-card strong {
+  display: block;
+  margin-top: 5px;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.super-feature-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+}
+
+.super-feature-card {
+  display: grid;
+  gap: 8px;
+}
+
+.super-feature-card div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.super-feature-card p {
+  margin: 0;
+  line-height: 1.42;
+}
+
+.super-feature-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.super-feature-toolbar .active {
+  border-color: rgba(40, 240, 198, 0.48);
+  color: #071421;
+  background: var(--accent);
 }
 
 .auto-deal-grid,
@@ -3465,7 +3617,9 @@ main {
   .autopilot-grid,
   .deal-iq-grid,
   .decision-lab-grid,
+  .super-suite-grid,
   .python-engine-grid,
+  .super-suite-hero,
   .python-engine-hero,
   .auto-deal-controls,
   .auto-deal-grid,
@@ -3533,6 +3687,7 @@ main {
   .autopilot-panel,
   .deal-iq-panel,
   .decision-lab-panel,
+  .super-suite-panel,
   .python-engine-panel,
   .assistant-panel,
   .academy-grid article,
@@ -3561,11 +3716,13 @@ main {
   .autopilot-grid,
   .deal-iq-grid,
   .decision-lab-grid,
+  .super-suite-grid,
   .python-engine-grid,
   .broker-os-hero,
   .autopilot-hero,
   .deal-iq-hero,
   .decision-lab-hero,
+  .super-suite-hero,
   .python-engine-hero,
   .export-actions,
   .broker-form,
@@ -3574,6 +3731,8 @@ main {
   .auto-deal-market,
   .broker-metrics,
   .template-grid,
+  .super-summary-grid,
+  .super-feature-grid,
   .intelligence-grid,
   .market-index-form,
   .market-index-detail-body,
