@@ -1184,6 +1184,151 @@ main {
   text-transform: uppercase;
 }
 
+.workflow-graph {
+  display: grid;
+  gap: 14px;
+}
+
+.workflow-graph-map {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
+  gap: 10px;
+}
+
+.workflow-node {
+  position: relative;
+  display: grid;
+  gap: 6px;
+  min-height: 132px;
+  padding: 13px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(40, 240, 198, 0.13), transparent 42%),
+    rgba(2, 13, 18, 0.32);
+}
+
+.workflow-node::after {
+  content: "";
+  position: absolute;
+  inset: auto 13px 11px 13px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.workflow-node.low {
+  border-color: rgba(40, 240, 198, 0.24);
+}
+
+.workflow-node.medium {
+  border-color: rgba(245, 200, 75, 0.34);
+}
+
+.workflow-node.high {
+  border-color: rgba(255, 154, 154, 0.42);
+}
+
+.workflow-node.low::after {
+  background: #28f0c6;
+}
+
+.workflow-node.medium::after {
+  background: #f5c84b;
+}
+
+.workflow-node.high::after {
+  background: #ff9a9a;
+}
+
+.workflow-node strong,
+.workflow-node span,
+.workflow-node small {
+  display: block;
+}
+
+.workflow-node strong {
+  color: var(--text);
+}
+
+.workflow-node span {
+  color: #6fffe3;
+  font-size: 1.35rem;
+  font-weight: 950;
+}
+
+.workflow-node small {
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.workflow-link-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 8px;
+}
+
+.workflow-link-list div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.workflow-link-list span {
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.workflow-link-list strong {
+  color: var(--text);
+}
+
+.workflow-redteam-list {
+  display: grid;
+  gap: 9px;
+}
+
+.workflow-redteam-list div {
+  display: grid;
+  gap: 5px;
+  padding: 11px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(2, 13, 18, 0.3);
+}
+
+.workflow-redteam-list div.low {
+  border-color: rgba(40, 240, 198, 0.2);
+}
+
+.workflow-redteam-list div.medium {
+  border-color: rgba(245, 200, 75, 0.3);
+}
+
+.workflow-redteam-list div.high {
+  border-color: rgba(255, 154, 154, 0.4);
+}
+
+.workflow-redteam-list strong {
+  color: var(--text);
+}
+
+.workflow-redteam-list span {
+  color: #d8edf1;
+  line-height: 1.45;
+}
+
+.workflow-redteam-list small {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
 .theater-output {
   display: grid;
   gap: 12px;

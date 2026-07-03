@@ -8,7 +8,7 @@
     <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=(), serial=()" />
     <title>Focusea Maritime Platform</title>
     <link rel="icon" href="favicon.svg?v=focusea-badge2" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=workflow-control-1" />
+    <link rel="stylesheet" href="styles.css?v=workflow-suite-1" />
   </head>
   <body>
     <div class="app-shell">
@@ -2177,6 +2177,103 @@ TRALI,Aliaga Nemrut Bay,Turkiye,Turkiye,Tanker / Bulk / Container,20</textarea><
               <div class="broker-output workflow-gate-output" id="workflowGateResult"></div>
             </article>
 
+            <article class="wide-card">
+              <div class="mini-heading"><span>Deal Intelligence Graph</span><strong>Risk agi</strong></div>
+              <div class="workflow-graph" id="dealGraphResult"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>Private Market Memory</span><strong>Kendi fixture hafizan</strong></div>
+              <form class="broker-form" id="marketMemoryForm">
+                <label><span>Cargo</span><select name="cargoType" data-cargo-select><option value="coal">Coal</option><option value="grain">Grain</option><option value="container">Container</option><option value="ironOre">Iron Ore</option><option value="crudeOil">Crude Oil</option><option value="lng">LNG</option><option value="chemicals">Chemicals</option><option value="projectCargo">Project Cargo</option></select></label>
+                <label><span>Route</span><input name="route" value="Indonesia / India" /></label>
+                <label><span>Freight</span><input name="freight" type="number" value="18.5" step="0.1" /></label>
+                <label><span>TCE $/day</span><input name="tce" type="number" value="21400" step="100" /></label>
+                <label><span>Status</span><select name="status"><option>Fixed</option><option selected>On subjects</option><option>Failed</option><option>Watch</option></select></label>
+              </form>
+              <div class="button-row">
+                <button type="button" class="ghost-button small" id="saveMarketMemory">Save fixture</button>
+                <button type="button" class="ghost-button small" id="clearMarketMemory">Clear</button>
+              </div>
+              <div class="broker-output" id="marketMemoryResult"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>SOF / CP / NOR Red Team</span><strong>Belge saldiri testi</strong></div>
+              <form class="broker-form" id="documentRedTeamForm">
+                <label class="wide-label"><span>Document text</span><textarea name="documentText">NOR WIBON/WIPON. Time lost waiting for berth shall count as laytime. Weather delays excepted unless used. Pumping warranty to be maintained.</textarea></label>
+                <label><span>Side</span><select name="side"><option>Broker neutral</option><option>Owner</option><option>Charterer</option></select></label>
+                <button type="submit">Red Team Calistir</button>
+              </form>
+              <div class="broker-output" id="documentRedTeamResult"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>Port Reality Layer</span><strong>Resmi kaynak + local note</strong></div>
+              <form class="broker-form" id="portRealityForm">
+                <label><span>Port</span><select name="portId"><option value="mersin">Mersin</option><option value="ambarli">Ambarli / Kumport</option><option value="izmir">Izmir / Alsancak</option><option value="aliaga">Aliaga / Nemrut</option><option value="gemlik">Gemlik</option><option value="izmit">Kocaeli / Izmit</option><option value="tekirdag">Tekirdag</option><option value="iskenderun">Iskenderun</option><option value="samsun">Samsun</option></select></label>
+                <label><span>Cargo</span><select name="cargoType" data-cargo-select><option value="coal">Coal</option><option value="grain">Grain</option><option value="container">Container</option><option value="crudeOil">Crude Oil</option><option value="lng">LNG</option><option value="chemicals">Chemicals</option></select></label>
+                <label><span>Draft m</span><input name="draft" type="number" value="12.8" step="0.1" /></label>
+                <label><span>Waiting days</span><input name="waitingDays" type="number" value="2" step="0.1" /></label>
+                <label class="wide-label"><span>Agency note</span><textarea name="agencyNote">Ask agent for berth window, rain letter practice and PDA before subjects lifted.</textarea></label>
+                <button type="submit">Port Reality Goster</button>
+              </form>
+              <div class="broker-output" id="portRealityResult"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>Weather to Laytime</span><strong>Hava -> claim etkisi</strong></div>
+              <form class="broker-form" id="weatherLaytimeForm">
+                <label><span>Weather hours</span><input name="weatherHours" type="number" value="8" min="0" step="0.5" /></label>
+                <label><span>Waiting hours</span><input name="waitingHours" type="number" value="14" min="0" step="0.5" /></label>
+                <label><span>Demurrage $/day</span><input name="demurrageRate" type="number" value="18000" step="100" /></label>
+                <label><span>Clause</span><select name="clauseMode"><option value="excepted">Weather excepted</option><option value="unless-used">Excepted unless used</option><option value="counts">Time counts</option></select></label>
+                <button type="submit">Laytime Etkisini Hesapla</button>
+              </form>
+              <div class="broker-output" id="weatherLaytimeResult"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>Carbon / ETS Cost Desk</span><strong>CO2 ticari maliyet</strong></div>
+              <form class="broker-form" id="carbonDeskForm">
+                <label><span>Fuel tons</span><input name="fuelTons" type="number" value="620" min="0" step="1" /></label>
+                <label><span>EU voyage share %</span><input name="euShare" type="number" value="50" min="0" max="100" step="1" /></label>
+                <label><span>EUA price EUR/t</span><input name="euaPrice" type="number" value="72" min="0" step="1" /></label>
+                <label><span>Surrender %</span><input name="surrenderPct" type="number" value="70" min="0" max="100" step="1" /></label>
+                <button type="submit">ETS Hesapla</button>
+              </form>
+              <div class="broker-output" id="carbonDeskResult"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>Client Portal Pack</span><strong>Musteriye gonderilecek ozet</strong></div>
+              <form class="broker-form" id="workflowClientPortalForm">
+                <label><span>Client</span><input name="client" value="Atlas Commodities" /></label>
+                <label><span>Deal ref</span><input name="dealRef" value="FX-2026-001" /></label>
+                <label><span>ETA</span><input name="eta" value="21 days" /></label>
+                <label><span>Visibility</span><select name="visibility"><option>Client summary</option><option>Internal risk pack</option><option>Claim pack</option></select></label>
+                <button type="submit">Portal Paketi Uret</button>
+              </form>
+              <div class="broker-output" id="workflowClientPortalResult"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>Negotiation Simulator Pro</span><strong>Counter seviyesi</strong></div>
+              <form class="broker-form" id="negotiationProForm">
+                <label><span>Cargo</span><select name="cargoType" data-cargo-select><option value="coal">Coal</option><option value="grain">Grain</option><option value="container">Container</option><option value="ironOre">Iron Ore</option><option value="crudeOil">Crude Oil</option><option value="lng">LNG</option><option value="chemicals">Chemicals</option></select></label>
+                <label><span>Owner offer</span><input name="ownerOffer" type="number" value="20.5" step="0.1" /></label>
+                <label><span>Charterer counter</span><input name="chartererCounter" type="number" value="18.5" step="0.1" /></label>
+                <label><span>Target TCE</span><input name="targetTce" type="number" value="22000" step="500" /></label>
+                <button type="submit">Counter Oner</button>
+              </form>
+              <div class="broker-output" id="negotiationProResult"></div>
+            </article>
+
+            <article class="wide-card">
+              <div class="mini-heading"><span>Confidence Layer</span><strong>Kaynak ve guven haritasi</strong></div>
+              <div class="broker-output" id="workflowConfidenceResult"></div>
+            </article>
+
             <article class="wide-card theater-main-card">
               <div class="mini-heading"><span>Workflow Timeline</span><strong>Is akisi</strong></div>
               <div class="broker-output theater-output" id="theaterStory"></div>
@@ -3007,6 +3104,6 @@ TRALI,Aliaga Nemrut Bay,Turkiye,Turkiye,Tanker / Bulk / Container,20</textarea><
       </main>
     </div>
 
-    <script src="script.js?v=workflow-control-1"></script>
+    <script src="script.js?v=workflow-suite-1"></script>
   </body>
 </html>

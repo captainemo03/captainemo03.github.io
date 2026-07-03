@@ -2264,6 +2264,24 @@ const theaterScript = document.querySelector("#theaterScript");
 const theaterMatrix = document.querySelector("#theaterMatrix");
 const workflowGateForm = document.querySelector("#workflowGateForm");
 const workflowGateResult = document.querySelector("#workflowGateResult");
+const dealGraphResult = document.querySelector("#dealGraphResult");
+const marketMemoryForm = document.querySelector("#marketMemoryForm");
+const marketMemoryResult = document.querySelector("#marketMemoryResult");
+const saveMarketMemory = document.querySelector("#saveMarketMemory");
+const clearMarketMemory = document.querySelector("#clearMarketMemory");
+const documentRedTeamForm = document.querySelector("#documentRedTeamForm");
+const documentRedTeamResult = document.querySelector("#documentRedTeamResult");
+const portRealityForm = document.querySelector("#portRealityForm");
+const portRealityResult = document.querySelector("#portRealityResult");
+const weatherLaytimeForm = document.querySelector("#weatherLaytimeForm");
+const weatherLaytimeResult = document.querySelector("#weatherLaytimeResult");
+const carbonDeskForm = document.querySelector("#carbonDeskForm");
+const carbonDeskResult = document.querySelector("#carbonDeskResult");
+const workflowClientPortalForm = document.querySelector("#workflowClientPortalForm");
+const workflowClientPortalResult = document.querySelector("#workflowClientPortalResult");
+const negotiationProForm = document.querySelector("#negotiationProForm");
+const negotiationProResult = document.querySelector("#negotiationProResult");
+const workflowConfidenceResult = document.querySelector("#workflowConfidenceResult");
 let activeNewsQuery = "maritime shipping";
 let generatedOpsEmailText = "";
 let selectedCommandScenarioId = "coal";
@@ -2272,6 +2290,12 @@ let commandDeckPresentationActive = false;
 let lastCommandDeckReport = "";
 let lastTheaterReport = null;
 let lastWorkflowGate = null;
+let lastDocumentRedTeam = null;
+let lastPortReality = null;
+let lastWeatherLaytime = null;
+let lastCarbonDesk = null;
+let lastWorkflowClientPortal = null;
+let lastNegotiationPro = null;
 let lastParsedOffer = null;
 let lastCopilotReport = null;
 let lastTceOptimization = null;
@@ -10506,6 +10530,9 @@ function renderWorkflowGate() {
     </div>
     <pre>${escapeHtml(result.actionMail)}</pre>
   `;
+  renderDealIntelligenceGraph();
+  renderWorkflowClientPortal();
+  renderWorkflowConfidence();
 }
 
 function handleWorkflowDownload(type) {
@@ -10518,6 +10545,329 @@ function handleWorkflowDownload(type) {
   actions[type]?.();
   workflowGateResult?.querySelector(".download-confirm")?.remove();
   workflowGateResult?.insertAdjacentHTML("beforeend", `<small class="download-confirm">Downloaded: ${escapeHtml(window.focuseaLastDownload?.filename || type)}</small>`);
+}
+
+function riskBand(score) {
+  if (score >= 72) return "high";
+  if (score >= 52) return "medium";
+  return "low";
+}
+
+function riskBandLabel(score) {
+  if (score >= 72) return "High";
+  if (score >= 52) return "Watch";
+  return "Workable";
+}
+
+function renderDealIntelligenceGraph() {
+  if (!dealGraphResult) return;
+  if (!lastWorkflowGate) lastWorkflowGate = workflowGateContext(workflowGateForm ? collectFormValues(workflowGateForm) : {});
+  const g = lastWorkflowGate;
+  const nodes = [
+    { name: "Offer", score: g.parsedRisk.score, note: g.parsed.missing.length ? `${g.parsed.missing.length} missing fields` : "Core terms readable" },
+    { name: "Cargo", score: g.cargo.risk, note: g.cargo.note },
+    { name: "Port", score: g.portRisk, note: `${g.port.name} / draft margin ${g.draftMargin.toFixed(1)} m` },
+    { name: "Clause", score: g.legalRisk, note: g.legalRisk >= 65 ? "NOR / waiting wording protected badly" : "Clause watch required" },
+    { name: "Claim", score: Math.round((g.legalRisk + g.subjectRisk) / 2), note: "SOF, NOR, rain log and time bar must match" },
+    { name: "Payment", score: Math.round((g.commercialRisk + g.parsedRisk.score) / 2), note: g.tce < g.targetTce ? "Commercial gap affects payment confidence" : "Commercials above target" },
+    { name: "Market", score: g.marketRisk, note: "Bunker, congestion and cargo sentiment attached" },
+    { name: "Client", score: Math.max(12, g.risk - 8), note: "Client portal summary can be sent after protections" }
+  ];
+  dealGraphResult.innerHTML = `
+    <div class="workflow-graph-map">
+      ${nodes.map((node, index) => `
+        <div class="workflow-node ${riskBand(node.score)}" style="--node-index:${index}">
+          <strong>${escapeHtml(node.name)}</strong>
+          <span>${node.score}/100</span>
+          <small>${escapeHtml(node.note)}</small>
+        </div>
+      `).join("")}
+    </div>
+    <div class="workflow-link-list">
+      ${nodes.slice(0, -1).map((node, index) => `
+        <div><span>${escapeHtml(node.name)} -> ${escapeHtml(nodes[index + 1].name)}</span><strong>${riskBandLabel(Math.max(node.score, nodes[index + 1].score))}</strong></div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function marketMemorySeed() {
+  return [
+    { cargoType: "coal", route: "Indonesia / India", freight: 18.5, tce: 21400, status: "Fixed", time: "Seed" },
+    { cargoType: "grain", route: "Black Sea / Egypt", freight: 24.2, tce: 18800, status: "On subjects", time: "Seed" },
+    { cargoType: "container", route: "Shanghai / Los Angeles", freight: 1550, tce: 27600, status: "Failed", time: "Seed" },
+    ...decisionRateMemory.map((item) => ({ ...item, freight: item.freightRate, status: item.fixtureStatus, time: "Decision Lab" }))
+  ];
+}
+
+function getMarketMemory() {
+  const saved = safeLocalGet("focusea-private-market-memory-v1", null);
+  return Array.isArray(saved) && saved.length ? saved : marketMemorySeed();
+}
+
+function setMarketMemory(items) {
+  safeLocalSet("focusea-private-market-memory-v1", items);
+}
+
+function renderMarketMemory() {
+  if (!marketMemoryResult) return;
+  const items = getMarketMemory();
+  const values = marketMemoryForm ? collectFormValues(marketMemoryForm) : { cargoType: lastWorkflowGate?.cargoType || "coal", route: lastWorkflowGate?.parsed?.route || "Indonesia / India" };
+  const cargoType = values.cargoType || lastWorkflowGate?.cargoType || "coal";
+  const routeText = String(values.route || lastWorkflowGate?.parsed?.route || "").toLowerCase();
+  const matches = items.filter((item) => item.cargoType === cargoType && (!routeText || String(item.route || "").toLowerCase().includes(routeText.split("/")[0]?.trim() || "")));
+  const basis = matches.length ? matches : items.filter((item) => item.cargoType === cargoType);
+  const avgFreight = basis.reduce((sum, item) => sum + Number(item.freight || 0), 0) / Math.max(basis.length, 1);
+  const avgTce = basis.reduce((sum, item) => sum + Number(item.tce || 0), 0) / Math.max(basis.length, 1);
+  const currentFreight = lastWorkflowGate?.freight || Number(values.freight) || avgFreight;
+  marketMemoryResult.innerHTML = `
+    ${metricCards([
+      { label: "Saved fixtures", value: items.length },
+      { label: "Comparable count", value: basis.length },
+      { label: "Avg freight", value: money(avgFreight, cargoType === "container" ? 0 : 2) },
+      { label: "Avg TCE", value: `${money(avgTce)}/day` },
+      { label: "Current vs memory", value: `${currentFreight >= avgFreight ? "+" : ""}${money(currentFreight - avgFreight, 2)}` }
+    ])}
+    <div class="ops-list">${basis.slice(0, 6).map((item) => `
+      <div><strong>${escapeHtml(getCargoProfile(item.cargoType).label)} · ${escapeHtml(item.route)}</strong><span>${escapeHtml(item.status)} · freight ${money(item.freight, item.cargoType === "container" ? 0 : 2)} · TCE ${money(item.tce)}/day · ${escapeHtml(item.time || "")}</span></div>
+    `).join("")}</div>
+  `;
+}
+
+function addMarketMemoryEntry() {
+  if (!marketMemoryForm) return;
+  const values = collectFormValues(marketMemoryForm);
+  const item = {
+    cargoType: values.cargoType || "coal",
+    route: values.route || "Unknown route",
+    freight: Number(values.freight) || 0,
+    tce: Number(values.tce) || 0,
+    status: values.status || "Watch",
+    time: new Date().toLocaleString()
+  };
+  setMarketMemory([item, ...getMarketMemory()].slice(0, 80));
+  renderMarketMemory();
+  renderWorkflowConfidence();
+}
+
+function redTeamFindings(text = "", side = "Broker neutral") {
+  const tests = [
+    [/wibon|wipon|whether in berth/i, "NOR validity", "High", "Clarify when NOR becomes valid and whether free pratique/customs clearance is required."],
+    [/time lost waiting|waiting for berth.*count/i, "Waiting time", "High", "Define if waiting time counts as laytime or demurrage only after valid NOR."],
+    [/weather delays excepted unless used/i, "Weather exception", "Medium", "Add evidence rule: terminal log, rain letter, stop/start times and whether work actually continued."],
+    [/always accessible|reachable on arrival/i, "Berth warranty", "High", "Avoid broad berth warranty without berth-specific safe access and draft confirmation."],
+    [/pumping|pressure|warranty/i, "Pumping warranty", "Medium", "State shore restrictions, back pressure, vessel capability and log evidence."],
+    [/time.?bar|90 days|documents within/i, "Time bar", "High", "Insert exact claim document list and deadline owner/charterer must follow."],
+    [/sanction|ofac|eu|un|russia|iran|syria|venezuela/i, "Compliance", "High", "Require sanctions screening for cargo origin, counterparties, vessel and banks."],
+    [/loi|letter of indemnity/i, "LOI", "Medium", "Confirm P&I position and signed wording before accepting operational shortcut."],
+    [/clean hold|hold cleanliness|previous cargo/i, "Cargo readiness", "Medium", "Add hold/tank cleanliness certificate and survey evidence before loading."],
+    [/freight payable|deduct|net of/i, "Payment wording", "Medium", "Clarify freight due date, deductions, brokerage and bank charges."]
+  ];
+  return tests
+    .filter(([pattern]) => pattern.test(text))
+    .map(([, title, severity, advice]) => ({
+      title,
+      severity,
+      side,
+      advice,
+      counter: `Counter wording: ${advice}`
+    }));
+}
+
+function renderDocumentRedTeam() {
+  if (!documentRedTeamForm || !documentRedTeamResult) return;
+  const values = collectFormValues(documentRedTeamForm);
+  const findings = redTeamFindings(values.documentText || "", values.side || "Broker neutral");
+  const score = clamp(28 + findings.filter((item) => item.severity === "High").length * 18 + findings.filter((item) => item.severity === "Medium").length * 9, 0, 100);
+  lastDocumentRedTeam = { values, findings, score };
+  documentRedTeamResult.innerHTML = `
+    ${metricCards([
+      { label: "Red flags", value: findings.length },
+      { label: "Risk score", value: `${score}/100` },
+      { label: "Posture", value: score >= 70 ? "Hold subjects" : score >= 50 ? "Counter wording" : "Workable" }
+    ])}
+    <div class="workflow-redteam-list">${(findings.length ? findings : [{ title: "No strong red flag", severity: "Low", advice: "Still confirm NOR, laytime, demurrage, exceptions and evidence list.", counter: "Counter wording: keep standard protections in recap." }]).map((item) => `
+      <div class="${riskBand(item.severity === "High" ? 82 : item.severity === "Medium" ? 58 : 30)}">
+        <strong>${escapeHtml(item.title)} · ${escapeHtml(item.severity)}</strong>
+        <span>${escapeHtml(item.advice)}</span>
+        <small>${escapeHtml(item.counter)}</small>
+      </div>
+    `).join("")}</div>
+  `;
+  renderWorkflowConfidence();
+}
+
+function renderPortReality() {
+  if (!portRealityForm || !portRealityResult) return;
+  const values = collectFormValues(portRealityForm);
+  const { id, port, ops } = turkiyePortProfile(values.portId || "mersin");
+  const cargo = getCargoProfile(values.cargoType || "coal");
+  const margin = turkiyeDraftMargin(port, values.draft);
+  const waitingRisk = turkiyeWaitingRisk(id, values.waitingDays, cargo.risk);
+  const cost = portCostBase(port) * ops.costFactor * cargo.portCostMultiplier + (Number(values.waitingDays) || 0) * 14500;
+  const status = waitingRisk >= 70 || margin < 0 ? "NO-GO until confirmed" : waitingRisk >= 55 || margin < 1 ? "Conditional" : "Workable";
+  lastPortReality = { values, id, port, cargo, margin, waitingRisk, cost, status };
+  portRealityResult.innerHTML = `
+    ${metricCards([
+      { label: "Port status", value: escapeHtml(status) },
+      { label: "Draft margin", value: `${margin.toFixed(1)} m` },
+      { label: "Waiting risk", value: `${waitingRisk}/100` },
+      { label: "Screening cost", value: money(cost) }
+    ])}
+    <div class="confidence-list">
+      <div class="confidence-row"><span>UN/LOCODE import lane</span><em class="source-badge api-ready">API-ready</em><a href="https://unece.org/trade/cefact/UNLOCODE-Download" target="_blank" rel="noopener noreferrer">Source</a></div>
+      <div class="confidence-row"><span>NGA World Port Index lane</span><em class="source-badge api-ready">API-ready</em><a href="https://msi.nga.mil/Publications/WPI" target="_blank" rel="noopener noreferrer">Source</a></div>
+      <div class="confidence-row"><span>Local agency note</span><em class="source-badge input">User input</em><span>${escapeHtml(values.agencyNote || "No note")}</span></div>
+    </div>
+    <ul class="compact-list">
+      ${(port.documents || []).slice(0, 5).map((doc) => `<li>${escapeHtml(doc)}</li>`).join("")}
+      ${(port.risks || []).slice(0, 3).map((risk) => `<li>Risk: ${escapeHtml(risk)}</li>`).join("")}
+    </ul>
+  `;
+  renderDealIntelligenceGraph();
+  renderWorkflowConfidence();
+}
+
+function renderWeatherLaytime() {
+  if (!weatherLaytimeForm || !weatherLaytimeResult) return;
+  const values = collectFormValues(weatherLaytimeForm);
+  const weatherHours = Number(values.weatherHours) || 0;
+  const waitingHours = Number(values.waitingHours) || 0;
+  const demurrageRate = Number(values.demurrageRate) || 0;
+  const mode = values.clauseMode || "excepted";
+  const chargeableWeather = mode === "counts" ? weatherHours : mode === "unless-used" ? Math.round(weatherHours * 0.5 * 10) / 10 : 0;
+  const protectedHours = Math.max(0, weatherHours - chargeableWeather);
+  const claimExposure = ((waitingHours + chargeableWeather) / 24) * demurrageRate;
+  const recommendation = mode === "excepted"
+    ? "Collect rain letter and terminal stop/start log to protect laytime deduction."
+    : mode === "unless-used"
+      ? "Prove whether work continued during weather period; split used vs stopped time."
+      : "Treat weather as commercial exposure and price demurrage protection into counter.";
+  lastWeatherLaytime = { values, chargeableWeather, protectedHours, claimExposure, recommendation };
+  weatherLaytimeResult.innerHTML = `
+    ${metricCards([
+      { label: "Protected hours", value: `${protectedHours} h` },
+      { label: "Chargeable hours", value: `${chargeableWeather} h` },
+      { label: "Claim exposure", value: money(claimExposure) },
+      { label: "Data lane", value: `<em class="source-badge api-ready">NWS API-ready</em>` }
+    ])}
+    <div class="confidence-list">
+      <div class="confidence-row"><span>NWS alerts / forecast endpoint</span><em class="source-badge api-ready">API-ready</em><a href="https://www.weather.gov/documentation/services-web-api" target="_blank" rel="noopener noreferrer">Docs</a></div>
+      <div class="confidence-row"><span>Laytime treatment</span><em class="source-badge input">Clause input</em><span>${escapeHtml(recommendation)}</span></div>
+    </div>
+  `;
+  renderWorkflowConfidence();
+}
+
+function renderCarbonDesk() {
+  if (!carbonDeskForm || !carbonDeskResult) return;
+  const values = collectFormValues(carbonDeskForm);
+  const fuelTons = Number(values.fuelTons) || 0;
+  const co2 = fuelTons * 3.114;
+  const accountable = co2 * ((Number(values.euShare) || 0) / 100) * ((Number(values.surrenderPct) || 0) / 100);
+  const etsCost = accountable * (Number(values.euaPrice) || 0);
+  const usdCost = etsCost * 1.08;
+  lastCarbonDesk = { values, co2, accountable, etsCost, usdCost };
+  carbonDeskResult.innerHTML = `
+    ${metricCards([
+      { label: "CO2", value: `${co2.toFixed(0)} t` },
+      { label: "ETS accountable", value: `${accountable.toFixed(0)} t` },
+      { label: "ETS cost", value: `EUR ${money(etsCost)}` },
+      { label: "USD equiv.", value: money(usdCost) }
+    ])}
+    <div class="confidence-row"><span>EU maritime ETS / MRV source</span><em class="source-badge verified">Verified source</em><a href="https://climate.ec.europa.eu/eu-action/transport-decarbonisation/reducing-emissions-shipping-sector_en" target="_blank" rel="noopener noreferrer">European Commission</a></div>
+    <small>Use as commercial screening. Final ETS/FuelEU treatment depends on voyage scope, ship size, verifier and contractual allocation.</small>
+  `;
+  renderWorkflowConfidence();
+}
+
+function renderWorkflowClientPortal() {
+  if (!workflowClientPortalForm || !workflowClientPortalResult) return;
+  if (!lastWorkflowGate) lastWorkflowGate = workflowGateContext(workflowGateForm ? collectFormValues(workflowGateForm) : {});
+  const values = collectFormValues(workflowClientPortalForm);
+  const g = lastWorkflowGate;
+  const token = `${String(values.dealRef || "FX").replace(/[^a-z0-9]/gi, "").toLowerCase()}-${Math.abs(Math.round(g.netPnl))}`;
+  const portalUrl = `https://captainemo03.github.io/focusea/#client-${token}`;
+  const summary = [
+    `Client: ${values.client}`,
+    `Deal: ${values.dealRef}`,
+    `Decision: ${g.decision} (${g.risk}/100)`,
+    `ETA: ${values.eta}`,
+    `Commercial: TCE ${money(g.tce)}/day, P&L ${money(g.netPnl)}`,
+    `Next action: ${g.protections[0]}`
+  ].join("\n");
+  lastWorkflowClientPortal = { values, portalUrl, summary };
+  workflowClientPortalResult.innerHTML = `
+    ${metricCards([
+      { label: "Client", value: escapeHtml(values.client || "-") },
+      { label: "Deal ref", value: escapeHtml(values.dealRef || "-") },
+      { label: "Portal status", value: "Share-ready pack" },
+      { label: "Risk", value: `${g.risk}/100` }
+    ])}
+    <pre>${escapeHtml(summary)}</pre>
+    <div class="confidence-row"><span>Portal link preview</span><em class="source-badge simulated">Static preview</em><a href="${portalUrl}" target="_blank" rel="noopener noreferrer">${escapeHtml(portalUrl)}</a></div>
+  `;
+}
+
+function renderNegotiationPro() {
+  if (!negotiationProForm || !negotiationProResult) return;
+  const values = collectFormValues(negotiationProForm);
+  const cargo = getCargoProfile(values.cargoType || "coal");
+  const owner = Number(values.ownerOffer) || cargo.baseFreight;
+  const charterer = Number(values.chartererCounter) || cargo.baseFreight;
+  const modelMid = cargo.baseFreight * cargo.freightMultiplier;
+  const spread = owner - charterer;
+  const power = clamp(Math.round(55 + (modelMid - charterer) * 3 - cargo.risk * 0.18 + (lastWorkflowGate?.risk || 55) * 0.12), 0, 100);
+  const suggested = Math.max(charterer, Math.min(owner, charterer + spread * (power >= 65 ? 0.35 : power >= 45 ? 0.55 : 0.72)));
+  const posture = power >= 65 ? "Push harder" : power >= 45 ? "Balanced counter" : "Protect terms more than rate";
+  const wording = `Counter ${money(suggested, 2)} ${cargo.unit === "TEU" ? "per TEU" : "pmt"} basis clean recap, demurrage confirmed, NOR/weather/waiting wording subject to review.`;
+  lastNegotiationPro = { values, modelMid, spread, power, suggested, posture, wording };
+  negotiationProResult.innerHTML = `
+    ${metricCards([
+      { label: "Negotiation power", value: `${power}/100` },
+      { label: "Model mid", value: money(modelMid, 2) },
+      { label: "Spread", value: money(spread, 2) },
+      { label: "Suggested counter", value: money(suggested, 2) }
+    ])}
+    <div class="danger-box"><span>${escapeHtml(posture)}</span><p>${escapeHtml(wording)}</p></div>
+  `;
+}
+
+function renderWorkflowConfidence() {
+  if (!workflowConfidenceResult) return;
+  const g = lastWorkflowGate;
+  const rows = [
+    ["Fixture text", "User pasted deal data", "input", g ? 88 : 50],
+    ["Cargo pricing", "Local cargo multiplier and private market memory", "simulated", 70],
+    ["Bunker default", `${bunkerSpreadNote()} / verified snapshot label`, "verified", 82],
+    ["Baltic / index lane", "Licensed endpoint required for true live Baltic values", "licensed", balticFeedState.connected ? 86 : 58],
+    ["Port data", "UN/LOCODE + NGA World Port Index import-ready", "api-ready", lastPortReality ? 80 : 66],
+    ["Weather data", "NWS API forecast/alerts ready; clause treatment is user input", "api-ready", lastWeatherLaytime ? 78 : 62],
+    ["EU ETS", "European Commission source linked; price is user input", "verified", lastCarbonDesk ? 82 : 64],
+    ["Document red team", "Keyword/rule model until backend LLM/OCR is connected", "simulated", lastDocumentRedTeam ? 76 : 58]
+  ];
+  workflowConfidenceResult.innerHTML = `
+    <div class="confidence-list">${rows.map(([name, usage, badge, confidence]) => `
+      <div class="confidence-row">
+        <span>${escapeHtml(name)}<small>${escapeHtml(usage)}</small></span>
+        <em class="source-badge ${badge}">${sourceBadgeText(badge)}</em>
+        <strong>${confidence}%</strong>
+      </div>
+    `).join("")}</div>
+  `;
+}
+
+function renderAllWorkflowControl() {
+  renderWorkflowGate();
+  renderDealIntelligenceGraph();
+  renderMarketMemory();
+  renderDocumentRedTeam();
+  renderPortReality();
+  renderWeatherLaytime();
+  renderCarbonDesk();
+  renderWorkflowClientPortal();
+  renderNegotiationPro();
+  renderWorkflowConfidence();
 }
 
 const superSuiteFeatures = [
@@ -12409,6 +12759,13 @@ bindBrokerForm(watchlistForm, renderWatchlist);
 bindBrokerForm(portHeatmapForm, renderPortHeatmap);
 bindBrokerForm(brokerExamForm, renderBrokerExam);
 bindBrokerForm(workflowGateForm, renderWorkflowGate);
+bindBrokerForm(marketMemoryForm, renderMarketMemory);
+bindBrokerForm(documentRedTeamForm, renderDocumentRedTeam);
+bindBrokerForm(portRealityForm, renderPortReality);
+bindBrokerForm(weatherLaytimeForm, renderWeatherLaytime);
+bindBrokerForm(carbonDeskForm, renderCarbonDesk);
+bindBrokerForm(workflowClientPortalForm, renderWorkflowClientPortal);
+bindBrokerForm(negotiationProForm, renderNegotiationPro);
 bindBrokerForm(superSuiteForm, renderSuperSuite);
 
 if (offerTrackerForm) {
@@ -12442,6 +12799,14 @@ if (addRateMemory) addRateMemory.addEventListener("click", addRateMemoryEntry);
 if (pushSimulatedEmail) pushSimulatedEmail.addEventListener("click", pushSimulatedEmailToInbox);
 if (addWatchlistCompany) addWatchlistCompany.addEventListener("click", addWatchlistEntry);
 if (runSuperSuite) runSuperSuite.addEventListener("click", renderAllSuperSuite);
+if (saveMarketMemory) saveMarketMemory.addEventListener("click", addMarketMemoryEntry);
+if (clearMarketMemory) {
+  clearMarketMemory.addEventListener("click", () => {
+    setMarketMemory([]);
+    renderMarketMemory();
+    renderWorkflowConfidence();
+  });
+}
 if (superTerminalNoteForm) superTerminalNoteForm.addEventListener("submit", addSuperTerminalNote);
 if (clearSuperNotes) {
   clearSuperNotes.addEventListener("click", () => {
@@ -12905,7 +13270,7 @@ renderClientPortal();
 runAllBrokerOs();
 runFullDecisionLab();
 renderCommandTheater();
-renderWorkflowGate();
+renderAllWorkflowControl();
 renderAllSuperSuite();
 renderMarketIndexes();
 renderDataTrustLayer();
