@@ -241,6 +241,106 @@ def clause_diff(original_clause: str, revised_clause: str) -> dict[str, Any]:
     }
 
 
+def score_counterparty(payload: dict[str, Any]) -> dict[str, Any]:
+    payment = str(payload.get("payment", "Unknown"))
+    open_claims = number(payload.get("open_claims"), 0)
+    past_fixtures = number(payload.get("past_fixtures"), 0)
+    payment_risk = {
+        "Clean": 4,
+        "Slow payer": 22,
+        "Unknown": 18,
+        "Dispute history": 34,
+    }.get(payment, 18)
+    risk_score = int(clamp(34 + payment_risk + open_claims * 14 - min(18, past_fixtures * 3), 0, 100))
+    trust_score = int(clamp(100 - risk_score, 0, 100))
+    verdict = "Do not lift subjects without protection" if risk_score >= 70 else "Tight subjects / references" if risk_score >= 50 else "Workable counterparty"
+    return {
+        "company": payload.get("company", "Counterparty"),
+        "role": payload.get("role", "Charterer"),
+        "risk_score": risk_score,
+        "trust_score": trust_score,
+        "verdict": verdict,
+        "actions": [
+            "Confirm payment references and bank details before final recap.",
+            "Keep subject deadline, claim evidence and invoice trail in the deal room.",
+            "Run sanctions, beneficial owner and cargo-origin checks before fixing.",
+        ],
+        "source": "python-fastapi",
+    }
+
+
+def agency_workspace(payload: dict[str, Any]) -> dict[str, Any]:
+    port = str(payload.get("port", "Mersin"))
+    eta_days = number(payload.get("eta_days"), 7)
+    berth_window = number(payload.get("berth_window"), 36)
+    pda = number(payload.get("pda"), 68000)
+    waiting_risk = int(clamp(42 + (18 if berth_window < 24 else 0) + (8 if eta_days < 3 else 0), 0, 100))
+    return {
+        "port": port,
+        "eta_days": eta_days,
+        "berth_window_hours": berth_window,
+        "pda_estimate": pda,
+        "waiting_risk": waiting_risk,
+        "timeline": [
+            "Request agency PDA, berth window and terminal restrictions.",
+            "Confirm free pratique, customs, ISPS and cargo documents.",
+            "Line up pilot, tug, berth and NOR readiness.",
+            "Collect signed SOF, rain letter, logs and departure documents.",
+        ],
+        "documents": ["NOR", "SOF", "Cargo manifest", "Crew list", "ISPS declaration", "Rain/weather letter"],
+        "source": "python-fastapi",
+    }
+
+
+def generate_broker_mail(payload: dict[str, Any]) -> dict[str, Any]:
+    mail_type = str(payload.get("mail_type", "Counter offer"))
+    recipient = str(payload.get("recipient", "all"))
+    deal = parse_offer_text(str(payload.get("deal_text", "")))
+    parsed = deal["parsed"]
+    route = parsed.get("route") or "route TBC"
+    cargo = parsed.get("cargo_label") or "cargo"
+    freight = parsed.get("freight_rate") or "TBC"
+    body = [
+        f"Subject: {mail_type} - {cargo} - {route}",
+        "",
+        f"Dear {recipient},",
+        "",
+    ]
+    if mail_type.lower().startswith("claim"):
+        body.append("Please provide comments on our laytime position together with signed SOF, NOR, weather logs and terminal records.")
+    elif "recap" in mail_type.lower():
+        body.append(build_fixture_recap(parsed))
+    else:
+        body.append(f"We can counter basis {route} at freight {freight}, subject clean recap, CP wording, terminal confirmation and management approval.")
+    body.extend(["", f"Focusea parser risk: {deal['risk']['score']}/100.", "", "Best regards,"])
+    return {"mail_type": mail_type, "text": "\n".join(body), "parsed": parsed, "source": "python-fastapi"}
+
+
+def compare_fixtures(payload: dict[str, Any]) -> dict[str, Any]:
+    deals = []
+    for label in ["A", "B", "C"]:
+        parsed_pack = parse_offer_text(str(payload.get(f"deal_{label.lower()}", "")))
+        parsed = parsed_pack["parsed"]
+        cargo_type = parsed.get("cargo_type") or "coal"
+        profile = CARGO_PROFILES.get(cargo_type, CARGO_PROFILES["coal"])
+        qty = number(parsed.get("quantity"), 50000)
+        freight = number(parsed.get("freight_rate"), 0) or 18
+        risk = parsed_pack["risk"]["score"]
+        gross = qty * freight * profile["freight_multiplier"]
+        tce_proxy = gross / 24 - risk * 180
+        score = int(clamp(100 - risk * 0.55 + tce_proxy / 1200, 0, 100))
+        deals.append({
+            "label": label,
+            "cargo": profile["label"],
+            "route": parsed.get("route") or "TBC",
+            "risk": risk,
+            "tce_proxy": round(tce_proxy, 2),
+            "score": score,
+        })
+    deals.sort(key=lambda item: item["score"], reverse=True)
+    return {"winner": deals[0], "deals": deals, "source": "python-fastapi"}
+
+
 def evaluate_stability(loads_text: str, vessel: dict[str, Any] | None = None) -> dict[str, Any]:
     vessel = vessel or {}
     pattern = re.compile(r"(H\d)\s+([a-z]+)?\s*(\d+(?:[.,]\d+)?)\s*mt\s*x\s*(-?\d+(?:[.,]\d+)?)\s*y\s*(-?\d+(?:[.,]\d+)?)\s*kg\s*(\d+(?:[.,]\d+)?)", re.I)

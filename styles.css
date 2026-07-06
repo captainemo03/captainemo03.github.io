@@ -1337,12 +1337,21 @@ main {
     rgba(255, 255, 255, 0.045) !important;
 }
 
+.workflow-pro-card {
+  border-color: rgba(111, 255, 227, 0.26) !important;
+  background:
+    radial-gradient(circle at 86% 0%, rgba(111, 255, 227, 0.15), transparent 34%),
+    linear-gradient(135deg, rgba(245, 200, 75, 0.09), transparent 48%),
+    rgba(255, 255, 255, 0.045) !important;
+}
+
 .workflow-inbox-list,
 .workflow-event-list,
 .timebar-list,
 .clause-diff-list,
 .mission-list,
 .community-note-list,
+.workflow-comparison-grid,
 .workflow-two-col {
   display: grid;
   gap: 10px;
@@ -1352,11 +1361,16 @@ main {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.workflow-comparison-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .workflow-inbox-list div,
 .workflow-event-list div,
 .timebar-list div,
 .clause-diff-list div,
-.community-note-list div {
+.community-note-list div,
+.workflow-comparison-grid div {
   display: grid;
   gap: 5px;
   min-width: 0;
@@ -1387,7 +1401,8 @@ main {
 .workflow-event-list strong,
 .timebar-list strong,
 .clause-diff-list strong,
-.community-note-list strong {
+.community-note-list strong,
+.workflow-comparison-grid strong {
   color: var(--text);
   overflow-wrap: anywhere;
 }
@@ -1399,7 +1414,9 @@ main {
 .timebar-list em,
 .clause-diff-list span,
 .community-note-list span,
-.community-note-list small {
+.community-note-list small,
+.workflow-comparison-grid span,
+.workflow-comparison-grid small {
   color: var(--muted);
   line-height: 1.45;
   overflow-wrap: anywhere;
@@ -4383,6 +4400,7 @@ main {
   .risk-radar-grid,
   .port-intel-grid,
   .workflow-two-col,
+  .workflow-comparison-grid,
   .workflow-gate-grid,
   .theater-matrix-grid,
   .smart-ops-grid,

@@ -11,11 +11,15 @@ from pydantic import BaseModel, Field
 
 from .engines import (
     clause_diff,
+    agency_workspace,
+    compare_fixtures,
     evaluate_stability,
+    generate_broker_mail,
     make_pdf_bytes,
     parse_offer_text,
     report_text,
     calculate_laytime,
+    score_counterparty,
     voyage_estimate,
 )
 
@@ -85,6 +89,33 @@ class ReportRequest(BaseModel):
     data: dict[str, Any] = Field(default_factory=dict)
 
 
+class CounterpartyRequest(BaseModel):
+    company: str = "Atlas Commodities"
+    role: str = "Charterer"
+    payment: str = "Unknown"
+    past_fixtures: float = 0
+    open_claims: float = 0
+
+
+class AgencyRequest(BaseModel):
+    port: str = "Mersin"
+    eta_days: float = 7
+    berth_window: float = 36
+    pda: float = 68000
+
+
+class MailRequest(BaseModel):
+    mail_type: str = "Counter offer"
+    recipient: str = "all"
+    deal_text: str = ""
+
+
+class FixtureComparisonRequest(BaseModel):
+    deal_a: str = ""
+    deal_b: str = ""
+    deal_c: str = ""
+
+
 def load_store() -> dict[str, Any]:
     if not STORE_PATH.exists():
         return {"fixtures": [], "crm": [], "documents": [], "reports": []}
@@ -105,7 +136,18 @@ def health() -> dict[str, Any]:
         "ok": True,
         "service": "focusea-backend",
         "time": datetime.now().isoformat(timespec="seconds"),
-        "modules": ["broker-parser", "sof-laytime", "voyage-estimate", "cp-diff", "stability", "pdf"],
+        "modules": [
+            "broker-parser",
+            "sof-laytime",
+            "voyage-estimate",
+            "cp-diff",
+            "counterparty-score",
+            "agency-workspace",
+            "mail-generator",
+            "fixture-comparison",
+            "stability",
+            "pdf",
+        ],
     }
 
 
@@ -132,6 +174,26 @@ def api_voyage_estimate(request: VoyageRequest) -> dict[str, Any]:
 @app.post("/api/charterparty/diff")
 def api_clause_diff(request: ClauseDiffRequest) -> dict[str, Any]:
     return clause_diff(request.original_clause, request.revised_clause)
+
+
+@app.post("/api/counterparty/score")
+def api_counterparty_score(request: CounterpartyRequest) -> dict[str, Any]:
+    return score_counterparty(request.model_dump())
+
+
+@app.post("/api/agency/workspace")
+def api_agency_workspace(request: AgencyRequest) -> dict[str, Any]:
+    return agency_workspace(request.model_dump())
+
+
+@app.post("/api/mail/generate")
+def api_mail_generate(request: MailRequest) -> dict[str, Any]:
+    return generate_broker_mail(request.model_dump())
+
+
+@app.post("/api/fixtures/compare")
+def api_fixtures_compare(request: FixtureComparisonRequest) -> dict[str, Any]:
+    return compare_fixtures(request.model_dump())
 
 
 @app.post("/api/stability/evaluate")

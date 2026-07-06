@@ -8,7 +8,7 @@
     <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=(), serial=()" />
     <title>Focusea Maritime Platform</title>
     <link rel="icon" href="favicon.svg?v=focusea-badge2" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=workflow-os-1" />
+    <link rel="stylesheet" href="styles.css?v=workflow-pro-1" />
   </head>
   <body>
     <div class="app-shell">
@@ -2400,6 +2400,107 @@ TRALI,Aliaga Nemrut Bay,Turkiye,Turkiye,Tanker / Bulk / Container,20</textarea><
               <div class="broker-output" id="workflowScoreResult"></div>
             </article>
 
+            <article class="wide-card workflow-pro-card">
+              <div class="mini-heading"><span>SOF -> Laytime -> Demurrage Engine</span><strong>Statement of Facts hesap motoru</strong></div>
+              <form class="broker-form single-column" id="workflowSofForm">
+                <label><span>Statement of Facts text</span><textarea name="sofText">NOR tendered 10 Jul 1430. Vessel all fast 11 Jul 0610. Loading commenced 11 Jul 0800. Rain stopped operations 11 Jul 1300-1700. Loading completed 13 Jul 2215.</textarea></label>
+                <div class="auto-deal-controls">
+                  <label><span>Allowed laytime h</span><input name="allowedHours" type="number" value="72" min="1" step="0.5" /></label>
+                  <label><span>Demurrage $/day</span><input name="demurrageRate" type="number" value="18000" min="0" step="100" /></label>
+                  <label><span>Dispatch $/day</span><input name="dispatchRate" type="number" value="9000" min="0" step="100" /></label>
+                </div>
+                <button type="submit">Laytime Hesapla</button>
+              </form>
+              <div class="button-row">
+                <button type="button" class="ghost-button small" data-download-workflow-pro="laytime-pdf">Laytime PDF</button>
+                <button type="button" class="ghost-button small" data-download-workflow-pro="claim-txt">Claim Letter TXT</button>
+              </div>
+              <div class="broker-output" id="workflowSofResult"></div>
+            </article>
+
+            <article class="wide-card">
+              <div class="mini-heading"><span>Report Center</span><strong>Tum ciktilar tek yerde</strong></div>
+              <div class="button-row">
+                <button type="button" class="ghost-button small" data-download-workflow-pro="deal-pdf">Deal Room PDF</button>
+                <button type="button" class="ghost-button small" data-download-workflow-pro="client-pdf">Client Portal PDF</button>
+                <button type="button" class="ghost-button small" data-download-workflow-pro="full-json">Full Pack JSON</button>
+                <button type="button" class="ghost-button small" id="saveWorkflowReport">Save report history</button>
+                <button type="button" class="ghost-button small" id="clearWorkflowReports">Clear history</button>
+              </div>
+              <div class="broker-output" id="workflowReportCenterResult"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>Client Portal Pro</span><strong>Musteriye tek linklik ozet</strong></div>
+              <form class="broker-form" id="workflowPortalProForm">
+                <label><span>Client</span><input name="client" value="Atlas Commodities" /></label>
+                <label><span>Portal mode</span><select name="mode"><option>Client-safe summary</option><option>Internal risk pack</option><option>Claim evidence view</option></select></label>
+                <label><span>Share expiry days</span><input name="expiryDays" type="number" value="7" min="1" step="1" /></label>
+                <button type="submit">Portal Uret</button>
+              </form>
+              <div class="broker-output" id="workflowPortalProResult"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>Counterparty Intelligence Pro</span><strong>Owner / charterer guven hafizasi</strong></div>
+              <form class="broker-form" id="workflowCounterpartyForm">
+                <label><span>Company</span><input name="company" value="Atlas Commodities" /></label>
+                <label><span>Role</span><select name="role"><option>Charterer</option><option>Owner</option><option>Broker</option><option>Operator</option></select></label>
+                <label><span>Payment record</span><select name="payment"><option>Clean</option><option selected>Slow payer</option><option>Unknown</option><option>Dispute history</option></select></label>
+                <label><span>Past fixtures</span><input name="pastFixtures" type="number" value="4" min="0" step="1" /></label>
+                <label><span>Open claims</span><input name="openClaims" type="number" value="1" min="0" step="1" /></label>
+                <button type="submit">Counterparty Skorla</button>
+              </form>
+              <div class="broker-output" id="workflowCounterpartyResult"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>Port Agency Workspace</span><strong>PDA, evrak, berth timeline</strong></div>
+              <form class="broker-form" id="workflowAgencyForm">
+                <label><span>Port</span><select name="portId"><option value="mersin">Mersin</option><option value="ambarli">Ambarli / Kumport</option><option value="izmir">Izmir / Alsancak</option><option value="aliaga">Aliaga / Nemrut</option><option value="gemlik">Gemlik</option><option value="izmit">Kocaeli / Izmit</option><option value="tekirdag">Tekirdag</option><option value="iskenderun">Iskenderun</option><option value="samsun">Samsun</option></select></label>
+                <label><span>ETA days</span><input name="etaDays" type="number" value="9" min="0" step="1" /></label>
+                <label><span>Berth window h</span><input name="berthWindow" type="number" value="36" min="0" step="1" /></label>
+                <label><span>Agency PDA $</span><input name="pda" type="number" value="68000" min="0" step="500" /></label>
+                <button type="submit">Agency Workspace Kur</button>
+              </form>
+              <div class="broker-output" id="workflowAgencyResult"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>Broker Mail Studio Pro</span><strong>Firm / counter / recap / claim mail</strong></div>
+              <form class="broker-form" id="workflowMailStudioForm">
+                <label><span>Mail type</span><select name="mailType"><option>Counter offer</option><option>Firm offer</option><option>Fixture recap</option><option>Subjects lifted</option><option>CP comment</option><option>Claim reminder</option><option>Invoice reminder</option></select></label>
+                <label><span>Recipient</span><input name="recipient" value="charterers / owners" /></label>
+                <label><span>Tone</span><select name="tone"><option>Commercial</option><option>Firm</option><option>Diplomatic</option></select></label>
+                <button type="submit">Mail Uret</button>
+              </form>
+              <div class="button-row">
+                <button type="button" class="ghost-button small" data-download-workflow-pro="mail-txt">Mail TXT</button>
+              </div>
+              <div class="broker-output" id="workflowMailStudioResult"></div>
+            </article>
+
+            <article class="wide-card">
+              <div class="mini-heading"><span>Fixture Comparison Matrix</span><strong>3 deal yan yana karar</strong></div>
+              <form class="broker-form single-column" id="workflowComparisonForm">
+                <label><span>Deal A</span><textarea name="dealA">50k coal Indonesia to India laycan 10/15 Jul freight 18.50 pmt demurrage 18k/day</textarea></label>
+                <label><span>Deal B</span><textarea name="dealB">55k grain Brazil to Egypt laycan 12/18 Jul freight 24.20 pmt demurrage 15k/day</textarea></label>
+                <label><span>Deal C</span><textarea name="dealC">2,400 TEU container Shanghai to Los Angeles laycan 14/20 Jul freight 1550 per TEU demurrage 22k/day</textarea></label>
+                <button type="submit">Deal Karsilastir</button>
+              </form>
+              <div class="broker-output" id="workflowComparisonResult"></div>
+            </article>
+
+            <article class="wide-card">
+              <div class="mini-heading"><span>Live Data Trust Ledger 2.0</span><strong>Verified / simulated / licensed / input</strong></div>
+              <div class="broker-output" id="workflowTrustLedgerResult"></div>
+            </article>
+
+            <article class="wide-card">
+              <div class="mini-heading"><span>Python Backend Connector</span><strong>FastAPI engine hazirligi</strong></div>
+              <div class="broker-output" id="workflowBackendConnectorResult"></div>
+            </article>
+
             <article class="wide-card theater-main-card">
               <div class="mini-heading"><span>Workflow Timeline</span><strong>Is akisi</strong></div>
               <div class="broker-output theater-output" id="theaterStory"></div>
@@ -3230,6 +3331,6 @@ TRALI,Aliaga Nemrut Bay,Turkiye,Turkiye,Tanker / Bulk / Container,20</textarea><
       </main>
     </div>
 
-    <script src="script.js?v=workflow-os-1"></script>
+    <script src="script.js?v=workflow-pro-1"></script>
   </body>
 </html>

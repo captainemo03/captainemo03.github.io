@@ -2307,6 +2307,23 @@ const workflowCommunityResult = document.querySelector("#workflowCommunityResult
 const saveWorkflowCommunity = document.querySelector("#saveWorkflowCommunity");
 const clearWorkflowCommunity = document.querySelector("#clearWorkflowCommunity");
 const workflowScoreResult = document.querySelector("#workflowScoreResult");
+const workflowSofForm = document.querySelector("#workflowSofForm");
+const workflowSofResult = document.querySelector("#workflowSofResult");
+const workflowReportCenterResult = document.querySelector("#workflowReportCenterResult");
+const saveWorkflowReport = document.querySelector("#saveWorkflowReport");
+const clearWorkflowReports = document.querySelector("#clearWorkflowReports");
+const workflowPortalProForm = document.querySelector("#workflowPortalProForm");
+const workflowPortalProResult = document.querySelector("#workflowPortalProResult");
+const workflowCounterpartyForm = document.querySelector("#workflowCounterpartyForm");
+const workflowCounterpartyResult = document.querySelector("#workflowCounterpartyResult");
+const workflowAgencyForm = document.querySelector("#workflowAgencyForm");
+const workflowAgencyResult = document.querySelector("#workflowAgencyResult");
+const workflowMailStudioForm = document.querySelector("#workflowMailStudioForm");
+const workflowMailStudioResult = document.querySelector("#workflowMailStudioResult");
+const workflowComparisonForm = document.querySelector("#workflowComparisonForm");
+const workflowComparisonResult = document.querySelector("#workflowComparisonResult");
+const workflowTrustLedgerResult = document.querySelector("#workflowTrustLedgerResult");
+const workflowBackendConnectorResult = document.querySelector("#workflowBackendConnectorResult");
 let activeNewsQuery = "maritime shipping";
 let generatedOpsEmailText = "";
 let selectedCommandScenarioId = "coal";
@@ -2332,6 +2349,14 @@ let lastWorkflowWhatIf = null;
 let lastWorkflowMission = null;
 let lastWorkflowCommunity = null;
 let lastFocuseaScore = null;
+let lastWorkflowSof = null;
+let lastWorkflowPortalPro = null;
+let lastWorkflowCounterparty = null;
+let lastWorkflowAgency = null;
+let lastWorkflowMailStudio = null;
+let lastWorkflowComparison = null;
+let lastWorkflowTrustLedger = null;
+let lastWorkflowBackendConnector = null;
 let lastParsedOffer = null;
 let lastCopilotReport = null;
 let lastTceOptimization = null;
@@ -10884,7 +10909,10 @@ function renderWorkflowConfidence() {
     ["Port data", "UN/LOCODE + NGA World Port Index import-ready", "api-ready", lastPortReality ? 80 : 66],
     ["Weather data", "NWS API forecast/alerts ready; clause treatment is user input", "api-ready", lastWeatherLaytime ? 78 : 62],
     ["EU ETS", "European Commission source linked; price is user input", "verified", lastCarbonDesk ? 82 : 64],
-    ["Document red team", "Keyword/rule model until backend LLM/OCR is connected", "simulated", lastDocumentRedTeam ? 76 : 58]
+    ["Document red team", "Keyword/rule model until backend LLM/OCR is connected", "simulated", lastDocumentRedTeam ? 76 : 58],
+    ["SOF laytime", "Rule engine over pasted SOF; signed evidence required", "input", lastWorkflowSof ? lastWorkflowSof.readiness : 54],
+    ["Counterparty memory", "Local user input / fixture history", "input", lastWorkflowCounterparty ? 100 - lastWorkflowCounterparty.risk : 52],
+    ["Report Center", "Browser PDF/TXT/JSON export plus backend PDF endpoint", "api-ready", workflowReportCenterResult ? 72 : 66]
   ];
   workflowConfidenceResult.innerHTML = `
     <div class="confidence-list">${rows.map(([name, usage, badge, confidence]) => `
@@ -10899,6 +10927,7 @@ function renderWorkflowConfidence() {
 
 const workflowInboxKey = "focusea-workflow-inbox-v1";
 const workflowCommunityKey = "focusea-workflow-community-notes-v1";
+const workflowReportsKey = "focusea-workflow-report-history-v1";
 
 function workflowDateAfter({ hours = 0, days = 0 } = {}) {
   const date = new Date();
@@ -11023,16 +11052,20 @@ function renderWorkflowDealRoom() {
     ["Offer", inboxDeal ? "Captured from inbox" : "Use inbox parser"],
     ["Recap", gate.decision.includes("FIX") ? "Draft ready" : "Needs protection"],
     ["CP comments", lastWorkflowClauseVersion ? "Version diff ready" : "Pending diff"],
-    ["SOF / NOR", lastWorkflowOcr ? "OCR lane scanned" : "Pending upload"],
-    ["Laytime", lastWeatherLaytime ? "Weather linked" : "Need SOF"],
+    ["SOF / NOR", lastWorkflowOcr ? "OCR lane scanned" : lastWorkflowSof ? "SOF engine ready" : "Pending upload"],
+    ["Laytime", lastWorkflowSof ? `${lastWorkflowSof.verdict} / ${money(lastWorkflowSof.demurrageAmount || lastWorkflowSof.dispatchAmount)}` : lastWeatherLaytime ? "Weather linked" : "Need SOF"],
     ["Claim", lastDocumentRedTeam?.score >= 65 ? "High dispute watch" : "Evidence checklist"],
-    ["Invoice", lastCarbonDesk ? "ETS note attached" : "Commercial pack"]
+    ["Invoice", lastCarbonDesk ? "ETS note attached" : "Commercial pack"],
+    ["Counterparty", lastWorkflowCounterparty ? lastWorkflowCounterparty.verdict : "Risk memory pending"],
+    ["Client portal", lastWorkflowPortalPro ? "Share pack ready" : "Portal pending"]
   ];
   const todo = [
     ...(gate.blockers || []).slice(0, 3),
     inboxDeal?.deadlineHours ? `Subject deadline in ${inboxDeal.deadlineHours} h` : "Set subject deadline",
     lastWorkflowVetting?.verdict ? `Vetting: ${lastWorkflowVetting.verdict}` : "Run vessel vetting",
-    lastWorkflowCounter?.wording ? "Send counter wording after review" : "Generate counter wording"
+    lastWorkflowCounter?.wording ? "Send counter wording after review" : "Generate counter wording",
+    lastWorkflowSof?.demurrageAmount ? `Demurrage exposure ${money(lastWorkflowSof.demurrageAmount)}` : "",
+    lastWorkflowCounterparty?.risk >= 50 ? `Counterparty watch: ${lastWorkflowCounterparty.verdict}` : ""
   ].filter(Boolean).slice(0, 7);
   lastWorkflowDealRoom = { values, gate, inboxDeal, documents, todo, activeIndex };
   workflowDealRoomResult.innerHTML = `
@@ -11280,6 +11313,10 @@ function workflowMissionItems() {
     lastWorkflowVetting?.risk >= 55 && `Resolve vessel suitability: ${lastWorkflowVetting.verdict}.`,
     lastWorkflowTimeBar?.urgent && `Calendar has ${lastWorkflowTimeBar.urgent} urgent deadline(s).`,
     lastWorkflowOcr?.readiness < 70 && "Upload/paste stronger SOF/NOR evidence before claim pack.",
+    lastWorkflowSof?.demurrageAmount > 0 && `Prepare demurrage claim letter for ${money(lastWorkflowSof.demurrageAmount)}.`,
+    !lastWorkflowPortalPro && "Generate client portal summary before sharing external update.",
+    lastWorkflowCounterparty?.risk >= 50 && `Counterparty risk is ${lastWorkflowCounterparty.risk}/100; tighten payment and subject wording.`,
+    lastWorkflowAgency?.waitingRisk >= 60 && `Agency workspace flags port waiting risk ${lastWorkflowAgency.waitingRisk}/100.`,
     lastWorkflowWhatIf?.pnlDelta < 0 && "What-if is hurting P&L; counter freight or reduce waiting.",
     lastPortReality?.status && `Port reality: ${lastPortReality.status} at ${lastPortReality.port.name}.`,
     lastCarbonDesk?.usdCost > 0 && `Attach ETS cost note: ${money(lastCarbonDesk.usdCost)} USD equivalent.`,
@@ -11364,6 +11401,7 @@ function renderFocuseaScore() {
     (lastPortReality?.waitingRisk || gate.portRisk) * 0.11,
     (lastWorkflowVetting?.risk || 42) * 0.12,
     (lastWorkflowClauseVersion?.riskShift || 30) * 0.1,
+    (lastWorkflowCounterparty?.risk || 36) * 0.09,
     Math.max(0, gate.targetTce - gate.tce) * 0.0009,
     (lastWorkflowTimeBar?.urgent || 0) * 5
   ];
@@ -11371,7 +11409,10 @@ function renderFocuseaScore() {
     lastWorkflowInbox ? 4 : 0,
     lastWorkflowDealRoom ? 5 : 0,
     lastWorkflowOcr?.readiness >= 70 ? 5 : 0,
+    lastWorkflowSof?.readiness >= 70 ? 5 : 0,
     lastWorkflowCounter ? 4 : 0,
+    lastWorkflowMailStudio ? 3 : 0,
+    lastWorkflowPortalPro ? 4 : 0,
     getWorkflowCommunityNotes().length ? 3 : 0
   ].reduce((sum, value) => sum + value, 0);
   const score = clamp(Math.round(100 - penalties.reduce((sum, value) => sum + value, 0) + readinessBonus), 0, 100);
@@ -11380,6 +11421,8 @@ function renderFocuseaScore() {
     `Gate risk ${gate.risk}/100`,
     lastWorkflowVetting ? `Vetting ${lastWorkflowVetting.risk}/100` : "Vetting pending",
     lastWorkflowClauseVersion ? `Clause shift ${lastWorkflowClauseVersion.riskShift}/100` : "Clause version pending",
+    lastWorkflowCounterparty ? `Counterparty risk ${lastWorkflowCounterparty.risk}/100` : "Counterparty pending",
+    lastWorkflowSof ? `Laytime ${lastWorkflowSof.verdict}` : "SOF laytime pending",
     lastWorkflowTimeBar?.urgent ? `${lastWorkflowTimeBar.urgent} urgent deadline(s)` : "No urgent time-bar flag",
     gate.tce < gate.targetTce ? `TCE gap ${money(gate.targetTce - gate.tce)}/day` : "TCE meets target"
   ];
@@ -11391,6 +11434,528 @@ function renderFocuseaScore() {
     </div>
     <div class="ops-list">${reasons.map((item) => `<div><strong>Signal</strong><span>${escapeHtml(item)}</span></div>`).join("")}</div>
   `;
+}
+
+function workflowMonthIndex(value = "") {
+  const months = {
+    jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5,
+    jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11
+  };
+  return months[String(value).slice(0, 3).toLowerCase()] ?? 0;
+}
+
+function workflowSofDate(day, month, timeValue) {
+  const raw = String(timeValue || "0000").replace(/\D/g, "").padStart(4, "0").slice(0, 4);
+  return new Date(new Date().getFullYear(), workflowMonthIndex(month), Number(day), Number(raw.slice(0, 2)), Number(raw.slice(2)));
+}
+
+function workflowFindSofDate(text, patterns = []) {
+  const match = patterns.map((pattern) => text.match(pattern)).find(Boolean);
+  if (!match) return null;
+  return {
+    date: workflowSofDate(match[1], match[2], match[3]),
+    display: `${match[1]} ${match[2]} ${match[3]}`
+  };
+}
+
+function workflowExtractSof(text = "") {
+  const source = String(text || "");
+  const events = [
+    ["NOR tendered", workflowFindSofDate(source, [/nor\s+tendered[^0-9]*(\d{1,2})\s+([A-Za-z]{3,})\s+(\d{3,4})/i, /nor[^0-9]*(\d{1,2})\s+([A-Za-z]{3,})\s+(\d{3,4})/i])],
+    ["All fast", workflowFindSofDate(source, [/all\s+fast[^0-9]*(\d{1,2})\s+([A-Za-z]{3,})\s+(\d{3,4})/i])],
+    ["Operations started", workflowFindSofDate(source, [/(?:loading|discharging|operation)[^\n.]*?(?:commenced|started)[^0-9]*(\d{1,2})\s+([A-Za-z]{3,})\s+(\d{3,4})/i])],
+    ["Completed", workflowFindSofDate(source, [/(?:completed|completion|loading completed|discharging completed)[^0-9]*(\d{1,2})\s+([A-Za-z]{3,})\s+(\d{3,4})/i])]
+  ].map(([label, item]) => ({ label, ...item, found: Boolean(item) }));
+  const stoppages = [];
+  const stopPattern = /(rain|weather|wind|swell)[^\n.]*?(\d{1,2})\s+([A-Za-z]{3,})\s+(\d{3,4})\s*(?:-|\/|to)\s*(\d{3,4})/gi;
+  let match = stopPattern.exec(source);
+  while (match) {
+    const start = workflowSofDate(match[2], match[3], match[4]);
+    const end = workflowSofDate(match[2], match[3], match[5]);
+    const hours = Math.max(0, (end - start) / 3600000);
+    stoppages.push({
+      reason: match[1],
+      start,
+      end,
+      hours,
+      display: `${match[2]} ${match[3]} ${match[4]}-${match[5]}`
+    });
+    match = stopPattern.exec(source);
+  }
+  return { events, stoppages };
+}
+
+function workflowLaytimeReportText(result = lastWorkflowSof) {
+  if (!result) return "No laytime report generated.";
+  return reportLines("FOCUSEA LAYTIME / DEMURRAGE STATEMENT", [
+    `Verdict: ${result.verdict}`,
+    `Allowed laytime: ${result.allowedHours.toFixed(2)} h`,
+    `Gross used time: ${result.grossHours.toFixed(2)} h`,
+    `Excluded time: ${result.excludedHours.toFixed(2)} h`,
+    `Net used time: ${result.netHours.toFixed(2)} h`,
+    `Balance: ${result.balanceHours.toFixed(2)} h`,
+    `Demurrage: ${money(result.demurrageAmount)}`,
+    `Dispatch: ${money(result.dispatchAmount)}`,
+    "",
+    "Events:",
+    ...result.events.map((event) => `- ${event.label}: ${event.display || "missing"}`),
+    "",
+    "Stoppages:",
+    ...(result.stoppages.length ? result.stoppages.map((item) => `- ${item.reason}: ${item.display} (${item.hours.toFixed(2)} h)`) : ["- No stoppage extracted"]),
+    "",
+    "Evidence checklist:",
+    ...result.evidence.map((item) => `- ${item}`)
+  ]);
+}
+
+function workflowClaimLetterText(result = lastWorkflowSof) {
+  const gate = workflowCurrentGate();
+  const sof = result || lastWorkflowSof;
+  return [
+    "Dear all,",
+    "",
+    `Please find below our preliminary laytime position for ${gate.parsed.route || "the subject voyage"}.`,
+    sof ? `Net laytime used is ${sof.netHours.toFixed(2)} hours against allowed ${sof.allowedHours.toFixed(2)} hours. Current position: ${sof.verdict}.` : "Laytime statement is pending final SOF verification.",
+    sof?.demurrageAmount ? `Demurrage claimed: ${money(sof.demurrageAmount)} basis ${money(sof.demurrageRate)}/day pro rata.` : "",
+    sof?.dispatchAmount ? `Dispatch calculation: ${money(sof.dispatchAmount)} basis ${money(sof.dispatchRate)}/day.` : "",
+    "",
+    "Kindly confirm agreement or provide comments together with signed SOF, NOR, rain/weather logs and terminal operation records.",
+    "",
+    "Best regards,"
+  ].filter(Boolean).join("\n");
+}
+
+function renderWorkflowSofEngine() {
+  if (!workflowSofForm || !workflowSofResult) return;
+  const values = collectFormValues(workflowSofForm);
+  const extracted = workflowExtractSof(values.sofText || "");
+  const start = extracted.events.find((event) => event.label === "Operations started" && event.found)?.date
+    || extracted.events.find((event) => event.label === "All fast" && event.found)?.date
+    || extracted.events.find((event) => event.label === "NOR tendered" && event.found)?.date;
+  const end = extracted.events.find((event) => event.label === "Completed" && event.found)?.date;
+  const grossHours = start && end ? Math.max(0, (end - start) / 3600000) : 0;
+  const excludedHours = extracted.stoppages.reduce((sum, item) => sum + item.hours, 0);
+  const netHours = Math.max(0, grossHours - excludedHours);
+  const allowedHours = Number(values.allowedHours) || 72;
+  const demurrageRate = Number(values.demurrageRate) || workflowCurrentGate().demurrageRate;
+  const dispatchRate = Number(values.dispatchRate) || demurrageRate / 2;
+  const balanceHours = netHours - allowedHours;
+  const demurrageAmount = balanceHours > 0 ? (balanceHours / 24) * demurrageRate : 0;
+  const dispatchAmount = balanceHours < 0 ? (Math.abs(balanceHours) / 24) * dispatchRate : 0;
+  const verdict = demurrageAmount > 0 ? "DEMURRAGE" : dispatchAmount > 0 ? "DISPATCH" : "BALANCED";
+  const foundEvents = extracted.events.filter((event) => event.found).length;
+  const readiness = clamp(Math.round(foundEvents * 18 + extracted.stoppages.length * 8 + (grossHours ? 18 : 0)), 0, 100);
+  const evidence = [
+    "Signed NOR with tender/acceptance time",
+    "Signed SOF with all stoppages",
+    "Rain/weather letter and terminal log",
+    "Cargo operation log / pumping log",
+    "Laytime statement, invoice and CP recap"
+  ];
+  lastWorkflowSof = {
+    values,
+    events: extracted.events,
+    stoppages: extracted.stoppages,
+    grossHours,
+    excludedHours,
+    netHours,
+    allowedHours,
+    balanceHours,
+    demurrageRate,
+    dispatchRate,
+    demurrageAmount,
+    dispatchAmount,
+    verdict,
+    readiness,
+    evidence,
+    reportText: ""
+  };
+  lastWorkflowSof.reportText = workflowLaytimeReportText(lastWorkflowSof);
+  workflowSofResult.innerHTML = `
+    ${metricCards([
+      { label: "Verdict", value: escapeHtml(verdict) },
+      { label: "Net used", value: `${netHours.toFixed(1)} h` },
+      { label: "Balance", value: `${balanceHours.toFixed(1)} h` },
+      { label: "Demurrage", value: money(demurrageAmount) },
+      { label: "Dispatch", value: money(dispatchAmount) },
+      { label: "Readiness", value: `${readiness}/100` }
+    ])}
+    <div class="workflow-two-col">
+      <div class="workflow-event-list">
+        ${extracted.events.map((event) => `<div class="${event.found ? "found" : "missing"}"><strong>${escapeHtml(event.label)}</strong><span>${escapeHtml(event.display || "missing")}</span></div>`).join("")}
+      </div>
+      <div class="ops-list">
+        ${evidence.map((item) => `<div><strong>Evidence</strong><span>${escapeHtml(item)}</span></div>`).join("")}
+      </div>
+    </div>
+  `;
+  renderWorkflowDealRoom();
+  renderWorkflowReportCenter();
+  renderWorkflowMission();
+  renderFocuseaScore();
+}
+
+function workflowDealRoomReportText() {
+  const gate = workflowCurrentGate();
+  const room = lastWorkflowDealRoom;
+  return reportLines("FOCUSEA DEAL ROOM", [
+    `Decision: ${gate.decision}`,
+    `Risk: ${gate.risk}/100`,
+    `Cargo: ${gate.cargo.label}`,
+    `Route: ${gate.parsed.route || "TBC"}`,
+    `TCE: ${money(gate.tce)}/day`,
+    `Net P&L: ${money(gate.netPnl)}`,
+    "",
+    "Documents:",
+    ...(room?.documents || []).map(([title, status]) => `- ${title}: ${status}`),
+    "",
+    "Actions:",
+    ...(room?.todo || gate.blockers || []).map((item) => `- ${item}`)
+  ]);
+}
+
+function workflowClientReportText() {
+  const gate = workflowCurrentGate();
+  const portal = lastWorkflowPortalPro;
+  return reportLines("FOCUSEA CLIENT PORTAL SUMMARY", [
+    `Client: ${portal?.values?.client || "Client TBC"}`,
+    `Mode: ${portal?.values?.mode || "Client-safe summary"}`,
+    `Deal status: ${gate.decision}`,
+    `Route: ${gate.parsed.route || "TBC"}`,
+    `ETA / stage: ${lastWorkflowDealRoom?.values?.stage || "Counter"}`,
+    `Estimated TCE: ${money(gate.tce)}/day`,
+    `Estimated P&L: ${money(gate.netPnl)}`,
+    `Focusea Score: ${lastFocuseaScore?.score || "-"} / 100`,
+    "",
+    "Visible notes:",
+    "- Commercial values are planning estimates and subject to final recap.",
+    "- Live or licensed sources are labelled in the trust ledger.",
+    "- Claim and laytime data depend on signed evidence."
+  ]);
+}
+
+function workflowFullPack() {
+  return {
+    generatedAt: new Date().toLocaleString(),
+    gate: lastWorkflowGate || workflowCurrentGate(),
+    inbox: lastWorkflowInbox,
+    dealRoom: lastWorkflowDealRoom,
+    sof: lastWorkflowSof,
+    portal: lastWorkflowPortalPro,
+    counterparty: lastWorkflowCounterparty,
+    agency: lastWorkflowAgency,
+    mail: lastWorkflowMailStudio,
+    comparison: lastWorkflowComparison,
+    score: lastFocuseaScore,
+    trust: lastWorkflowTrustLedger
+  };
+}
+
+function getWorkflowReports() {
+  const saved = safeLocalGet(workflowReportsKey, []);
+  return Array.isArray(saved) ? saved : [];
+}
+
+function setWorkflowReports(items) {
+  safeLocalSet(workflowReportsKey, items);
+}
+
+function saveWorkflowReportSnapshot() {
+  const gate = workflowCurrentGate();
+  const item = {
+    time: new Date().toLocaleString(),
+    title: gate.parsed.route || "Workflow pack",
+    decision: gate.decision,
+    score: lastFocuseaScore?.score || 0,
+    pnl: gate.netPnl,
+    reportText: workflowDealRoomReportText()
+  };
+  setWorkflowReports([item, ...getWorkflowReports()].slice(0, 50));
+  renderWorkflowReportCenter();
+}
+
+function clearWorkflowReportHistory() {
+  setWorkflowReports([]);
+  renderWorkflowReportCenter();
+}
+
+function renderWorkflowReportCenter() {
+  if (!workflowReportCenterResult) return;
+  const reports = getWorkflowReports();
+  const gate = workflowCurrentGate();
+  const ready = [
+    ["Deal Room PDF", Boolean(lastWorkflowDealRoom)],
+    ["Laytime PDF", Boolean(lastWorkflowSof)],
+    ["Client Portal PDF", Boolean(lastWorkflowPortalPro)],
+    ["Mail TXT", Boolean(lastWorkflowMailStudio)],
+    ["Full JSON", true]
+  ];
+  workflowReportCenterResult.innerHTML = `
+    ${metricCards([
+      { label: "Ready outputs", value: `${ready.filter((item) => item[1]).length}/${ready.length}` },
+      { label: "History", value: reports.length },
+      { label: "Current risk", value: `${gate.risk}/100` },
+      { label: "Last score", value: lastFocuseaScore?.score || "-" }
+    ])}
+    <div class="workflow-two-col">
+      <div class="ops-list">${ready.map(([title, ok]) => `<div><strong>${escapeHtml(title)}</strong><span>${ok ? "Ready to download" : "Run module first"}</span></div>`).join("")}</div>
+      <div class="ops-list">${(reports.length ? reports : [{ title: "No saved report yet", time: "Use Save report history", decision: "Pending", score: "-" }]).slice(0, 6).map((item) => `<div><strong>${escapeHtml(item.title)}</strong><span>${escapeHtml(item.time)} / ${escapeHtml(item.decision)} / score ${item.score}</span></div>`).join("")}</div>
+    </div>
+  `;
+}
+
+function renderWorkflowPortalPro() {
+  if (!workflowPortalProForm || !workflowPortalProResult) return;
+  const values = collectFormValues(workflowPortalProForm);
+  const gate = workflowCurrentGate();
+  const tokenBase = `${values.client || "client"}-${gate.parsed.route || gate.cargo.label}-${gate.risk}`;
+  const token = tokenBase.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 48);
+  const expiry = workflowDateAfter({ days: Number(values.expiryDays) || 7 });
+  const portalUrl = `https://captainemo03.github.io/focusea/#client-${token}`;
+  const visible = [
+    `Decision: ${gate.decision}`,
+    `Route: ${gate.parsed.route || "TBC"}`,
+    `TCE: ${money(gate.tce)}/day`,
+    `P&L: ${money(gate.netPnl)}`,
+    `Laytime: ${lastWorkflowSof?.verdict || "pending"}`,
+    `Next action: ${workflowMissionItems()[0] || gate.protections[0]}`
+  ];
+  lastWorkflowPortalPro = { values, token, portalUrl, expiry, visible, reportText: "" };
+  lastWorkflowPortalPro.reportText = workflowClientReportText();
+  workflowPortalProResult.innerHTML = `
+    ${metricCards([
+      { label: "Portal", value: "Share-ready" },
+      { label: "Access token", value: escapeHtml(token || "client") },
+      { label: "Expires", value: workflowDateLabel(expiry) },
+      { label: "Mode", value: escapeHtml(values.mode || "Client-safe summary") }
+    ])}
+    <div class="confidence-row"><span>Portal preview</span><em class="source-badge simulated">Static link</em><a href="${portalUrl}" target="_blank" rel="noopener noreferrer">${escapeHtml(portalUrl)}</a></div>
+    <div class="ops-list">${visible.map((item) => `<div><strong>Client line</strong><span>${escapeHtml(item)}</span></div>`).join("")}</div>
+  `;
+  renderWorkflowReportCenter();
+  renderWorkflowMission();
+  renderFocuseaScore();
+}
+
+function renderWorkflowCounterparty() {
+  if (!workflowCounterpartyForm || !workflowCounterpartyResult) return;
+  const values = collectFormValues(workflowCounterpartyForm);
+  const paymentRisk = values.payment === "Dispute history" ? 34 : values.payment === "Slow payer" ? 22 : values.payment === "Unknown" ? 18 : 4;
+  const claimRisk = (Number(values.openClaims) || 0) * 14;
+  const experienceCredit = Math.min(18, (Number(values.pastFixtures) || 0) * 3);
+  const risk = clamp(Math.round(34 + paymentRisk + claimRisk - experienceCredit), 0, 100);
+  const trust = clamp(100 - risk, 0, 100);
+  const verdict = risk >= 70 ? "Do not lift subjects without protection" : risk >= 50 ? "Tight subjects / references" : "Workable counterparty";
+  const actions = [
+    risk >= 50 ? "Ask for payment references and prior fixture performance." : "Keep normal payment and recap trail.",
+    "Log last contact, claim history and final payment outcome.",
+    "Add sanctions / bank / beneficial owner checklist before firm fixture.",
+    Number(values.openClaims) ? "Keep claim documents and time-bar calendar visible in deal room." : "No open claim entered."
+  ];
+  lastWorkflowCounterparty = { values, risk, trust, verdict, actions };
+  workflowCounterpartyResult.innerHTML = `
+    ${metricCards([
+      { label: "Trust", value: `${trust}/100` },
+      { label: "Risk", value: `${risk}/100` },
+      { label: "Verdict", value: escapeHtml(verdict) },
+      { label: "Role", value: escapeHtml(values.role || "Counterparty") }
+    ])}
+    <div class="ops-list">${actions.map((item) => `<div><strong>Action</strong><span>${escapeHtml(item)}</span></div>`).join("")}</div>
+  `;
+  renderWorkflowDealRoom();
+  renderWorkflowMission();
+  renderFocuseaScore();
+}
+
+function renderWorkflowAgency() {
+  if (!workflowAgencyForm || !workflowAgencyResult) return;
+  const values = collectFormValues(workflowAgencyForm);
+  const { port, id, ops } = turkiyePortProfile(values.portId || "mersin");
+  const eta = workflowDateAfter({ days: Number(values.etaDays) || 0 });
+  const berthWindow = Number(values.berthWindow) || 0;
+  const pda = Number(values.pda) || portCostBase(port) * ops.costFactor;
+  const waitingRisk = turkiyeWaitingRisk(id, Math.max(0, berthWindow < 24 ? 2 : 1), workflowCurrentGate().cargo.risk);
+  const timeline = [
+    `ETA: ${workflowDateLabel(eta)}`,
+    "Request PDA / berth window / terminal restrictions",
+    "Confirm free pratique, customs, ISPS and cargo documents",
+    "Pilot / tug / berth line-up",
+    "NOR, SOF, rain letter and departure docs"
+  ];
+  const docs = [...(port.documents || []), ...(ops.localDocs || [])].slice(0, 7);
+  lastWorkflowAgency = { values, port, eta, pda, waitingRisk, timeline, docs };
+  workflowAgencyResult.innerHTML = `
+    ${metricCards([
+      { label: "Port", value: escapeHtml(port.name) },
+      { label: "PDA screen", value: money(pda) },
+      { label: "Waiting risk", value: `${waitingRisk}/100` },
+      { label: "Berth window", value: `${berthWindow} h` }
+    ])}
+    <div class="workflow-two-col">
+      <div class="ops-list">${timeline.map((item) => `<div><strong>Timeline</strong><span>${escapeHtml(item)}</span></div>`).join("")}</div>
+      <div class="ops-list">${docs.map((item) => `<div><strong>Document</strong><span>${escapeHtml(item)}</span></div>`).join("")}</div>
+    </div>
+  `;
+  renderWorkflowMission();
+  renderFocuseaScore();
+}
+
+function workflowMailStudioText() {
+  const values = workflowMailStudioForm ? collectFormValues(workflowMailStudioForm) : {};
+  const gate = workflowCurrentGate();
+  const subject = `${values.mailType || "Counter offer"} - ${gate.cargo.label} - ${gate.parsed.route || "route TBC"}`;
+  const body = [
+    `Subject: ${subject}`,
+    "",
+    `Dear ${values.recipient || "all"},`,
+    "",
+    values.mailType === "Claim reminder"
+      ? `Please note our current laytime position is ${lastWorkflowSof?.verdict || "pending final calculation"}. Kindly provide signed SOF, NOR, rain/weather logs and terminal records.`
+      : values.mailType === "CP comment"
+        ? `Please review the CP wording. ${lastWorkflowClauseVersion?.verdict || "Clause version review pending"}. Our counter is to clarify NOR validity, waiting time, weather exceptions and time-bar wording.`
+        : values.mailType === "Fixture recap"
+          ? `Please find recap basis: ${gate.quantity.toLocaleString("en-US")} ${gate.cargo.unit} ${gate.cargo.label}, ${gate.parsed.route || "route TBC"}, freight ${money(gate.freight, 2)}/${gate.cargo.unit}, demurrage ${money(gate.demurrageRate)}/day.`
+          : values.mailType === "Firm offer"
+            ? `We can offer firm basis ${gate.parsed.route || "route TBC"} at ${money(gate.freight, 2)}/${gate.cargo.unit}, subject clean recap, receiver/terminal confirmation and management approval.`
+            : `Charterers counter at ${lastWorkflowCounter?.rate ? money(lastWorkflowCounter.rate, 2) : money(gate.freight * 1.02, 2)}/${gate.cargo.unit}, subject clean NOR/weather/waiting wording, agency PDA and final approval.`,
+    "",
+    `Focusea screen: ${gate.decision}, risk ${gate.risk}/100, TCE ${money(gate.tce)}/day.`,
+    "",
+    "Best regards,"
+  ];
+  return body.join("\n");
+}
+
+function renderWorkflowMailStudio() {
+  if (!workflowMailStudioForm || !workflowMailStudioResult) return;
+  const values = collectFormValues(workflowMailStudioForm);
+  const text = workflowMailStudioText();
+  const riskNote = workflowCurrentGate().risk >= 60 ? "Keep wording firm and conditional." : "Commercial tone can stay open.";
+  lastWorkflowMailStudio = { values, text, riskNote };
+  workflowMailStudioResult.innerHTML = `
+    ${metricCards([
+      { label: "Mail type", value: escapeHtml(values.mailType || "Counter offer") },
+      { label: "Tone", value: escapeHtml(values.tone || "Commercial") },
+      { label: "Risk note", value: escapeHtml(riskNote) }
+    ])}
+    <pre>${escapeHtml(text)}</pre>
+  `;
+  renderWorkflowReportCenter();
+  renderWorkflowMission();
+  renderFocuseaScore();
+}
+
+function workflowCompareDeal(text = "", label = "Deal") {
+  const parsed = parseOfferText(text);
+  const cargo = getCargoProfile(parsed.cargoType);
+  const quantity = parsed.quantity || defaultQuantityForCargo(cargo);
+  const freight = parsed.freight || cargo.baseFreight * cargo.freightMultiplier;
+  const demurrage = parsed.demurrage || 15000 * cargo.demurrageMultiplier;
+  const risk = scoreParsedOffer(parsed);
+  const voyageDays = 18 + cargo.risk / 30 + (parsed.laycanDays && parsed.laycanDays <= 3 ? 1.5 : 0);
+  const gross = quantity * freight;
+  const bunker = voyageDays * (cargo.unit === "TEU" ? 52 : cargo.unit === "cbm" ? 76 : 28) * cargo.bunkerMultiplier * (liveFeedState.bunker || verifiedBunkerSnapshot.ports.singapore.vlsfo);
+  const tce = (gross - bunker - 65000 * cargo.portCostMultiplier) / voyageDays;
+  const score = clamp(Math.round(100 - risk.score * 0.5 + Math.max(-20, (tce - 18000) / 900) + (demurrage / 1000)), 0, 100);
+  return { label, parsed, cargo, quantity, freight, demurrage, risk, voyageDays, gross, bunker, tce, score };
+}
+
+function renderWorkflowComparison() {
+  if (!workflowComparisonForm || !workflowComparisonResult) return;
+  const values = collectFormValues(workflowComparisonForm);
+  const deals = [
+    workflowCompareDeal(values.dealA || "", "A"),
+    workflowCompareDeal(values.dealB || "", "B"),
+    workflowCompareDeal(values.dealC || "", "C")
+  ].sort((a, b) => b.score - a.score);
+  const winner = deals[0];
+  lastWorkflowComparison = { values, deals, winner };
+  workflowComparisonResult.innerHTML = `
+    ${metricCards([
+      { label: "Best deal", value: `Deal ${escapeHtml(winner.label)}` },
+      { label: "Best score", value: `${winner.score}/100` },
+      { label: "Best TCE", value: `${money(winner.tce)}/day` },
+      { label: "Risk", value: `${winner.risk.score}/100` }
+    ])}
+    <div class="workflow-comparison-grid">
+      ${deals.map((deal) => `
+        <div>
+          <strong>Deal ${escapeHtml(deal.label)} - ${escapeHtml(deal.cargo.label)}</strong>
+          <span>${escapeHtml(deal.parsed.route || "Route TBC")}</span>
+          <small>Freight ${money(deal.freight, 2)} / TCE ${money(deal.tce)}/day / risk ${deal.risk.score}/100 / score ${deal.score}</small>
+        </div>
+      `).join("")}
+    </div>
+  `;
+  renderWorkflowMission();
+  renderFocuseaScore();
+}
+
+function renderWorkflowTrustLedger() {
+  if (!workflowTrustLedgerResult) return;
+  const rows = [
+    ["Fixture text", "User pasted offer / recap / SOF", "input", lastWorkflowInbox ? 90 : 65],
+    ["Bunker", verifiedBunkerSnapshot.sourceName, "verified", 84],
+    ["Baltic indices", balticFeedState.connected ? balticFeedState.lastSource : "Licensed endpoint required", balticFeedState.connected ? "verified" : "licensed", balticFeedState.connected ? 88 : 56],
+    ["Weather", "NWS API-ready; static page uses user weather text", "api-ready", lastWeatherLaytime ? 78 : 62],
+    ["Port", "UN/LOCODE + NGA WPI import-ready + local note", "api-ready", lastWorkflowAgency ? 82 : 66],
+    ["SOF / laytime", "Rule engine over pasted SOF; signed docs required", "input", lastWorkflowSof ? lastWorkflowSof.readiness : 55],
+    ["Counterparty", "Local risk memory / user input", "input", lastWorkflowCounterparty ? 76 : 52],
+    ["Python backend", "FastAPI endpoints available when backend is running", "api-ready", 70]
+  ];
+  lastWorkflowTrustLedger = { rows, generatedAt: new Date().toLocaleString() };
+  workflowTrustLedgerResult.innerHTML = `
+    <div class="confidence-list">${rows.map(([name, source, badge, confidence]) => `
+      <div class="confidence-row">
+        <span>${escapeHtml(name)}<small>${escapeHtml(source)}</small></span>
+        <em class="source-badge ${badge}">${sourceBadgeText(badge)}</em>
+        <strong>${confidence}%</strong>
+      </div>
+    `).join("")}</div>
+  `;
+}
+
+function renderWorkflowBackendConnector() {
+  if (!workflowBackendConnectorResult) return;
+  const endpoints = [
+    ["POST /api/broker/parse-offer", "Mail / WhatsApp -> parsed offer + recap"],
+    ["POST /api/laytime/sof", "SOF -> laytime / demurrage / dispatch"],
+    ["POST /api/voyage/estimate", "Voyage estimate + TCE + P&L"],
+    ["POST /api/charterparty/diff", "CP diff + risk + counter wording"],
+    ["POST /api/stability/evaluate", "Loadicator calculation"],
+    ["POST /api/reports/{type}/pdf", "Real PDF export"]
+  ];
+  lastWorkflowBackendConnector = { endpoints, generatedAt: new Date().toLocaleString() };
+  workflowBackendConnectorResult.innerHTML = `
+    ${metricCards([
+      { label: "Backend", value: "FastAPI ready" },
+      { label: "Endpoints", value: endpoints.length },
+      { label: "Run", value: "uvicorn backend.main:app --reload" },
+      { label: "Mode", value: `<em class="source-badge api-ready">API-ready</em>` }
+    ])}
+    <div class="workflow-two-col">
+      <div class="ops-list">${endpoints.map(([path, use]) => `<div><strong>${escapeHtml(path)}</strong><span>${escapeHtml(use)}</span></div>`).join("")}</div>
+      <pre>cd backend
+pip install -r requirements.txt
+uvicorn backend.main:app --reload</pre>
+    </div>
+  `;
+}
+
+function handleWorkflowProDownload(type) {
+  if (!lastWorkflowSof) renderWorkflowSofEngine();
+  if (!lastWorkflowPortalPro) renderWorkflowPortalPro();
+  if (!lastWorkflowMailStudio) renderWorkflowMailStudio();
+  const actions = {
+    "laytime-pdf": () => downloadPdfFile("focusea-laytime-statement.pdf", "Focusea Laytime Statement", workflowLaytimeReportText()),
+    "claim-txt": () => downloadTextFile("focusea-demurrage-claim-letter.txt", workflowClaimLetterText()),
+    "deal-pdf": () => downloadPdfFile("focusea-deal-room.pdf", "Focusea Deal Room", workflowDealRoomReportText()),
+    "client-pdf": () => downloadPdfFile("focusea-client-portal-summary.pdf", "Focusea Client Portal", workflowClientReportText()),
+    "full-json": () => downloadJsonFile("focusea-workflow-full-pack.json", workflowFullPack()),
+    "mail-txt": () => downloadTextFile("focusea-broker-mail.txt", lastWorkflowMailStudio?.text || workflowMailStudioText())
+  };
+  actions[type]?.();
+  renderWorkflowReportCenter();
 }
 
 function renderAllWorkflowControl() {
@@ -11415,6 +11980,15 @@ function renderAllWorkflowControl() {
   renderWorkflowMission();
   renderWorkflowCommunity();
   renderFocuseaScore();
+  renderWorkflowSofEngine();
+  renderWorkflowPortalPro();
+  renderWorkflowCounterparty();
+  renderWorkflowAgency();
+  renderWorkflowMailStudio();
+  renderWorkflowComparison();
+  renderWorkflowTrustLedger();
+  renderWorkflowBackendConnector();
+  renderWorkflowReportCenter();
 }
 
 const superSuiteFeatures = [
@@ -13321,6 +13895,12 @@ bindBrokerForm(workflowVettingForm, renderWorkflowVetting);
 bindBrokerForm(workflowClauseVersionForm, renderWorkflowClauseVersion);
 bindBrokerForm(workflowCounterForm, renderWorkflowCounter);
 bindBrokerForm(workflowWhatIfForm, renderWorkflowWhatIf);
+bindBrokerForm(workflowSofForm, renderWorkflowSofEngine);
+bindBrokerForm(workflowPortalProForm, renderWorkflowPortalPro);
+bindBrokerForm(workflowCounterpartyForm, renderWorkflowCounterparty);
+bindBrokerForm(workflowAgencyForm, renderWorkflowAgency);
+bindBrokerForm(workflowMailStudioForm, renderWorkflowMailStudio);
+bindBrokerForm(workflowComparisonForm, renderWorkflowComparison);
 bindBrokerForm(superSuiteForm, renderSuperSuite);
 
 if (offerTrackerForm) {
@@ -13367,6 +13947,11 @@ if (clearWorkflowInbox) clearWorkflowInbox.addEventListener("click", clearWorkfl
 if (refreshWorkflowMission) refreshWorkflowMission.addEventListener("click", renderWorkflowMission);
 if (saveWorkflowCommunity) saveWorkflowCommunity.addEventListener("click", addWorkflowCommunityNote);
 if (clearWorkflowCommunity) clearWorkflowCommunity.addEventListener("click", clearWorkflowCommunityNotes);
+if (saveWorkflowReport) saveWorkflowReport.addEventListener("click", saveWorkflowReportSnapshot);
+if (clearWorkflowReports) clearWorkflowReports.addEventListener("click", clearWorkflowReportHistory);
+document.querySelectorAll("[data-download-workflow-pro]").forEach((button) => {
+  button.addEventListener("click", () => handleWorkflowProDownload(button.dataset.downloadWorkflowPro));
+});
 if (superTerminalNoteForm) superTerminalNoteForm.addEventListener("submit", addSuperTerminalNote);
 if (clearSuperNotes) {
   clearSuperNotes.addEventListener("click", () => {
