@@ -14559,7 +14559,7 @@ function stripHtml(value) {
 
 function buildGoogleNewsRssUrl(query) {
   const params = new URLSearchParams({
-    q: query,
+    q: `${query} when:2d`,
     hl: "en-US",
     gl: "US",
     ceid: "US:en"
@@ -14567,25 +14567,62 @@ function buildGoogleNewsRssUrl(query) {
   return `https://news.google.com/rss/search?${params.toString()}`;
 }
 
+const liveNewsCacheKey = "focusea-live-news-cache-v1";
+
+function newsCacheBust(url) {
+  const separator = url.includes("?") ? "&" : "?";
+  return `${url}${separator}_=${Date.now()}`;
+}
+
+function normalizeNewsItem(item, sourcePrefix = "") {
+  const rawTitle = stripHtml(item.title || "");
+  const sourceFromTitle = rawTitle.includes(" - ") ? rawTitle.split(" - ").at(-1) : "";
+  const source = item.source || item.author || item.domain || sourceFromTitle || "Live news";
+  return {
+    title: rawTitle.replace(/\s+-\s+[^-]+$/, ""),
+    link: item.link || item.url || "",
+    source: sourcePrefix ? `${sourcePrefix} - ${source}` : source,
+    date: parseNewsDate(item.pubDate || item.pubdate || item.seendate || item.date)
+  };
+}
+
 async function fetchNewsXml(query) {
   const feedUrl = buildGoogleNewsRssUrl(query);
-  const direct = await fetchWithTimeout(feedUrl);
+  const direct = await fetchWithTimeout(newsCacheBust(feedUrl), 10000);
   if (direct.ok) return direct.text();
   throw new Error(`Direct RSS failed: ${direct.status}`);
+}
+
+async function fetchGoogleNewsJson(query) {
+  const feedUrl = buildGoogleNewsRssUrl(query);
+  const params = new URLSearchParams({ rss_url: feedUrl });
+  const url = `https://api.rss2json.com/v1/api.json?${params.toString()}`;
+  const response = await fetchWithTimeout(newsCacheBust(url), 10000);
+  if (!response.ok) throw new Error(`rss2json failed: ${response.status}`);
+  const text = await response.text();
+  const parsed = JSON.parse(text);
+  if (parsed.status !== "ok" || !Array.isArray(parsed.items) || !parsed.items.length) {
+    throw new Error("rss2json returned no live items");
+  }
+  return JSON.stringify({ sourceType: "rss2json", items: parsed.items });
 }
 
 async function fetchNewsWithFallback(query) {
   const feedUrl = buildGoogleNewsRssUrl(query);
   try {
-    return await fetchNewsXml(query);
-  } catch (directError) {
+    return await fetchGoogleNewsJson(query);
+  } catch (jsonError) {
     try {
-      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(feedUrl)}`;
-      const proxied = await fetchWithTimeout(proxyUrl);
-      if (!proxied.ok) throw new Error(`RSS proxy failed: ${proxied.status}`);
-      return proxied.text();
-    } catch (proxyError) {
-      return fetchGdeltNews(query);
+      return await fetchNewsXml(query);
+    } catch (directError) {
+      try {
+        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(feedUrl)}`;
+        const proxied = await fetchWithTimeout(newsCacheBust(proxyUrl), 10000);
+        if (!proxied.ok) throw new Error(`RSS proxy failed: ${proxied.status}`);
+        return proxied.text();
+      } catch (proxyError) {
+        return fetchGdeltNews(query);
+      }
     }
   }
 }
@@ -14603,6 +14640,9 @@ async function fetchWithTimeout(url, timeoutMs = 8000) {
 function parseNewsItems(xmlText) {
   if (xmlText.trim().startsWith("{")) {
     const data = JSON.parse(xmlText);
+    if (Array.isArray(data.items)) {
+      return data.items.slice(0, 9).map((item) => normalizeNewsItem(item, "Google News")).filter((item) => item.title && item.link);
+    }
     return (data.articles || []).slice(0, 9).map((item) => ({
       title: item.title,
       link: item.url,
@@ -14644,12 +14684,32 @@ async function fetchGdeltNews(query) {
     sort: "datedesc"
   });
   const url = `https://api.gdeltproject.org/api/v2/doc/doc?${params.toString()}`;
-  const response = await fetchWithTimeout(url);
+  const response = await fetchWithTimeout(newsCacheBust(url), 10000);
   if (!response.ok) throw new Error(`GDELT failed: ${response.status}`);
-  return response.text();
+  const text = await response.text();
+  if (!text.trim().startsWith("{")) throw new Error("GDELT rate limited or returned non JSON");
+  return text;
 }
 
-function renderNews(items, query) {
+function getCachedLiveNews() {
+  const cached = safeLocalGet(liveNewsCacheKey, null);
+  if (!cached || !Array.isArray(cached.items) || !cached.items.length) return null;
+  return {
+    ...cached,
+    items: cached.items.map((item) => ({ ...item, date: parseNewsDate(item.date) }))
+  };
+}
+
+function setCachedLiveNews(query, items, sourceLabel) {
+  safeLocalSet(liveNewsCacheKey, {
+    query,
+    sourceLabel,
+    checkedAt: new Date().toISOString(),
+    items: items.map((item) => ({ ...item, date: item.date ? item.date.toISOString() : "" }))
+  });
+}
+
+function renderNews(items, query, meta = {}) {
   if (!newsGrid || !newsStatus) return;
 
   if (!items.length) {
@@ -14667,7 +14727,9 @@ function renderNews(items, query) {
     </article>
   `).join("");
 
-  const sourceLabel = items.some((item) => item.source?.startsWith("GDELT")) ? "GDELT maritime news" : "Google News RSS";
+  const baseSourceLabel = meta.sourceLabel || (items.some((item) => item.source?.startsWith("GDELT")) ? "GDELT maritime news" : "Google News RSS");
+  const modeLabel = meta.cached ? "son canlı cache" : meta.snapshot ? "verified snapshot" : "live";
+  const sourceLabel = `${baseSourceLabel} / ${modeLabel}`;
   newsStatus.textContent = `${sourceLabel} · "${query}" · ${items.length} gerçek haber · son kontrol ${new Date().toLocaleTimeString()}`;
 }
 
@@ -14679,9 +14741,18 @@ async function loadMaritimeNews(query = activeNewsQuery) {
 
   try {
     const xmlText = await fetchNewsWithFallback(query);
-    renderNews(parseNewsItems(xmlText), query);
+    const items = parseNewsItems(xmlText);
+    if (!items.length) throw new Error("Live source returned zero parsed items");
+    const sourceLabel = items.some((item) => item.source?.startsWith("GDELT")) ? "GDELT maritime news" : "Google News RSS via rss2json";
+    setCachedLiveNews(query, items, sourceLabel);
+    renderNews(items, query, { sourceLabel });
   } catch (error) {
-    renderNews(verifiedNewsFallback, "verified maritime snapshot");
+    const cached = getCachedLiveNews();
+    if (cached) {
+      renderNews(cached.items, cached.query || query, { sourceLabel: cached.sourceLabel || "Last live maritime news", cached: true });
+      return;
+    }
+    renderNews(verifiedNewsFallback, "verified maritime snapshot", { sourceLabel: "Verified maritime snapshot", snapshot: true });
     newsStatus.textContent = "Live RSS/API engellendi; uydurma haber yerine doğrulanmış haber snapshot'ı gösteriliyor. Yenile butonu canlı kaynağı tekrar dener.";
   }
 }
