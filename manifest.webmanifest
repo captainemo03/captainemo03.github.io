@@ -1,0 +1,43 @@
+{
+  "name": "Focusea Maritime Command Center",
+  "short_name": "Focusea",
+  "description": "Broker, chartering, market, document and stability operating platform.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#061522",
+  "theme_color": "#061522",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "assets/brand/focusea-mark.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/brand/focusea-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["business", "education", "productivity"],
+  "shortcuts": [
+    {
+      "name": "AI Core",
+      "short_name": "AI Core",
+      "url": "./index.html#aiCore"
+    },
+    {
+      "name": "Broker Desk",
+      "short_name": "Broker",
+      "url": "./index.html#broker"
+    },
+    {
+      "name": "Loadicator Lab",
+      "short_name": "Loadicator",
+      "url": "./stability.html"
+    }
+  ]
+}

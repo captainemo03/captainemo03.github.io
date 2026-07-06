@@ -438,6 +438,107 @@ def performance_analytics(store: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def ai_autopilot(payload: dict[str, Any]) -> dict[str, Any]:
+    text = str(payload.get("deal_text") or payload.get("text") or "")
+    target_tce = number(payload.get("target_tce"), 22000)
+    mode = str(payload.get("mode", "Broker autopilot"))
+    parsed_pack = parse_offer_text(text)
+    parsed = parsed_pack["parsed"]
+    voyage = voyage_estimate({
+        "cargo_type": parsed.get("cargo_type") or "coal",
+        "cargo_qty": parsed.get("quantity") or 50000,
+        "freight_rate": parsed.get("freight_rate") or 18.5,
+        "demurrage_rate": parsed.get("demurrage_rate") or 18000,
+        "commission": parsed.get("commission") or 2.5,
+        "bunker_price": payload.get("bunker_price", 686.5),
+        "daily_hire": payload.get("daily_hire", 14500),
+        "port_days": payload.get("port_days", 5),
+    })
+    clause = clause_diff("", text)
+    tce_gap = voyage["tce"] - target_tce
+    risk_score = int(clamp(parsed_pack["risk"]["score"] * 0.44 + clause["risk_score"] * 0.26 + (18 if tce_gap < 0 else -4), 0, 100))
+    decision = "AVOID / SENIOR REVIEW" if risk_score >= 72 else "WATCH / COUNTER" if risk_score >= 54 else "FIX WITH GUARDS"
+    actions = []
+    for missing in parsed_pack["missing"]:
+        actions.append(f"Confirm missing field: {missing}.")
+    actions.extend([
+        f"TCE gap vs target: {round(tce_gap, 2)} USD/day.",
+        "Negotiate NOR, waiting berth, weather and time-bar wording before recap.",
+        "Create deal room, client summary, vault entry and audit record.",
+    ])
+    mail = "\n".join([
+        "Dear all,",
+        "",
+        f"Re: {parsed.get('quantity') or 'TBC'} {parsed.get('cargo_label')} {parsed.get('route') or 'route TBC'}",
+        f"Focusea AI decision: {decision} ({risk_score}/100 risk).",
+        f"Freight: {parsed.get('freight_rate') or 'TBC'} | Demurrage: {parsed.get('demurrage_rate') or 'TBC'} | Laycan: {parsed.get('laycan') or 'TBC'}.",
+        "Please confirm missing terms, protected NOR wording, valid evidence trail and subject deadline.",
+        "",
+        "Best regards,",
+    ])
+    return {
+        "mode": mode,
+        "decision": decision,
+        "risk_score": risk_score,
+        "parsed": parsed,
+        "voyage": voyage,
+        "clause": clause,
+        "actions": actions[:8],
+        "explain": [
+            {"label": "offer_parser", "value": parsed_pack["risk"]["score"], "note": parsed_pack["risk"]["label"]},
+            {"label": "clause_risk", "value": clause["risk_score"], "note": clause["posture"]},
+            {"label": "tce_gap", "value": round(tce_gap, 2), "note": "negative means below target"},
+        ],
+        "mail": mail,
+        "source": "python-fastapi",
+    }
+
+
+def ai_copilot(payload: dict[str, Any]) -> dict[str, Any]:
+    question = str(payload.get("question", "Should we fix this fixture?"))
+    text = str(payload.get("deal_text") or payload.get("text") or "")
+    autopilot = ai_autopilot({"deal_text": text, "target_tce": payload.get("target_tce", 22000)})
+    q = question.lower()
+    if any(key in q for key in ["fix", "counter", "fixture", "wording"]):
+        answer = (
+            "Do not lift subjects until freight/demurrage, NOR wording and missing fields are protected."
+            if autopilot["risk_score"] >= 54
+            else "Fixture is workable with documented guards and clean recap wording."
+        )
+    elif any(key in q for key in ["claim", "demurrage", "laytime", "sof"]):
+        answer = "Build the claim pack from NOR, SOF, rain log, completion time, invoice and CP laytime exceptions."
+    else:
+        answer = f"Current AI decision is {autopilot['decision']}; first action is {autopilot['actions'][0]}"
+    return {
+        "question": question,
+        "answer": answer,
+        "decision": autopilot["decision"],
+        "risk_score": autopilot["risk_score"],
+        "next_actions": autopilot["actions"][:4],
+        "source": "python-fastapi",
+    }
+
+
+def ai_knowledge_graph(payload: dict[str, Any]) -> dict[str, Any]:
+    text = str(payload.get("deal_text") or payload.get("text") or "")
+    autopilot = ai_autopilot({"deal_text": text, "target_tce": payload.get("target_tce", 22000)})
+    parsed = autopilot["parsed"]
+    cargo = CARGO_PROFILES.get(parsed.get("cargo_type", "coal"), CARGO_PROFILES["coal"])
+    nodes = [
+        {"id": "fixture", "label": "Fixture", "score": autopilot["risk_score"], "note": autopilot["decision"]},
+        {"id": "cargo", "label": cargo["label"], "score": 48, "note": f"Unit {cargo['unit']}"},
+        {"id": "route", "label": "Route", "score": 52, "note": parsed.get("route") or "TBC"},
+        {"id": "clause", "label": "Clause", "score": autopilot["clause"]["risk_score"], "note": autopilot["clause"]["posture"]},
+        {"id": "voyage", "label": "Voyage", "score": 100 - int(clamp(autopilot["voyage"]["tce"] / 400, 0, 75)), "note": f"TCE {autopilot['voyage']['tce']}"},
+        {"id": "client", "label": "Client", "score": autopilot["risk_score"], "note": "Portal summary ready"},
+    ]
+    edges = [
+        {"from": nodes[index]["id"], "to": nodes[index + 1]["id"], "reason": "workflow dependency"}
+        for index in range(len(nodes) - 1)
+    ]
+    return {"nodes": nodes, "edges": edges, "source": "python-fastapi"}
+
+
 def evaluate_stability(loads_text: str, vessel: dict[str, Any] | None = None) -> dict[str, Any]:
     vessel = vessel or {}
     pattern = re.compile(r"(H\d)\s+([a-z]+)?\s*(\d+(?:[.,]\d+)?)\s*mt\s*x\s*(-?\d+(?:[.,]\d+)?)\s*y\s*(-?\d+(?:[.,]\d+)?)\s*kg\s*(\d+(?:[.,]\d+)?)", re.I)

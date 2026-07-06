@@ -168,6 +168,7 @@ a {
 .decision-lab-panel,
 .command-theater-panel,
 .saas-core-panel,
+.ai-core-panel,
 .super-suite-panel,
 .python-engine-panel,
 .command-deck-panel,
@@ -4358,6 +4359,254 @@ main {
   background: linear-gradient(90deg, #28f0c6, #6fffe3);
 }
 
+.ai-core-panel {
+  position: relative;
+  overflow: hidden;
+}
+
+.ai-core-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(111, 255, 227, 0.16), transparent 30%),
+    radial-gradient(circle at 88% 20%, rgba(111, 99, 255, 0.18), transparent 34%),
+    linear-gradient(145deg, rgba(40, 240, 198, 0.05), transparent 56%);
+}
+
+.ai-core-panel > * {
+  position: relative;
+  z-index: 1;
+}
+
+.ai-core-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 18px;
+  padding: 18px;
+  border: 1px solid rgba(111, 255, 227, 0.22);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(40, 240, 198, 0.11), rgba(100, 97, 255, 0.08)),
+    rgba(255, 255, 255, 0.045);
+}
+
+.ai-core-hero span {
+  color: #6fffe3;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ai-core-hero strong {
+  display: block;
+  margin-top: 8px;
+  color: var(--text);
+  font-size: clamp(1.32rem, 2vw, 2.05rem);
+  line-height: 1.08;
+}
+
+.ai-core-hero p {
+  max-width: 960px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.ai-core-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.ai-core-grid article {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(111, 255, 227, 0.025)),
+    rgba(255, 255, 255, 0.045);
+}
+
+.ai-main-card {
+  border-color: rgba(111, 255, 227, 0.35) !important;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(111, 255, 227, 0.16), transparent 34%),
+    rgba(255, 255, 255, 0.055) !important;
+}
+
+.ai-flow-list,
+.ai-chat-log,
+.ai-role-grid,
+.ai-twin-grid,
+.ai-slide-strip {
+  display: grid;
+  gap: 10px;
+}
+
+.ai-flow-list div,
+.ai-chat-log div,
+.ai-role-grid div,
+.ai-twin-grid div,
+.ai-slide-strip div {
+  min-width: 0;
+  padding: 11px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(2, 13, 18, 0.34);
+}
+
+.ai-flow-list div.priority,
+.ai-chat-log .bot {
+  border-color: rgba(111, 255, 227, 0.28);
+  background: rgba(40, 240, 198, 0.08);
+}
+
+.ai-flow-list strong,
+.ai-chat-log strong,
+.ai-role-grid strong,
+.ai-twin-grid strong,
+.ai-slide-strip strong {
+  color: var(--text);
+}
+
+.ai-flow-list span,
+.ai-chat-log span,
+.ai-role-grid span,
+.ai-twin-grid span,
+.ai-slide-strip span,
+.ai-slide-strip small {
+  color: var(--muted);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.ai-graph-map {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(110px, 1fr));
+  gap: 10px;
+  min-height: 180px;
+  overflow-x: auto;
+  padding: 10px 0 14px;
+}
+
+.ai-graph-map::before {
+  content: "";
+  position: absolute;
+  left: 5%;
+  right: 5%;
+  top: 50%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(111, 255, 227, 0.45), transparent);
+}
+
+.ai-graph-node {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 6px;
+  align-content: center;
+  min-height: 132px;
+  padding: 12px;
+  border: 1px solid rgba(111, 255, 227, 0.18);
+  border-radius: 8px;
+  background: rgba(2, 13, 18, 0.82);
+}
+
+.ai-graph-node.low,
+.ai-twin-grid .low,
+.timebar-list .low {
+  border-color: rgba(40, 240, 198, 0.36);
+}
+
+.ai-graph-node.medium,
+.ai-twin-grid .medium,
+.timebar-list .medium {
+  border-color: rgba(255, 203, 107, 0.44);
+}
+
+.ai-graph-node.high,
+.ai-twin-grid .high,
+.timebar-list .high {
+  border-color: rgba(255, 109, 124, 0.48);
+}
+
+.ai-graph-node strong {
+  color: var(--text);
+}
+
+.ai-graph-node span {
+  color: #6fffe3;
+  font-size: 1.2rem;
+  font-weight: 900;
+}
+
+.ai-graph-node small {
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.ai-twin-grid,
+.ai-role-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ai-explain-list {
+  display: grid;
+  gap: 10px;
+}
+
+.ai-explain-list div {
+  display: grid;
+  grid-template-columns: minmax(130px, 0.8fr) minmax(120px, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.ai-explain-list span {
+  color: #d8edf1;
+  font-size: 0.84rem;
+  font-weight: 900;
+}
+
+.ai-explain-list small {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.ai-explain-list i {
+  display: block;
+  width: var(--bar);
+  max-width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #28f0c6, #6c63ff);
+}
+
+.ai-slide-strip {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+body.ai-presentation-mode .ai-core-panel {
+  box-shadow: 0 0 0 2px rgba(111, 255, 227, 0.22), 0 24px 90px rgba(0, 0, 0, 0.36);
+}
+
+body.ai-presentation-mode .ai-core-panel .panel-heading,
+body.ai-presentation-mode .ai-core-hero {
+  filter: saturate(1.18) brightness(1.08);
+}
+
 @keyframes pulse {
   0%, 100% { filter: brightness(1); }
   50% { filter: brightness(1.35); }
@@ -4412,10 +4661,12 @@ main {
   .decision-lab-grid,
   .theater-grid,
   .saas-core-grid,
+  .ai-core-grid,
   .super-suite-grid,
   .python-engine-grid,
   .theater-stage,
   .saas-core-hero,
+  .ai-core-hero,
   .super-suite-hero,
   .python-engine-hero,
   .auto-deal-controls,
@@ -4486,6 +4737,7 @@ main {
   .decision-lab-panel,
   .command-theater-panel,
   .saas-core-panel,
+  .ai-core-panel,
   .super-suite-panel,
   .python-engine-panel,
   .assistant-panel,
@@ -4517,6 +4769,7 @@ main {
   .decision-lab-grid,
   .theater-grid,
   .saas-core-grid,
+  .ai-core-grid,
   .super-suite-grid,
   .python-engine-grid,
   .broker-os-hero,
@@ -4525,6 +4778,7 @@ main {
   .decision-lab-hero,
   .theater-stage,
   .saas-core-hero,
+  .ai-core-hero,
   .super-suite-hero,
   .python-engine-hero,
   .export-actions,
@@ -4566,6 +4820,10 @@ main {
   .detail-columns,
   .theater-radar-row,
   .theater-timeline div,
+  .ai-twin-grid,
+  .ai-role-grid,
+  .ai-slide-strip,
+  .ai-explain-list div,
   .heatmap-row {
     grid-template-columns: 1fr;
   }

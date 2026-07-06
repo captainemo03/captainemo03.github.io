@@ -2350,6 +2350,31 @@ const refreshSaasAnalytics = document.querySelector("#refreshSaasAnalytics");
 const saasAnalyticsResult = document.querySelector("#saasAnalyticsResult");
 const saasSecurityResult = document.querySelector("#saasSecurityResult");
 const saasBackendBlueprintResult = document.querySelector("#saasBackendBlueprintResult");
+const runAiCore = document.querySelector("#runAiCore");
+const aiAutopilotForm = document.querySelector("#aiAutopilotForm");
+const aiAutopilotResult = document.querySelector("#aiAutopilotResult");
+const aiKnowledgeGraphResult = document.querySelector("#aiKnowledgeGraphResult");
+const aiDealTwinForm = document.querySelector("#aiDealTwinForm");
+const aiDealTwinResult = document.querySelector("#aiDealTwinResult");
+const aiExplainResult = document.querySelector("#aiExplainResult");
+const aiCopilotForm = document.querySelector("#aiCopilotForm");
+const aiCopilotResult = document.querySelector("#aiCopilotResult");
+const aiRolePortalForm = document.querySelector("#aiRolePortalForm");
+const aiRolePortalResult = document.querySelector("#aiRolePortalResult");
+const addAiAuditEvent = document.querySelector("#addAiAuditEvent");
+const clearAiAudit = document.querySelector("#clearAiAudit");
+const aiAuditResult = document.querySelector("#aiAuditResult");
+const aiPwaResult = document.querySelector("#aiPwaResult");
+const aiDocumentVaultForm = document.querySelector("#aiDocumentVaultForm");
+const saveAiVaultDoc = document.querySelector("#saveAiVaultDoc");
+const clearAiVault = document.querySelector("#clearAiVault");
+const aiDocumentVaultResult = document.querySelector("#aiDocumentVaultResult");
+const aiClauseBattleForm = document.querySelector("#aiClauseBattleForm");
+const aiClauseBattleResult = document.querySelector("#aiClauseBattleResult");
+const aiFixtureSimulatorForm = document.querySelector("#aiFixtureSimulatorForm");
+const aiFixtureSimulatorResult = document.querySelector("#aiFixtureSimulatorResult");
+const toggleAiPresentation = document.querySelector("#toggleAiPresentation");
+const aiPresentationResult = document.querySelector("#aiPresentationResult");
 let activeNewsQuery = "maritime shipping";
 let generatedOpsEmailText = "";
 let selectedCommandScenarioId = "coal";
@@ -2395,6 +2420,13 @@ let lastSaasClientPortal = null;
 let lastSaasAnalytics = null;
 let lastSaasSecurity = null;
 let lastSaasBackendBlueprint = null;
+let lastAiAutopilot = null;
+let lastAiDealTwin = null;
+let lastAiCopilot = null;
+let lastAiRolePortal = null;
+let lastAiClauseBattle = null;
+let lastAiFixtureSimulator = null;
+let lastAiPresentation = null;
 let lastParsedOffer = null;
 let lastCopilotReport = null;
 let lastTceOptimization = null;
@@ -2683,6 +2715,7 @@ const pageGroups = {
   dashboard: ["#command", ".dashboard-strip", ".ops-board", "#commandDeck", "#smartOps"],
   theater: ["#commandTheaterPanel"],
   saasCore: ["#saasCorePanel"],
+  aiCore: ["#aiCorePanel"],
   broker: ["#brokerDesk", "#brokerPro", "#brokerOps"],
   terminal: ["#platformCore", "#brokerIntelligence", "#commandTerminal"],
   edge: ["#edgeSuite"],
@@ -12531,6 +12564,494 @@ function renderAllSaasCore() {
   renderSaasBackendBlueprint();
 }
 
+const aiAuditKey = "focusea-ai-audit-v1";
+const aiVaultKey = "focusea-ai-vault-v1";
+
+function aiRiskLabel(score) {
+  if (score >= 72) return "Avoid / senior review";
+  if (score >= 54) return "Watch / negotiate";
+  return "Fixable with guards";
+}
+
+function aiRiskClass(score) {
+  if (score >= 72) return "high";
+  if (score >= 54) return "medium";
+  return "low";
+}
+
+function aiCurrentContext() {
+  const values = aiAutopilotForm ? collectFormValues(aiAutopilotForm) : {};
+  const dealText = String(values.dealText || "50k coal Indonesia to India laycan 10/15 Jul freight USD 18.50 pmt demurrage USD 18,000/day");
+  const parsed = parseOfferText(dealText);
+  const parsedRisk = scoreParsedOffer(parsed);
+  const gate = workflowCurrentGate();
+  const cargo = getCargoProfile(parsed.cargoType || gate.cargoType || "coal");
+  const targetTce = Number(values.targetTce) || 22000;
+  const tceGap = (gate.tce || 0) - targetTce;
+  const redFlags = redTeamFindings(dealText, "AI Core");
+  const riskScore = clamp(Math.round((gate.risk || 45) * 0.46 + parsedRisk.score * 0.32 + redFlags.length * 7 + (tceGap < 0 ? 10 : -4)), 0, 100);
+  const decision = riskScore >= 72 ? "AVOID / SENIOR REVIEW" : riskScore >= 54 ? "WATCH / COUNTER" : "FIX WITH GUARDS";
+  return { values, dealText, parsed, parsedRisk, gate, cargo, targetTce, tceGap, redFlags, riskScore, decision };
+}
+
+function aiAutopilotReportText(result = lastAiAutopilot) {
+  if (!result) return "No AI autopilot report generated.";
+  return reportLines("FOCUSEA AI AUTOPILOT REPORT", [
+    `Decision: ${result.decision}`,
+    `Risk score: ${result.riskScore}/100`,
+    `Cargo: ${result.parsed.cargoLabel}`,
+    `Route: ${result.parsed.route || "TBC"}`,
+    `Quantity: ${result.parsed.quantity || "TBC"} ${result.parsed.unit}`,
+    `Freight: ${result.parsed.freight ? money(result.parsed.freight, 2) : "TBC"}`,
+    `Demurrage: ${result.parsed.demurrage ? money(result.parsed.demurrage) : "TBC"}`,
+    `TCE: ${money(result.gate.tce)}/day`,
+    `P&L: ${money(result.gate.netPnl)}`,
+    "",
+    "Workflow actions:",
+    ...result.actions.map((item) => `- ${item}`),
+    "",
+    "Explainability:",
+    ...result.explanations.map((item) => `- ${item.label}: ${item.value} (${item.note})`),
+    "",
+    "Action mail:",
+    aiActionMailText(result)
+  ]);
+}
+
+function aiActionMailText(result = lastAiAutopilot) {
+  if (!result) return "Run AI Autopilot first.";
+  const parsed = result.parsed;
+  const guards = result.actions.slice(0, 4).map((item) => `- ${item}`).join("\n");
+  return [
+    "Dear all,",
+    "",
+    `Re: ${parsed.quantity || "TBC"} ${parsed.unit || ""} ${parsed.cargoLabel || "cargo"} ${parsed.route || "route TBC"}`,
+    "",
+    `Focusea AI review indicates: ${result.decision} (${result.riskScore}/100 risk).`,
+    `Freight basis: ${parsed.freight ? `${money(parsed.freight, 2)} per ${parsed.unit}` : "TBC"} | Demurrage: ${parsed.demurrage ? `${money(parsed.demurrage)} pdpr` : "TBC"} | Laycan: ${parsed.laycan || "TBC"}.`,
+    "",
+    "Before fixing, please confirm:",
+    guards,
+    "",
+    "Suggested position: keep subjects until missing items, NOR wording and evidence trail are clean.",
+    "",
+    "Best regards,"
+  ].join("\n");
+}
+
+function renderAiAutopilot() {
+  if (!aiAutopilotResult) return;
+  const ctx = aiCurrentContext();
+  const missingActions = ctx.parsed.missing.map((item) => `Ask counterparty to confirm ${item}.`);
+  const clauseActions = ctx.redFlags.slice(0, 3).map((item) => `Negotiate clause: ${item.advice || item.title}.`);
+  const actions = [
+    ...missingActions,
+    ctx.tceGap < 0 ? `Counter freight or reduce cost; TCE is ${money(Math.abs(ctx.tceGap))}/day below target.` : `Commercials pass target by ${money(ctx.tceGap)}/day.`,
+    ctx.parsed.laycanDays && ctx.parsed.laycanDays <= 3 ? "Laycan is narrow; add canceling/extension protection." : "Laycan buffer is workable; keep schedule watch.",
+    ctx.gate.draftMargin < 1 ? "Draft margin is tight; require port/agent confirmation." : "Draft margin is not the main blocker.",
+    ...(clauseActions.length ? clauseActions : ["Run CP wording check before recap is final."]),
+    "Create recap, client summary, vault entry and audit event."
+  ].slice(0, 8);
+  const explanations = [
+    { label: "Parsed fixture risk", value: `${ctx.parsedRisk.score}/100`, note: ctx.parsedRisk.factors[0] || "Core terms mostly readable." },
+    { label: "Workflow gate risk", value: `${ctx.gate.risk}/100`, note: `${ctx.gate.decision} from commercial/port/legal gates.` },
+    { label: "Commercial gap", value: money(ctx.tceGap), note: ctx.tceGap < 0 ? "TCE is under the target." : "TCE is above the target." },
+    { label: "Clause flags", value: ctx.redFlags.length, note: ctx.redFlags[0]?.title || "No strong browser-side red flag." },
+    { label: "Missing fields", value: ctx.parsed.missing.length, note: ctx.parsed.missing.join(", ") || "No critical missing term." }
+  ];
+  lastAiAutopilot = { ...ctx, actions, explanations, generatedAt: new Date().toLocaleString() };
+  aiAutopilotResult.innerHTML = `
+    ${metricCards([
+      { label: "AI decision", value: escapeHtml(ctx.decision) },
+      { label: "Risk", value: `${ctx.riskScore}/100` },
+      { label: "Route", value: escapeHtml(ctx.parsed.route || "TBC") },
+      { label: "TCE gap", value: money(ctx.tceGap) }
+    ])}
+    <div class="ai-flow-list">${actions.map((item, index) => `<div class="${index < 2 ? "priority" : ""}"><strong>${index + 1}. ${escapeHtml(item)}</strong><span>${index === 0 ? "Action first" : "AI workflow step"}</span></div>`).join("")}</div>
+  `;
+  renderAiKnowledgeGraph();
+  renderAiExplain();
+  renderAiPresentation();
+}
+
+function renderAiKnowledgeGraph() {
+  if (!aiKnowledgeGraphResult) return;
+  const ctx = lastAiAutopilot || aiCurrentContext();
+  const graph = [
+    { name: "Fixture", score: ctx.parsedRisk.score, note: ctx.parsed.missing.length ? `${ctx.parsed.missing.length} missing terms` : "Terms extracted" },
+    { name: "Cargo", score: ctx.cargo.risk, note: ctx.cargo.note },
+    { name: "Route", score: ctx.gate.marketRisk || 42, note: ctx.parsed.route || "Route TBC" },
+    { name: "Port", score: ctx.gate.portRisk || 45, note: ctx.gate.port?.name || "Port profile pending" },
+    { name: "Clause", score: Math.min(100, 32 + ctx.redFlags.length * 14), note: ctx.redFlags[0]?.title || "Clause battle ready" },
+    { name: "Claim", score: lastWorkflowSof?.readiness ? 100 - lastWorkflowSof.readiness : 48, note: lastWorkflowSof?.verdict || "SOF not fully reviewed" },
+    { name: "Client", score: ctx.riskScore, note: ctx.decision }
+  ];
+  aiKnowledgeGraphResult.innerHTML = `
+    <div class="ai-graph-map">
+      ${graph.map((node, index) => `
+        <div class="ai-graph-node ${aiRiskClass(node.score)}" style="--node-index:${index}">
+          <strong>${escapeHtml(node.name)}</strong>
+          <span>${Math.round(node.score)}/100</span>
+          <small>${escapeHtml(node.note)}</small>
+        </div>
+      `).join("")}
+    </div>
+    <div class="workflow-link-list">
+      ${graph.slice(0, -1).map((node, index) => `<div><span>${escapeHtml(node.name)} -> ${escapeHtml(graph[index + 1].name)}</span><strong>${escapeHtml(aiRiskLabel(Math.max(node.score, graph[index + 1].score)))}</strong></div>`).join("")}
+    </div>
+  `;
+}
+
+function renderAiDealTwin() {
+  if (!aiDealTwinForm || !aiDealTwinResult) return;
+  const values = collectFormValues(aiDealTwinForm);
+  const ctx = lastAiAutopilot || aiCurrentContext();
+  const quantity = Number(ctx.parsed.quantity) || defaultQuantityForCargo(ctx.cargo);
+  const freightDelta = Number(values.freightDelta) || 0;
+  const bunkerShock = Number(values.bunkerShock) || 0;
+  const delayDays = Number(values.delayDays) || 0;
+  const clausePenalty = values.clauseRisk === "High" ? 24 : values.clauseRisk === "Low" ? 7 : 14;
+  const freightUpside = quantity * freightDelta;
+  const bunkerCost = bunkerShock * 280 * ctx.cargo.bunkerMultiplier;
+  const delayCost = delayDays * ((ctx.parsed.demurrage || 18000) + 14500);
+  const commercialTwin = freightUpside - bunkerCost - delayCost;
+  const legalTwin = clamp(ctx.redFlags.length * 18 + clausePenalty, 0, 100);
+  const opsTwin = clamp((ctx.gate.portRisk || 45) + delayDays * 9 + (ctx.gate.draftMargin < 1 ? 12 : 0), 0, 100);
+  const claimTwin = clamp((lastWorkflowSof?.demurrageAmount ? 45 : 25) + legalTwin * 0.35 + delayDays * 8, 0, 100);
+  const combined = clamp(Math.round((legalTwin + opsTwin + claimTwin + (commercialTwin < 0 ? 70 : 35)) / 4), 0, 100);
+  lastAiDealTwin = { values, freightUpside, bunkerCost, delayCost, commercialTwin, legalTwin, opsTwin, claimTwin, combined, generatedAt: new Date().toLocaleString() };
+  aiDealTwinResult.innerHTML = `
+    ${metricCards([
+      { label: "Commercial twin", value: `<em class="${commercialTwin >= 0 ? "positive" : "negative"}">${money(commercialTwin)}</em>` },
+      { label: "Legal twin", value: `${Math.round(legalTwin)}/100` },
+      { label: "Ops twin", value: `${Math.round(opsTwin)}/100` },
+      { label: "Claim twin", value: `${Math.round(claimTwin)}/100` }
+    ])}
+    <div class="ai-twin-grid">
+      <div><strong>Freight upside</strong><span>${money(freightUpside)}</span></div>
+      <div><strong>Bunker shock</strong><span>${money(bunkerCost)}</span></div>
+      <div><strong>Delay exposure</strong><span>${money(delayCost)}</span></div>
+      <div class="${aiRiskClass(combined)}"><strong>Combined verdict</strong><span>${escapeHtml(aiRiskLabel(combined))}</span></div>
+    </div>
+  `;
+  renderAiExplain();
+}
+
+function renderAiExplain() {
+  if (!aiExplainResult) return;
+  const ctx = lastAiAutopilot || aiCurrentContext();
+  const twin = lastAiDealTwin;
+  const rows = [
+    ["Missing commercial terms", ctx.parsed.missing.length * 12, ctx.parsed.missing.join(", ") || "Core terms available"],
+    ["Clause wording", Math.min(100, ctx.redFlags.length * 24), ctx.redFlags[0]?.advice || "Run CP battle before final recap"],
+    ["TCE vs target", ctx.tceGap < 0 ? 66 : 24, ctx.tceGap < 0 ? `${money(Math.abs(ctx.tceGap))}/day short` : `${money(ctx.tceGap)}/day buffer`],
+    ["Port / draft / ops", ctx.gate.portRisk || 40, ctx.gate.draftMargin < 1 ? "Draft margin tight" : "Operational risk controlled"],
+    ["Deal twin stress", twin?.combined ?? 42, twin ? aiRiskLabel(twin.combined) : "Twin not stressed yet"]
+  ].map(([label, score, note]) => ({ label, score: clamp(Math.round(score), 0, 100), note }));
+  aiExplainResult.innerHTML = `
+    <div class="ai-explain-list">
+      ${rows.map((row) => `<div><span>${escapeHtml(row.label)}<small>${escapeHtml(row.note)}</small></span><i style="--bar:${row.score}%"></i><strong>${row.score}</strong></div>`).join("")}
+    </div>
+    <div class="danger-box"><span>Explainable AI note</span><p>Bu skorlar karar yerine gecmez; brokerin hangi noktaya dikkat edecegini gosteren kaynakli ve izlenebilir risk aciklamasidir.</p></div>
+  `;
+}
+
+function renderAiCopilot() {
+  if (!aiCopilotForm || !aiCopilotResult) return;
+  const values = collectFormValues(aiCopilotForm);
+  const question = String(values.question || "").toLowerCase();
+  const ctx = lastAiAutopilot || aiCurrentContext();
+  const answers = [];
+  if (/fix|fixture|kabul|edelim|counter|wording/.test(question)) {
+    answers.push(ctx.riskScore >= 72 ? "Ben bu deal'i direkt fix etmem; once senior review, clause counter ve eksik bilgiler lazim." : ctx.riskScore >= 54 ? "Fix edilebilir ama counter wording ve subject guard olmadan riskli." : "Fix with guards: recap temiz, NOR/laytime net, subject deadline takipte olsun.");
+    answers.push(`Counter focus: freight ${ctx.parsed.freight ? money(ctx.parsed.freight + 0.5, 2) : "TBC"} / demurrage ${ctx.parsed.demurrage ? money(ctx.parsed.demurrage + 1500) : "TBC"} / NOR wording protected.`);
+  } else if (/claim|demurrage|laytime|sof/.test(question)) {
+    answers.push(`Claim view: ${lastWorkflowSof?.verdict || "SOF pending"}. NOR, berth, rain log and completion evidence must match before claim letter.`);
+  } else if (/client|sunum|presentation|hoca/.test(question)) {
+    answers.push("Use Presentation Mode: 1) paste mail, 2) show AI decision, 3) show graph, 4) show PDF/action mail export.");
+  } else {
+    answers.push(`Current AI view: ${ctx.decision}. Top blocker: ${ctx.explanations?.[0]?.note || ctx.parsedRisk.factors[0] || "commercial/ops evidence review"}.`);
+  }
+  lastAiCopilot = { question: values.question, answers, generatedAt: new Date().toLocaleString() };
+  aiCopilotResult.innerHTML = `
+    <div class="ai-chat-log">
+      <div><strong>You</strong><span>${escapeHtml(values.question || "")}</span></div>
+      <div class="bot"><strong>Focusea Copilot</strong><span>${answers.map(escapeHtml).join("<br>")}</span></div>
+    </div>
+  `;
+}
+
+function renderAiRolePortal() {
+  if (!aiRolePortalForm || !aiRolePortalResult) return;
+  const values = collectFormValues(aiRolePortalForm);
+  const role = String(values.role || "Broker");
+  const modulesByRole = {
+    Broker: ["Offer parser", "TCE/P&L", "Counter mail", "Deal room", "Client portal", "Audit"],
+    Owner: ["Vessel suitability", "Freight counter", "NOR guard", "Port risk", "Recap review"],
+    Charterer: ["Cargo suitability", "Rate comparison", "Laycan risk", "Clause counter", "Client summary"],
+    Operations: ["Port timeline", "Docs checklist", "SOF events", "Weather delay", "Agency notes"],
+    Claims: ["SOF laytime", "Demurrage claim", "Evidence pack", "Time bar", "Clause battle"],
+    Student: ["Guided scenario", "Explainable AI", "Quiz", "Academic links", "Presentation mode"],
+    Admin: ["User roles", "Market sources", "Rate multipliers", "Audit logs", "Security policy"]
+  };
+  const modules = modulesByRole[role] || modulesByRole.Broker;
+  lastAiRolePortal = { role, access: values.access, modules, generatedAt: new Date().toLocaleString() };
+  aiRolePortalResult.innerHTML = `
+    ${metricCards([
+      { label: "Role", value: escapeHtml(role) },
+      { label: "Access", value: escapeHtml(values.access || "Full deal") },
+      { label: "Visible modules", value: modules.length },
+      { label: "Data guard", value: role === "Admin" ? "Full" : "Scoped" }
+    ])}
+    <div class="ai-role-grid">${modules.map((item) => `<div><strong>${escapeHtml(item)}</strong><span>${role === "Student" ? "Training safe view" : "Operational view"}</span></div>`).join("")}</div>
+  `;
+}
+
+function getAiAudit() {
+  return safeLocalGet(aiAuditKey, []);
+}
+
+function setAiAudit(items) {
+  safeLocalSet(aiAuditKey, items.slice(0, 40));
+}
+
+function pushAiAuditEvent(action = "AI Core updated", detail = "") {
+  const ctx = lastAiAutopilot || aiCurrentContext();
+  const item = {
+    id: `AI-AUD-${Date.now().toString().slice(-6)}`,
+    action,
+    detail: detail || `${ctx.decision} / ${ctx.parsed.route || "route TBC"}`,
+    risk: ctx.riskScore,
+    at: new Date().toLocaleString()
+  };
+  setAiAudit([item, ...getAiAudit()]);
+  return item;
+}
+
+function addAiAuditEventFromButton() {
+  pushAiAuditEvent("Manual audit checkpoint", "User added an AI audit checkpoint.");
+  renderAiAudit();
+}
+
+function clearAiAuditTrail() {
+  setAiAudit([]);
+  renderAiAudit();
+}
+
+function renderAiAudit() {
+  if (!aiAuditResult) return;
+  const items = getAiAudit();
+  aiAuditResult.innerHTML = `
+    ${metricCards([
+      { label: "Audit events", value: items.length },
+      { label: "Last risk", value: items[0]?.risk ?? "-" },
+      { label: "Mode", value: `<em class="source-badge input">Local trail</em>` },
+      { label: "Export", value: "Included in AI JSON" }
+    ])}
+    <div class="timebar-list">${(items.length ? items : [{ action: "No audit event yet", detail: "Run AI Core or add checkpoint.", at: "-", risk: 0 }]).map((item) => `<div class="${aiRiskClass(item.risk || 0)}"><strong>${escapeHtml(item.action)}</strong><span>${escapeHtml(item.detail)}</span><em>${escapeHtml(item.at)}</em></div>`).join("")}</div>
+  `;
+}
+
+function renderAiPwa() {
+  if (!aiPwaResult) return;
+  const checks = [
+    ["Manifest", "manifest.webmanifest linked", "verified", 92],
+    ["Service worker", "service-worker.js registered on secure/local host", "api-ready", "serviceWorker" in navigator ? 86 : 42],
+    ["Mobile install", "Standalone-ready theme and icons", "api-ready", window.matchMedia?.("(display-mode: standalone)")?.matches ? 94 : 72],
+    ["Offline shell", "Static assets cached after first load", "api-ready", 76],
+    ["Security", "CSP + no frame ancestors + upload guard", "verified", 88]
+  ];
+  aiPwaResult.innerHTML = `
+    <div class="confidence-list">${checks.map(([name, detail, badge, confidence]) => `
+      <div class="confidence-row"><span>${escapeHtml(name)}<small>${escapeHtml(detail)}</small></span><em class="source-badge ${badge}">${escapeHtml(sourceBadgeText(badge))}</em><strong>${confidence}%</strong></div>
+    `).join("")}</div>
+  `;
+}
+
+function getAiVault() {
+  return safeLocalGet(aiVaultKey, []);
+}
+
+function setAiVault(items) {
+  safeLocalSet(aiVaultKey, items.slice(0, 80));
+}
+
+function saveAiVaultDocument() {
+  if (!aiDocumentVaultForm) return;
+  const values = collectFormValues(aiDocumentVaultForm);
+  const scan = saasSecurityScan(String(values.documentText || ""), null);
+  const item = {
+    id: `VAULT-${Date.now().toString().slice(-6)}`,
+    type: values.documentType,
+    reference: values.reference,
+    note: values.documentText,
+    safety: scan.score,
+    verdict: scan.verdict,
+    at: new Date().toLocaleString()
+  };
+  setAiVault([item, ...getAiVault()]);
+  pushAiAuditEvent("Vault document saved", `${item.type} / ${item.reference}`);
+  renderAiDocumentVault();
+  renderAiAudit();
+}
+
+function clearAiVaultDocuments() {
+  setAiVault([]);
+  renderAiDocumentVault();
+}
+
+function renderAiDocumentVault() {
+  if (!aiDocumentVaultResult) return;
+  const items = getAiVault();
+  aiDocumentVaultResult.innerHTML = `
+    ${metricCards([
+      { label: "Vault docs", value: items.length },
+      { label: "Latest safety", value: items[0] ? `${items[0].safety}/100` : "-" },
+      { label: "Storage", value: `<em class="source-badge input">Local DB</em>` },
+      { label: "Backend path", value: "Object storage + OCR" }
+    ])}
+    <div class="ops-list">${(items.length ? items : [{ type: "No document", reference: "Save CP/SOF/NOR/LOI here", verdict: "Pending", at: "-" }]).map((item) => `<div><strong>${escapeHtml(item.type)}</strong><span>${escapeHtml(item.reference)} / ${escapeHtml(item.verdict)} / ${escapeHtml(item.at)}</span></div>`).join("")}</div>
+  `;
+}
+
+function renderAiClauseBattle() {
+  if (!aiClauseBattleForm || !aiClauseBattleResult) return;
+  const values = collectFormValues(aiClauseBattleForm);
+  const ownerText = String(values.ownerClause || "");
+  const chartererText = String(values.chartererClause || "");
+  const ownerFlags = redTeamFindings(ownerText, "Owner wording");
+  const chartererFlags = redTeamFindings(chartererText, "Charterer wording");
+  const ownerRisk = clamp(38 + ownerFlags.length * 15 + (/waiting.*berth.*count/i.test(ownerText) ? 16 : 0) - (/free pratique|reachable/i.test(ownerText) ? 8 : 0), 0, 100);
+  const chartererRisk = clamp(32 + chartererFlags.length * 13 - (/free pratique|valid nor|reachable/i.test(chartererText) ? 12 : 0), 0, 100);
+  const winner = ownerRisk > chartererRisk ? "Charterer counter is safer" : "Owner wording is stronger commercially";
+  const counter = ownerRisk > chartererRisk
+    ? "Counter: laytime to commence only after valid NOR, free pratique/customs clearance, berth reachable and vessel in all respects ready."
+    : "Counter: preserve WIBON/WIPON but clarify weather exceptions, reachable berth and evidence trail.";
+  lastAiClauseBattle = { values, ownerRisk, chartererRisk, winner, counter, generatedAt: new Date().toLocaleString() };
+  aiClauseBattleResult.innerHTML = `
+    ${metricCards([
+      { label: "Owner risk", value: `${Math.round(ownerRisk)}/100` },
+      { label: "Charterer risk", value: `${Math.round(chartererRisk)}/100` },
+      { label: "Winner", value: escapeHtml(winner) },
+      { label: "Flags", value: ownerFlags.length + chartererFlags.length }
+    ])}
+    <div class="danger-box"><span>Suggested counter wording</span><p>${escapeHtml(counter)}</p></div>
+  `;
+}
+
+function renderAiFixtureSimulator() {
+  if (!aiFixtureSimulatorForm || !aiFixtureSimulatorResult) return;
+  const values = collectFormValues(aiFixtureSimulatorForm);
+  const scenarioScores = {
+    "Coal Indonesia India": { market: 68, ops: 55, claim: 58, cargo: "coal" },
+    "Grain Brazil China": { market: 61, ops: 64, claim: 48, cargo: "grain" },
+    "Container spot": { market: 72, ops: 52, claim: 35, cargo: "container" },
+    "LNG terminal delay": { market: 76, ops: 78, claim: 62, cargo: "lng" },
+    "Chemical parcel": { market: 58, ops: 74, claim: 66, cargo: "chemicals" }
+  };
+  const decisionDelta = {
+    "Counter freight": 8,
+    "Fix now": -5,
+    "Ask more subjects": 6,
+    Avoid: 14
+  };
+  const base = scenarioScores[values.scenario] || scenarioScores["Coal Indonesia India"];
+  const score = clamp(Math.round((base.market + base.ops + base.claim) / 3 - (decisionDelta[values.decision] || 0)), 0, 100);
+  const timeline = [
+    ["Offer", `${values.scenario} received`],
+    ["Decision", `${values.decision} selected`],
+    ["Commercial", score < 54 ? "P&L controlled" : "Commercial guard needed"],
+    ["Legal", base.claim > 60 ? "Claim/evidence wording tight" : "Standard clause review"],
+    ["Outcome", aiRiskLabel(score)]
+  ];
+  lastAiFixtureSimulator = { values, score, base, timeline, generatedAt: new Date().toLocaleString() };
+  aiFixtureSimulatorResult.innerHTML = `
+    ${metricCards([
+      { label: "Scenario score", value: `${score}/100` },
+      { label: "Cargo", value: escapeHtml(getCargoProfile(base.cargo).label) },
+      { label: "Market", value: `${base.market}/100` },
+      { label: "Outcome", value: escapeHtml(aiRiskLabel(score)) }
+    ])}
+    <div class="theater-timeline">${timeline.map(([step, detail]) => `<div><strong>${escapeHtml(step)}</strong><span>${escapeHtml(detail)}</span></div>`).join("")}</div>
+  `;
+}
+
+function renderAiPresentation() {
+  if (!aiPresentationResult) return;
+  const ctx = lastAiAutopilot || aiCurrentContext();
+  const slides = [
+    ["1", "Paste fixture mail", ctx.parsed.route || "Route TBC"],
+    ["2", "AI decision", `${ctx.decision} / ${ctx.riskScore}/100`],
+    ["3", "Explainable risk", ctx.redFlags[0]?.title || ctx.parsedRisk.factors[0] || "Commercial and ops gates"],
+    ["4", "Knowledge graph", "Deal -> cargo -> port -> clause -> claim -> client"],
+    ["5", "Export", "PDF, JSON, action mail, vault and audit trail"]
+  ];
+  lastAiPresentation = { slides, active: document.body.classList.contains("ai-presentation-mode"), generatedAt: new Date().toLocaleString() };
+  aiPresentationResult.innerHTML = `
+    <div class="ai-slide-strip">${slides.map(([number, title, detail]) => `<div><strong>${escapeHtml(number)}</strong><span>${escapeHtml(title)}</span><small>${escapeHtml(detail)}</small></div>`).join("")}</div>
+    <div class="danger-box"><span>Presentation state</span><p>${lastAiPresentation.active ? "Presentation mode active: AI Core is highlighted for demo." : "Presentation mode passive. Click the button to highlight demo flow."}</p></div>
+  `;
+}
+
+function toggleAiPresentationMode() {
+  document.body.classList.toggle("ai-presentation-mode");
+  pushAiAuditEvent("Presentation mode toggled", document.body.classList.contains("ai-presentation-mode") ? "Enabled" : "Disabled");
+  renderAiPresentation();
+  renderAiAudit();
+}
+
+function aiWorkspaceExport() {
+  return {
+    generatedAt: new Date().toLocaleString(),
+    autopilot: lastAiAutopilot,
+    dealTwin: lastAiDealTwin,
+    copilot: lastAiCopilot,
+    rolePortal: lastAiRolePortal,
+    clauseBattle: lastAiClauseBattle,
+    fixtureSimulator: lastAiFixtureSimulator,
+    presentation: lastAiPresentation,
+    audit: getAiAudit(),
+    vault: getAiVault(),
+    workflow: workflowFullPack()
+  };
+}
+
+function aiPresentationScriptText() {
+  const slides = lastAiPresentation?.slides || [];
+  return reportLines("FOCUSEA AI CORE PRESENTATION SCRIPT", [
+    "Demo goal: show Focusea as a maritime AI operating system, not a simple calculator.",
+    "",
+    ...slides.flatMap(([number, title, detail]) => [`Slide ${number}: ${title}`, `Talk track: ${detail}`, ""]),
+    "Close: paste a fixture once; Focusea creates decision, risk, document, vault, audit and client-ready output."
+  ]);
+}
+
+function handleAiDownload(type) {
+  if (!lastAiAutopilot) renderAiAutopilot();
+  if (!lastAiPresentation) renderAiPresentation();
+  const actions = {
+    "autopilot-pdf": () => downloadPdfFile("focusea-ai-autopilot.pdf", "Focusea AI Autopilot", aiAutopilotReportText()),
+    "autopilot-json": () => downloadJsonFile("focusea-ai-core-workspace.json", aiWorkspaceExport()),
+    "action-mail": () => downloadTextFile("focusea-ai-action-mail.txt", aiActionMailText()),
+    "vault-json": () => downloadJsonFile("focusea-ai-vault.json", getAiVault()),
+    "presentation-script": () => downloadTextFile("focusea-ai-presentation-script.txt", aiPresentationScriptText())
+  };
+  actions[type]?.();
+}
+
+function renderAllAiCore() {
+  renderAiAutopilot();
+  renderAiDealTwin();
+  renderAiCopilot();
+  renderAiRolePortal();
+  renderAiAudit();
+  renderAiPwa();
+  renderAiDocumentVault();
+  renderAiClauseBattle();
+  renderAiFixtureSimulator();
+  renderAiPresentation();
+}
+
 function renderAllWorkflowControl() {
   renderWorkflowGate();
   renderDealIntelligenceGraph();
@@ -14482,6 +15003,13 @@ bindBrokerForm(saasAdminForm, renderSaasAdmin);
 bindBrokerForm(saasMarketSourceForm, renderSaasMarketSource);
 bindBrokerForm(saasContractMemoryForm, renderSaasContractMemory);
 bindBrokerForm(saasClientPortalForm, renderSaasClientPortal);
+bindBrokerForm(aiAutopilotForm, renderAiAutopilot);
+bindBrokerForm(aiDealTwinForm, renderAiDealTwin);
+bindBrokerForm(aiCopilotForm, renderAiCopilot);
+bindBrokerForm(aiRolePortalForm, renderAiRolePortal);
+bindBrokerForm(aiDocumentVaultForm, renderAiDocumentVault);
+bindBrokerForm(aiClauseBattleForm, renderAiClauseBattle);
+bindBrokerForm(aiFixtureSimulatorForm, renderAiFixtureSimulator);
 bindBrokerForm(superSuiteForm, renderSuperSuite);
 
 if (offerTrackerForm) {
@@ -14541,6 +15069,21 @@ if (saveSaasContract) saveSaasContract.addEventListener("click", saveSaasContrac
 if (clearSaasContracts) clearSaasContracts.addEventListener("click", clearSaasContractMemory);
 document.querySelectorAll("[data-download-saas]").forEach((button) => {
   button.addEventListener("click", () => handleSaasDownload(button.dataset.downloadSaas));
+});
+if (runAiCore) {
+  runAiCore.addEventListener("click", () => {
+    renderAllAiCore();
+    pushAiAuditEvent("AI Core run", "All AI modules refreshed.");
+    renderAiAudit();
+  });
+}
+if (addAiAuditEvent) addAiAuditEvent.addEventListener("click", addAiAuditEventFromButton);
+if (clearAiAudit) clearAiAudit.addEventListener("click", clearAiAuditTrail);
+if (saveAiVaultDoc) saveAiVaultDoc.addEventListener("click", saveAiVaultDocument);
+if (clearAiVault) clearAiVault.addEventListener("click", clearAiVaultDocuments);
+if (toggleAiPresentation) toggleAiPresentation.addEventListener("click", toggleAiPresentationMode);
+document.querySelectorAll("[data-download-ai]").forEach((button) => {
+  button.addEventListener("click", () => handleAiDownload(button.dataset.downloadAi));
 });
 if (superTerminalNoteForm) superTerminalNoteForm.addEventListener("submit", addSuperTerminalNote);
 if (clearSuperNotes) {
@@ -15007,6 +15550,7 @@ runFullDecisionLab();
 renderCommandTheater();
 renderAllWorkflowControl();
 renderAllSaasCore();
+renderAllAiCore();
 renderAllSuperSuite();
 renderMarketIndexes();
 renderDataTrustLayer();
@@ -15022,3 +15566,9 @@ setInterval(updateLiveFeed, 1000);
 setInterval(refreshBalticLicensedFeed, 1000);
 refreshBalticLicensedFeed();
 loadMaritimeNews();
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("service-worker.js").catch(() => {});
+  });
+}

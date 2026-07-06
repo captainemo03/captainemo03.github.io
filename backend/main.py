@@ -10,6 +10,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from .engines import (
+    ai_autopilot,
+    ai_copilot,
+    ai_knowledge_graph,
     clause_diff,
     agency_workspace,
     alarm_pack,
@@ -138,6 +141,25 @@ class ClientPortalRequest(BaseModel):
     access: str = "View summary"
 
 
+class AiAutopilotRequest(BaseModel):
+    deal_text: str = ""
+    mode: str = "Broker autopilot"
+    target_tce: float = 22000
+    bunker_price: float = 686.5
+    daily_hire: float = 14500
+
+
+class AiCopilotRequest(BaseModel):
+    question: str = "Should we fix this fixture?"
+    deal_text: str = ""
+    target_tce: float = 22000
+
+
+class AiKnowledgeGraphRequest(BaseModel):
+    deal_text: str = ""
+    target_tce: float = 22000
+
+
 def load_store() -> dict[str, Any]:
     if not STORE_PATH.exists():
         return {"fixtures": [], "crm": [], "documents": [], "reports": []}
@@ -171,6 +193,9 @@ def health() -> dict[str, Any]:
             "alarm-ics",
             "client-portal",
             "performance-analytics",
+            "ai-autopilot",
+            "ai-copilot",
+            "ai-knowledge-graph",
             "stability",
             "pdf",
         ],
@@ -235,6 +260,21 @@ def api_alarms_ics(request: AlarmRequest) -> dict[str, Any]:
 @app.post("/api/client-portal/pack")
 def api_client_portal_pack(request: ClientPortalRequest) -> dict[str, Any]:
     return client_portal_pack(request.model_dump())
+
+
+@app.post("/api/ai/autopilot")
+def api_ai_autopilot(request: AiAutopilotRequest) -> dict[str, Any]:
+    return ai_autopilot(request.model_dump())
+
+
+@app.post("/api/ai/copilot")
+def api_ai_copilot(request: AiCopilotRequest) -> dict[str, Any]:
+    return ai_copilot(request.model_dump())
+
+
+@app.post("/api/ai/knowledge-graph")
+def api_ai_knowledge_graph(request: AiKnowledgeGraphRequest) -> dict[str, Any]:
+    return ai_knowledge_graph(request.model_dump())
 
 
 @app.get("/api/analytics/performance")

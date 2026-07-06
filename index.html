@@ -3,12 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' https: http://127.0.0.1:* http://localhost:*; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; worker-src 'none'; upgrade-insecure-requests" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' https: http://127.0.0.1:* http://localhost:*; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=(), serial=()" />
+    <meta name="theme-color" content="#061522" />
     <title>Focusea Maritime Platform</title>
     <link rel="icon" href="favicon.svg?v=focusea-badge2" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=workflow-saas-1" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="styles.css?v=workflow-aios-1" />
   </head>
   <body>
     <div class="app-shell">
@@ -24,6 +26,7 @@
           <a href="#dashboard" class="active" data-page-link="dashboard">Dashboard</a>
           <a href="#theater" data-page-link="theater">Workflow Control</a>
           <a href="#saasCore" data-page-link="saasCore">SaaS Core</a>
+          <a href="#aiCore" data-page-link="aiCore">AI Core</a>
           <a href="#broker" data-page-link="broker">Broker Desk</a>
           <a href="#terminal" data-page-link="terminal">Command Terminal</a>
           <a href="#edge" data-page-link="edge">Edge Suite</a>
@@ -2700,6 +2703,145 @@ Subject: Firm offer
           </div>
         </section>
 
+        <section class="ai-core-panel" id="aiCorePanel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Focusea AI Core</p>
+              <h2>Autopilot, copilot, deal twin, knowledge graph, audit, vault, rol paneli ve presentation mode</h2>
+            </div>
+            <div class="status-pill">AI Operating Layer</div>
+          </div>
+
+          <div class="ai-core-hero">
+            <div>
+              <span>Maritime AI operating system</span>
+              <strong>Bir fixture maili yapistir; Focusea deal'i okur, riskleri aciklar, belge/vault/audit/presentation akisini kurar.</strong>
+              <p>Bu katman broker, charterer, owner, operation, claim ve hoca sunumu icin ayni veriyi farkli is akislarina cevirir. Statik sayfada lokal AI mantigi calisir; Python backend acildiginda ayni moduller API-ready hale gelir.</p>
+            </div>
+            <button type="button" class="primary-button" id="runAiCore">Run AI Core</button>
+          </div>
+
+          <div class="ai-core-grid">
+            <article class="wide-card ai-main-card">
+              <div class="mini-heading"><span>1. Focusea Autopilot</span><strong>Fixture mailinden uc tan uca aksiyon</strong></div>
+              <form class="broker-form single-column" id="aiAutopilotForm">
+                <label><span>Fixture / SOF / clause text</span><textarea name="dealText">Firm offer: 50k coal Indonesia to India laycan 10/15 Jul freight USD 18.50 pmt demurrage USD 18,000/day Supramax. NOR WIBON/WIPON and time lost waiting berth to count as laytime. Subjects receiver approval by 1700 LT. NOR tendered 10 Jul 0800, berthed 10 Jul 1800, loading started 11 Jul 0600, rain stop 12 Jul 0300-0900, completed 14 Jul 2200.</textarea></label>
+                <div class="auto-deal-controls">
+                  <label><span>Mode</span><select name="mode"><option>Broker autopilot</option><option>Claim autopilot</option><option>Client summary</option><option>Class demo</option></select></label>
+                  <label><span>Risk appetite</span><select name="riskAppetite"><option>Balanced</option><option>Conservative</option><option>Aggressive</option></select></label>
+                  <label><span>Target TCE</span><input name="targetTce" type="number" value="22000" step="500" /></label>
+                </div>
+                <button type="submit">Autopilot Calistir</button>
+              </form>
+              <div class="button-row">
+                <button type="button" class="ghost-button small" data-download-ai="autopilot-pdf">Autopilot PDF</button>
+                <button type="button" class="ghost-button small" data-download-ai="autopilot-json">Autopilot JSON</button>
+                <button type="button" class="ghost-button small" data-download-ai="action-mail">Action Mail TXT</button>
+              </div>
+              <div class="broker-output" id="aiAutopilotResult"></div>
+            </article>
+
+            <article class="wide-card">
+              <div class="mini-heading"><span>2. Maritime Knowledge Graph</span><strong>Deal, cargo, port, clause, market baglantilari</strong></div>
+              <div class="broker-output" id="aiKnowledgeGraphResult"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>3. Deal Twin</span><strong>Commercial / legal / ops / claim ikizi</strong></div>
+              <form class="broker-form" id="aiDealTwinForm">
+                <label><span>Freight delta $/mt</span><input name="freightDelta" type="number" value="1.25" step="0.25" /></label>
+                <label><span>Bunker shock $/t</span><input name="bunkerShock" type="number" value="55" step="5" /></label>
+                <label><span>Delay days</span><input name="delayDays" type="number" value="2" min="0" step="0.5" /></label>
+                <label><span>Clause risk</span><select name="clauseRisk"><option>Medium</option><option>Low</option><option>High</option></select></label>
+                <button type="submit">Deal Twin Hesapla</button>
+              </form>
+              <div class="broker-output" id="aiDealTwinResult"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>4. Explainable AI Panel</span><strong>Risk neden olustu?</strong></div>
+              <div class="broker-output" id="aiExplainResult"></div>
+            </article>
+
+            <article class="wide-card">
+              <div class="mini-heading"><span>5. Broker Copilot Chat</span><strong>AI aksiyon sorusu sor</strong></div>
+              <form class="broker-form single-column" id="aiCopilotForm">
+                <label><span>Question</span><input name="question" value="Bu fixture'i fix edelim mi, hangi counter wording lazim?" /></label>
+                <button type="submit">Copilot'a Sor</button>
+              </form>
+              <div class="broker-output" id="aiCopilotResult"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>6. Role-Based Portal</span><strong>Broker / owner / charterer / ops / student gorunumu</strong></div>
+              <form class="broker-form" id="aiRolePortalForm">
+                <label><span>Role</span><select name="role"><option>Broker</option><option>Owner</option><option>Charterer</option><option>Operations</option><option>Claims</option><option>Student</option><option>Admin</option></select></label>
+                <label><span>Access</span><select name="access"><option>Full deal</option><option>Client safe</option><option>Training</option><option>Admin</option></select></label>
+                <button type="submit">Portal Uret</button>
+              </form>
+              <div class="broker-output" id="aiRolePortalResult"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>7. Audit Trail</span><strong>Kim neyi, ne zaman degistirdi?</strong></div>
+              <div class="button-row">
+                <button type="button" class="ghost-button small" id="addAiAuditEvent">Audit Event Ekle</button>
+                <button type="button" class="ghost-button small" id="clearAiAudit">Audit Temizle</button>
+              </div>
+              <div class="broker-output" id="aiAuditResult"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>8. PWA / Phone App</span><strong>Telefonda yuklenebilir broker terminali</strong></div>
+              <div class="broker-output" id="aiPwaResult"></div>
+            </article>
+
+            <article class="wide-card">
+              <div class="mini-heading"><span>9. Real Document Vault 2.0</span><strong>CP, SOF, NOR, LOI, invoice kaydi</strong></div>
+              <form class="broker-form" id="aiDocumentVaultForm">
+                <label><span>Document type</span><select name="documentType"><option>Fixture recap</option><option>Charter party</option><option>SOF</option><option>NOR</option><option>LOI</option><option>Invoice</option><option>Claim letter</option></select></label>
+                <label><span>Reference</span><input name="reference" value="FX-2026-001 / SOF" /></label>
+                <label class="wide-label"><span>Text / note</span><textarea name="documentText">SOF uploaded. NOR tendered and rain stoppage evidence to be checked before claim.</textarea></label>
+              </form>
+              <div class="button-row">
+                <button type="button" class="ghost-button small" id="saveAiVaultDoc">Vault'a Kaydet</button>
+                <button type="button" class="ghost-button small" id="clearAiVault">Vault Temizle</button>
+                <button type="button" class="ghost-button small" data-download-ai="vault-json">Vault JSON</button>
+              </div>
+              <div class="broker-output" id="aiDocumentVaultResult"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>10. Clause Battle Mode</span><strong>Owner vs charterer wording</strong></div>
+              <form class="broker-form single-column" id="aiClauseBattleForm">
+                <label><span>Owner wording</span><textarea name="ownerClause">Time lost waiting for berth to count as laytime, whether in berth or not, weather delays excepted unless used.</textarea></label>
+                <label><span>Charterer counter</span><textarea name="chartererClause">Laytime to commence only upon valid NOR after free pratique and berth readiness. Time lost waiting berth not to count unless berth is reachable.</textarea></label>
+                <button type="submit">Clause Battle Analiz Et</button>
+              </form>
+              <div class="broker-output" id="aiClauseBattleResult"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>11. Fixture Simulator</span><strong>Fix / watch / avoid senaryo oyunu</strong></div>
+              <form class="broker-form" id="aiFixtureSimulatorForm">
+                <label><span>Scenario</span><select name="scenario"><option>Coal Indonesia India</option><option>Grain Brazil China</option><option>Container spot</option><option>LNG terminal delay</option><option>Chemical parcel</option></select></label>
+                <label><span>Decision</span><select name="decision"><option>Counter freight</option><option>Fix now</option><option>Ask more subjects</option><option>Avoid</option></select></label>
+                <button type="submit">Simulatoru Calistir</button>
+              </form>
+              <div class="broker-output" id="aiFixtureSimulatorResult"></div>
+            </article>
+
+            <article class="wide-card">
+              <div class="mini-heading"><span>12. Presentation Mode</span><strong>Hocaya tek tik demo akisi</strong></div>
+              <div class="button-row">
+                <button type="button" class="primary-button small" id="toggleAiPresentation">Presentation Mode</button>
+                <button type="button" class="ghost-button small" data-download-ai="presentation-script">Sunum Script TXT</button>
+              </div>
+              <div class="broker-output" id="aiPresentationResult"></div>
+            </article>
+          </div>
+        </section>
+
         <section class="super-suite-panel" id="superSuitePanel">
           <div class="panel-heading">
             <div>
@@ -3493,6 +3635,6 @@ Subject: Firm offer
       </main>
     </div>
 
-    <script src="script.js?v=workflow-saas-1"></script>
+    <script src="script.js?v=workflow-aios-1"></script>
   </body>
 </html>
