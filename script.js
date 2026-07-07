@@ -2981,7 +2981,7 @@ function applyBunkerDefaultsToForms() {
 }
 
 const pageGroups = {
-  dashboard: ["#command", ".dashboard-strip", ".ops-board", "#commandDeck", "#smartOps"],
+  dashboard: ["#command", ".dashboard-strip", ".ops-board", "#commandDeck", "#smartOps", "#newsBulletin"],
   theater: ["#commandTheaterPanel"],
   saasCore: ["#saasCorePanel"],
   aiCore: ["#aiCorePanel"],

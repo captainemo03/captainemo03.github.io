@@ -10,7 +10,7 @@
     <title>Focusea Maritime Platform</title>
     <link rel="icon" href="favicon.svg?v=focusea-badge2" type="image/svg+xml" />
     <link rel="manifest" href="manifest.webmanifest" />
-    <link rel="stylesheet" href="styles.css?v=workflow-auth-2" />
+    <link rel="stylesheet" href="styles.css?v=workflow-front-news-1" />
   </head>
   <body>
     <div class="app-shell">
@@ -91,6 +91,28 @@
             <strong data-live="weather">9</strong>
             <small data-live-note="weather">Indian Ocean watch</small>
           </article>
+        </section>
+
+        <section class="news-panel" id="newsBulletin">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Front Page Live Maritime News</p>
+              <h2>Maritime breaking news bulletin</h2>
+            </div>
+            <button class="ghost-button small" id="refreshNews" type="button">Refresh</button>
+          </div>
+          <div class="news-toolbar">
+            <button class="active" data-news-query="maritime shipping">All</button>
+            <button data-news-query="shipping container market">Container</button>
+            <button data-news-query="tanker shipping market">Tanker</button>
+            <button data-news-query="dry bulk chartering freight market">Dry Bulk</button>
+            <button data-news-query="ship bunker fuel prices VLSFO">Bunker</button>
+            <button data-news-query="ship charter rates freight market">Charter</button>
+            <button data-news-query="port congestion shipping">Ports</button>
+            <button data-news-query="maritime safety incident">Safety</button>
+          </div>
+          <div class="news-status" id="newsStatus">Loading real maritime news sources...</div>
+          <div class="news-grid" id="newsGrid"></div>
         </section>
 
         <section class="ops-board" aria-label="Canlı operasyon panosu">
@@ -3261,28 +3283,6 @@ Subject: Firm offer
           <div class="live-timestamp" id="liveTimestamp">Simulated market feed initializing...</div>
         </section>
 
-        <section class="news-panel" id="newsBulletin">
-          <div class="panel-heading">
-            <div>
-              <p class="eyebrow">Live Maritime News</p>
-              <h2>Son Dakika Denizcilik Bülteni</h2>
-            </div>
-            <button class="ghost-button small" id="refreshNews" type="button">Yenile</button>
-          </div>
-          <div class="news-toolbar">
-            <button class="active" data-news-query="maritime shipping">Genel</button>
-            <button data-news-query="shipping container market">Container</button>
-            <button data-news-query="tanker shipping market">Tanker</button>
-            <button data-news-query="dry bulk chartering freight market">Dry Bulk</button>
-            <button data-news-query="ship bunker fuel prices VLSFO">Bunker</button>
-            <button data-news-query="ship charter rates freight market">Charter</button>
-            <button data-news-query="port congestion shipping">Liman</button>
-            <button data-news-query="maritime safety incident">Emniyet</button>
-          </div>
-          <div class="news-status" id="newsStatus">Gerçek haber kaynakları yükleniyor...</div>
-          <div class="news-grid" id="newsGrid"></div>
-        </section>
-
         <section class="tool-grid" id="route">
           <article class="route-panel">
             <p class="eyebrow">AI Route Optimizer</p>
@@ -3825,6 +3825,6 @@ Subject: Firm offer
       </main>
     </div>
 
-    <script src="script.js?v=workflow-auth-2"></script>
+    <script src="script.js?v=workflow-front-news-1"></script>
   </body>
 </html>
