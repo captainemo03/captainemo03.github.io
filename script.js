@@ -1285,6 +1285,236 @@ IEDUB|Dublin|Ireland|Europe|Container / Ro-Ro|11
 BEZEE|Zeebrugge|Belgium|Europe|Ro-Ro / Container|16
 FRDKK|Dunkirk|France|Europe|Bulk / Ferry|20
 NLAMS|Amsterdam|Netherlands|Europe|Bulk / Tanker|14
+NLMOE|Moerdijk|Netherlands|Europe|Container / General cargo / Chemical|9
+NLVLI|Vlissingen|Netherlands|Europe|Bulk / Breakbulk / Offshore|16
+NLDOR|Dordrecht|Netherlands|Europe|Inland / Bulk / Multipurpose|9
+NLTNZ|Terneuzen|Netherlands|Europe|Bulk / Chemical / Multipurpose|12
+NLIJM|IJmuiden|Netherlands|Europe|Ferry / Steel / Offshore|11
+NLHRL|Harlingen|Netherlands|Europe|General cargo / Offshore|8
+NLDZL|Delfzijl|Netherlands|Europe|Bulk / Chemical / Multipurpose|9
+BEGNE|Ghent|Belgium|Europe|Bulk / Steel / Breakbulk|13
+BEOST|Ostend|Belgium|Europe|Ro-Ro / Offshore / General cargo|8
+BEBRU|Brussels|Belgium|Europe|Inland / Container / General cargo|6
+DEBRB|Bremen|Germany|Europe|Breakbulk / Automotive / Project|11
+DEEME|Emden|Germany|Europe|Ro-Ro / Automotive / Wind project|11
+DECUX|Cuxhaven|Germany|Europe|Ro-Ro / Offshore wind / Breakbulk|15
+DEKEL|Kiel|Germany|Europe|Ferry / Ro-Ro / Cruise|11
+DELBC|Lubeck|Germany|Europe|Ro-Ro / Ferry / Forest products|10
+DEROS|Rostock|Germany|Europe|Ferry / Ro-Ro / Bulk|13
+DESAS|Sassnitz / Mukran|Germany|Europe|Ferry / Offshore / Rail ferry|10
+DEWIS|Wismar|Germany|Europe|Bulk / Timber / General cargo|9
+DEBRU|Brunsbuttel|Germany|Europe|Chemical / Bulk / Canal|14
+DEGLU|Gluckstadt|Germany|Europe|Ferry / General cargo|8
+DEDUI|Duisburg|Germany|Europe|Inland container / Bulk / Logistics|7
+GBLIV|Liverpool|United Kingdom|Europe|Container / Ro-Ro / Bulk|15
+GBLON|London Port|United Kingdom|Europe|Container / Bulk / Multipurpose|14
+GBTIL|Tilbury|United Kingdom|Europe|Container / Ro-Ro / Forest products|12
+GBIMM|Immingham|United Kingdom|Europe|Bulk / Ro-Ro / Energy|14
+GBHUL|Hull|United Kingdom|Europe|Ferry / Ro-Ro / Bulk|10
+GBTEE|Teesport|United Kingdom|Europe|Container / Steel / Bulk|13
+GBGRG|Grangemouth|United Kingdom|Europe|Container / Tanker / Scottish gateway|9
+GBABD|Aberdeen|United Kingdom|Europe|Offshore / General cargo / Ferry|9
+GBROS|Rosyth|United Kingdom|Europe|Ro-Ro / Project / Naval support|9
+GBBEL|Belfast|United Kingdom|Europe|Ro-Ro / Container / Bulk|10
+GBBRI|Bristol / Avonmouth|United Kingdom|Europe|Bulk / Ro-Ro / Automotive|14
+GBCDF|Cardiff|United Kingdom|Europe|Bulk / General cargo|10
+GBNPT|Newport|United Kingdom|Europe|Steel / Bulk / General cargo|10
+GBPLY|Plymouth|United Kingdom|Europe|Ferry / Naval / General cargo|8
+GBDVR|Dover|United Kingdom|Europe|Ferry / Ro-Ro|9
+GBPME|Portsmouth|United Kingdom|Europe|Ferry / Ro-Ro / Cruise|9
+GBNCL|Newcastle / Tyne|United Kingdom|Europe|Ro-Ro / Ferry / Bulk|10
+GBIPS|Ipswich|United Kingdom|Europe|Bulk / Forest products / General cargo|7
+GBGTY|Great Yarmouth|United Kingdom|Europe|Offshore / General cargo|7
+GBMLF|Milford Haven|United Kingdom|Europe|LNG / Tanker / Energy|17
+GBFAL|Falmouth|United Kingdom|Europe|Bunker / Ship repair / Cruise|8
+GBLTH|Leith|United Kingdom|Europe|General cargo / Offshore / Cruise|9
+GBMTH|Methil|United Kingdom|Europe|Offshore / General cargo|7
+GBSCR|Scrabster|United Kingdom|Europe|Ferry / Fishing / Offshore|7
+GBLRP|Lerwick|United Kingdom|Europe|Offshore / Ferry / Fishing|9
+FRURO|Rouen|France|Europe|Bulk / Grain / Project|10
+FRNTE|Nantes Saint-Nazaire|France|Europe|Ro-Ro / Bulk / Energy|16
+FRBOD|Bordeaux|France|Europe|Bulk / Wine / General cargo|10
+FRLRH|La Rochelle|France|Europe|Bulk / Grain / Forest products|14
+FRCQF|Calais|France|Europe|Ferry / Ro-Ro|10
+FRMTX|Montoir-de-Bretagne|France|Europe|LNG / Ro-Ro / Bulk|13
+FRBES|Brest|France|Europe|Ship repair / Bulk / Naval|10
+FRTLN|Toulon|France|Europe|Naval / Ferry / Cruise|10
+FRNCE|Nice|France|Europe|Ferry / Cruise / General cargo|8
+FRCER|Cherbourg|France|Europe|Ferry / Ro-Ro / Naval|13
+FRSET|Sete|France|Europe|Ferry / Bulk / Livestock|13
+FRBAY|Bayonne|France|Europe|Bulk / Steel / General cargo|9
+FRLRT|Lorient|France|Europe|Fishing / General cargo / Naval|9
+PTLIS|Lisbon|Portugal|Europe|Container / Cruise / Multipurpose|15
+PTSIE|Sines|Portugal|Europe|Container / Tanker / LNG|17
+PTLEI|Leixoes|Portugal|Europe|Container / Ro-Ro / Bulk|13
+PTSET|Setubal|Portugal|Europe|Ro-Ro / Bulk / General cargo|12
+PTAVE|Aveiro|Portugal|Europe|Bulk / General cargo / Ro-Ro|10
+PTFIG|Figueira da Foz|Portugal|Europe|Bulk / General cargo|8
+PTFNC|Funchal|Portugal|Europe|Cruise / Ferry / General cargo|9
+PTPDL|Ponta Delgada|Portugal|Europe|Container / Ferry / General cargo|11
+PTPRM|Praia da Vitoria|Portugal|Europe|Container / General cargo / Bunker|10
+ESGIJ|Gijon|Spain|Europe|Bulk / Steel / Energy|20
+ESSDR|Santander|Spain|Europe|Ro-Ro / Bulk / Ferry|13
+ESVGO|Vigo|Spain|Europe|Container / Ro-Ro / Reefer|14
+ESCAD|Cadiz|Spain|Europe|Cruise / Container / General cargo|14
+ESHUV|Huelva|Spain|Europe|Bulk / Tanker / Energy|13
+ESCAR|Cartagena Spain|Spain|Europe|Tanker / Bulk / Container|21
+ESTAR|Tarragona|Spain|Europe|Tanker / Chemical / Bulk|19
+ESCAS|Castellon|Spain|Europe|Tanker / Bulk / Container|16
+ESALC|Alicante|Spain|Europe|Ro-Ro / Ferry / General cargo|12
+ESMAL|Malaga|Spain|Europe|Cruise / Ferry / Container|13
+ESLPA|Las Palmas|Spain|Europe|Container / Bunker / Offshore|18
+ESTCI|Santa Cruz de Tenerife|Spain|Europe|Container / Bunker / Cruise|16
+ESIBZ|Ibiza|Spain|Europe|Ferry / Ro-Ro / General cargo|9
+ESPMI|Palma de Mallorca|Spain|Europe|Ferry / Cruise / Ro-Ro|12
+ESMLN|Melilla|Spain|Europe|Ferry / Ro-Ro / General cargo|10
+ESCUE|Ceuta|Spain|Europe|Ferry / Bunker / General cargo|12
+ITLIV|Livorno|Italy|Europe|Container / Ro-Ro / Cruise|14
+ITSPE|La Spezia|Italy|Europe|Container / Project / Naval|15
+ITNAP|Naples|Italy|Europe|Container / Ferry / Cruise|15
+ITSAL|Salerno|Italy|Europe|Container / Ro-Ro / Ferry|14
+ITVCE|Venice|Italy|Europe|Cruise / Ro-Ro / Bulk|12
+ITRAN|Ravenna|Italy|Europe|Bulk / Chemical / General cargo|12
+ITAOI|Ancona|Italy|Europe|Ferry / Ro-Ro / General cargo|11
+ITBRI|Bari|Italy|Europe|Ferry / Ro-Ro / Container|12
+ITTAR|Taranto|Italy|Europe|Container / Steel / Tanker|16
+ITPMO|Palermo|Italy|Europe|Ferry / Cruise / Container|12
+ITCTA|Catania|Italy|Europe|Container / Ferry / General cargo|12
+ITCAG|Cagliari|Italy|Europe|Container / Ro-Ro / Bulk|16
+ITSVN|Savona / Vado Ligure|Italy|Europe|Container / Ro-Ro / Cruise|17
+ITCVV|Civitavecchia|Italy|Europe|Cruise / Ferry / Ro-Ro|12
+ITMDC|Marina di Carrara|Italy|Europe|Project cargo / Stone / Breakbulk|10
+ITBDS|Brindisi|Italy|Europe|Ferry / Ro-Ro / Energy|12
+ITTRP|Trapani|Italy|Europe|Ferry / General cargo|9
+ITPZE|Pozzallo|Italy|Europe|Ferry / Ro-Ro / General cargo|9
+MTMAR|Marsaxlokk / Malta Freeport|Malta|Europe|Container / Transshipment|17
+MTMLA|Valletta|Malta|Europe|Cruise / Ferry / General cargo|12
+CYLMS|Limassol|Cyprus|Europe|Container / Cruise / General cargo|16
+CYLCA|Larnaca|Cyprus|Europe|General cargo / Cruise / Offshore|12
+CYVAS|Vasilikos|Cyprus|Europe|Energy / Bulk / Industrial|15
+SIKOP|Koper|Slovenia|Europe|Container / Ro-Ro / Bulk|18
+HRRJK|Rijeka|Croatia|Europe|Container / Bulk / Ferry|18
+HRPLE|Ploce|Croatia|Europe|Bulk / General cargo|14
+HRSPU|Split|Croatia|Europe|Ferry / Ro-Ro / Cruise|11
+HRZAD|Zadar|Croatia|Europe|Ferry / Cruise / Ro-Ro|12
+HRSIB|Sibenik|Croatia|Europe|Bulk / General cargo|11
+HRDBV|Dubrovnik|Croatia|Europe|Cruise / Ferry|10
+MEBAR|Bar|Montenegro|Europe|Container / Bulk / Ro-Ro|14
+MEKOT|Kotor|Montenegro|Europe|Cruise / Ferry|9
+ALDRZ|Durres|Albania|Europe|Container / Ferry / General cargo|11
+ALVOA|Vlore|Albania|Europe|Ferry / General cargo / Energy|10
+GRSKG|Thessaloniki|Greece|Europe|Container / Bulk / Ro-Ro|12
+GRHER|Heraklion|Greece|Europe|Ferry / Container / Cruise|11
+GRPAT|Patras|Greece|Europe|Ferry / Ro-Ro / General cargo|11
+GRVOL|Volos|Greece|Europe|Bulk / General cargo / Ferry|11
+GRIGO|Igoumenitsa|Greece|Europe|Ferry / Ro-Ro|10
+GRELE|Elefsina|Greece|Europe|Tanker / Industrial / General cargo|13
+GRKVA|Kavala|Greece|Europe|Ferry / General cargo / Bulk|10
+GRALE|Alexandroupoli|Greece|Europe|Ferry / General cargo / Military logistics|10
+GRLAV|Lavrio|Greece|Europe|Ferry / Cruise / General cargo|10
+GRCFU|Corfu|Greece|Europe|Cruise / Ferry|9
+GRRHO|Rhodes|Greece|Europe|Cruise / Ferry / General cargo|10
+GRCHI|Chios|Greece|Europe|Ferry / General cargo|9
+GRMJT|Mytilene|Greece|Europe|Ferry / General cargo|9
+GRJSY|Syros|Greece|Europe|Ferry / Ship repair|9
+GRJTR|Santorini|Greece|Europe|Cruise / Ferry|8
+GRRAF|Rafina|Greece|Europe|Ferry / Ro-Ro|9
+BGVAR|Varna|Bulgaria|Europe|Container / Bulk / Ferry|13
+BGBOJ|Burgas|Bulgaria|Europe|Bulk / Tanker / Ferry|14
+BGBAL|Balchik|Bulgaria|Europe|Bulk / Grain / General cargo|8
+ROGLT|Galati|Romania|Europe|River / Bulk / Steel|8
+ROBRA|Braila|Romania|Europe|River / Bulk / General cargo|7
+ROMID|Midia|Romania|Europe|Tanker / Bulk / Industrial|13
+ROMAG|Mangalia|Romania|Europe|Shipyard / General cargo|10
+UAODS|Odesa|Ukraine|Europe|Container / Grain / Multipurpose|13
+UAILK|Chornomorsk|Ukraine|Europe|Container / Ro-Ro / Grain|14
+UAYUZ|Pivdennyi / Yuzhny|Ukraine|Europe|Bulk / Tanker / Grain|18
+UAMYK|Mykolaiv|Ukraine|Europe|Bulk / Grain / General cargo|10
+UAKHE|Kherson|Ukraine|Europe|River-sea / Bulk / General cargo|8
+UAMRP|Mariupol|Ukraine|Europe|Steel / Bulk / General cargo|9
+UAIZM|Izmail|Ukraine|Europe|River / Grain / General cargo|7
+UARNI|Reni|Ukraine|Europe|River / Bulk / General cargo|7
+UABDY|Berdyansk|Ukraine|Europe|Bulk / General cargo|8
+PLGDY|Gdynia|Poland|Europe|Container / Ro-Ro / Bulk|15
+PLSZZ|Szczecin|Poland|Europe|Bulk / General cargo / Ferry|10
+PLSWI|Swinoujscie|Poland|Europe|Ferry / LNG / Bulk|14
+PLKOL|Kolobrzeg|Poland|Europe|General cargo / Ferry|7
+PLUST|Ustka|Poland|Europe|General cargo / Fishing|6
+LTBTN|Butinge Oil Terminal|Lithuania|Europe|Tanker / Offshore terminal|17
+LVVNT|Ventspils|Latvia|Europe|Bulk / Tanker / Ferry|15
+LVLPX|Liepaja|Latvia|Europe|Ro-Ro / Bulk / General cargo|12
+LVSKU|Skulte|Latvia|Europe|Bulk / Timber / General cargo|7
+EEPLD|Paldiski|Estonia|Europe|Ro-Ro / Ferry / General cargo|13
+EEMUG|Muuga / Tallinn|Estonia|Europe|Container / Bulk / Ro-Ro|18
+EEPNU|Parnu|Estonia|Europe|Bulk / Timber / General cargo|7
+EESIL|Sillamae|Estonia|Europe|Bulk / Tanker / Ro-Ro|15
+FIHMN|HaminaKotka|Finland|Europe|Container / Forest products / Bulk|15
+FITKU|Turku|Finland|Europe|Ferry / Ro-Ro / Container|11
+FIHKO|Hanko|Finland|Europe|Ro-Ro / Automotive / Ferry|14
+FIRAU|Rauma|Finland|Europe|Container / Forest products / General cargo|12
+FIOUL|Oulu|Finland|Europe|Bulk / Forest products / Container|10
+FIKOK|Kokkola|Finland|Europe|Bulk / Chemical / General cargo|13
+FIVAA|Vaasa|Finland|Europe|Ferry / General cargo|9
+FIPOR|Pori|Finland|Europe|Bulk / Chemical / General cargo|13
+FINLI|Naantali|Finland|Europe|Ro-Ro / Ferry / Tanker|12
+FIMHQ|Mariehamn|Finland|Europe|Ferry / Cruise / General cargo|9
+FITOR|Tornio|Finland|Europe|Bulk / Steel / General cargo|8
+SESTO|Stockholm|Sweden|Europe|Ferry / Ro-Ro / Cruise|12
+SEMMA|Malmo|Sweden|Europe|Ro-Ro / Ferry / General cargo|10
+SETRE|Trelleborg|Sweden|Europe|Ro-Ro / Ferry|10
+SEHEL|Helsingborg|Sweden|Europe|Container / Ro-Ro / Ferry|13
+SENRK|Norrkoping|Sweden|Europe|Container / Forest products / General cargo|12
+SEGVX|Gavle|Sweden|Europe|Container / Bulk / Forest products|13
+SELUL|Lulea|Sweden|Europe|Bulk / Steel / Ice-class operations|13
+SEUME|Umea|Sweden|Europe|Ro-Ro / Forest products / Ferry|10
+SEHAD|Halmstad|Sweden|Europe|Ro-Ro / Timber / General cargo|10
+SEKAN|Karlshamn|Sweden|Europe|Ro-Ro / Ferry / Bulk|12
+SEKAN2|Karlskrona|Sweden|Europe|Ferry / Ro-Ro / Naval|10
+SEYST|Ystad|Sweden|Europe|Ferry / Ro-Ro|9
+SEOXE|Oxelosund|Sweden|Europe|Bulk / Steel / General cargo|15
+SESUN|Sundsvall|Sweden|Europe|Forest products / Bulk / General cargo|12
+DKCPH|Copenhagen / Malmo CMP|Denmark|Europe|Cruise / Ferry / Ro-Ro|12
+DKESB|Esbjerg|Denmark|Europe|Ro-Ro / Offshore wind / Project|12
+DKFRC|Fredericia|Denmark|Europe|Tanker / Bulk / General cargo|15
+DKAAL|Aalborg|Denmark|Europe|Bulk / General cargo / Cement|10
+DKKAL|Kalundborg|Denmark|Europe|Tanker / Bulk / Ferry|15
+DKODE|Odense|Denmark|Europe|General cargo / Project / Shipyard|11
+DKRAN|Randers|Denmark|Europe|General cargo / Bulk|7
+DKHIR|Hirtshals|Denmark|Europe|Ferry / Ro-Ro / Fishing|10
+DKFDH|Frederikshavn|Denmark|Europe|Ferry / Ro-Ro / Ship repair|10
+DKRDB|Rodby|Denmark|Europe|Ferry / Ro-Ro|8
+DKRNN|Roenne|Denmark|Europe|Ferry / Cruise / General cargo|9
+NOBGO|Bergen|Norway|Europe|Offshore / Ferry / General cargo|11
+NOSTA|Stavanger / Risavika|Norway|Europe|Ro-Ro / Ferry / Offshore|11
+NOKRS|Kristiansand|Norway|Europe|Ferry / Container / General cargo|11
+NOTRD|Trondheim|Norway|Europe|Container / Ro-Ro / Bulk|11
+NOAES|Alesund|Norway|Europe|Fishing / Offshore / General cargo|10
+NONVK|Narvik|Norway|Europe|Iron ore / Bulk / Rail link|19
+NOTOS|Tromso|Norway|Europe|Offshore / Ferry / Arctic logistics|9
+NODRM|Drammen|Norway|Europe|Automotive / Ro-Ro / General cargo|10
+NOLAR|Larvik|Norway|Europe|Ferry / Ro-Ro / Container|11
+NOGRE|Grenland / Brevik|Norway|Europe|Container / Chemical / Bulk|14
+NOHAU|Haugesund|Norway|Europe|Offshore / Ro-Ro / General cargo|10
+NOMJF|Mosjoen|Norway|Europe|Bulk / Aluminium / General cargo|9
+NOHFT|Hammerfest|Norway|Europe|LNG / Arctic logistics / General cargo|12
+ISREY|Reykjavik|Iceland|Europe|Container / Ferry / Cruise|10
+ISHAF|Hafnarfjordur|Iceland|Europe|Aluminium / General cargo / Fishing|9
+ISGRU|Grundartangi|Iceland|Europe|Bulk / Aluminium / General cargo|10
+ISAEY|Akureyri|Iceland|Europe|Cruise / General cargo / Fishing|9
+ISESK|Eskifjordur|Iceland|Europe|Fishing / Aluminium / General cargo|8
+RUSPB|Saint Petersburg|Russia|Europe|Container / Ro-Ro / General cargo|13
+RUULU|Ust-Luga|Russia|Europe|Bulk / Container / Ro-Ro|17
+RUPRI|Primorsk|Russia|Europe|Tanker / Oil terminal|17
+RUVYB|Vyborg|Russia|Europe|General cargo / Bulk|7
+RUKGD|Kaliningrad|Russia|Europe|Container / Ro-Ro / Bulk|10
+RUNVS|Novorossiysk|Russia|Europe|Container / Tanker / Grain|19
+RUTUA|Tuapse|Russia|Europe|Tanker / Bulk / General cargo|13
+RUTAM|Taman|Russia|Europe|Bulk / Tanker / Grain|18
+RUMMK|Murmansk|Russia|Europe|Bulk / Arctic / General cargo|15
+RUARH|Arkhangelsk|Russia|Europe|Arctic / Timber / General cargo|9
+RUROV|Rostov-on-Don|Russia|Europe|River-sea / Grain / General cargo|6
+RUAZO|Azov|Russia|Europe|River-sea / Grain / General cargo|5
+RUTAG|Taganrog|Russia|Europe|River-sea / Bulk / General cargo|5
 USLAX|Los Angeles|United States|North America|Container|16
 USLGB|Long Beach|United States|North America|Container|16
 USOAK|Oakland|United States|North America|Container|15
@@ -15128,14 +15358,16 @@ function renderGlobalPortStats(allPorts, visiblePorts) {
   if (!globalPortStats) return;
   const countries = new Set(allPorts.map((port) => port.country));
   const regions = new Set(allPorts.map((port) => port.region));
+  const europeCount = allPorts.filter((port) => ["Europe", "Turkiye"].includes(port.region)).length;
   const importedCount = getImportedGlobalPorts().length;
   globalPortStats.innerHTML = `
     <div><span>Total atlas</span><strong>${allPorts.length.toLocaleString("en-US")}</strong></div>
     <div><span>Filtered</span><strong>${visiblePorts.length.toLocaleString("en-US")}</strong></div>
+    <div><span>Europe + Turkey</span><strong>${europeCount.toLocaleString("en-US")}</strong></div>
     <div><span>Countries</span><strong>${countries.size}</strong></div>
     <div><span>Imported official</span><strong>${importedCount.toLocaleString("en-US")}</strong></div>
   `;
-  globalPortStats.title = `${regions.size} regions covered. Official full-world coverage can be imported from UN/LOCODE or World Port Index CSV.`;
+  globalPortStats.title = `${regions.size} regions covered. Europe seed expanded; official full-world coverage can still be imported from UN/LOCODE or World Port Index CSV.`;
 }
 
 function renderGlobalPortList(records) {

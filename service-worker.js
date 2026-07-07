@@ -1,4 +1,4 @@
-const FOCUSEA_CACHE = "focusea-english-1";
+const FOCUSEA_CACHE = "focusea-europe-ports-1";
 const FOCUSEA_ASSETS = [
   "./",
   "./index.html",
