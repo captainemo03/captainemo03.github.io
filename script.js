@@ -15319,6 +15319,265 @@ function setImportedGlobalPorts(records) {
   return safeLocalSet("focusea-global-ports-import-v1", records);
 }
 
+function globalPortVisualImage(fileName, width = 1200) {
+  return `https://commons.wikimedia.org/wiki/Special:FilePath/${fileName}?width=${width}`;
+}
+
+const globalPortVisualSlots = [
+  { label: "Aerial view", intent: "Basin layout, terminal density and city/industrial context." },
+  { label: "Terminal / berth", intent: "Visible cranes, quay type, berth length and cargo interface." },
+  { label: "Anchorage / approach", intent: "Pilotage, breakwater, approach and exposure briefing." },
+  { label: "Night operation", intent: "Lighting, 24/7 intensity and client-presentation material." },
+  { label: "User uploaded", intent: "Broker or agency photo waiting for source review." }
+];
+
+const globalPortVisualSeed = {
+  NLRTM: {
+    status: "Verified Image",
+    sourceBadge: "Wikimedia Commons",
+    confidence: 95,
+    terminalType: "container / tanker / bulk complex visible",
+    impression: "Large-scale multi-terminal port with dense wet-bulk and container basin context.",
+    bestUse: "Board presentation, port briefing and route risk overview.",
+    images: [
+      {
+        label: "Aerial view",
+        url: globalPortVisualImage("Haven_van_Rotterdam_2023_%2806%29.jpg"),
+        sourceUrl: "https://commons.wikimedia.org/wiki/File:Haven_van_Rotterdam_2023_(06).jpg",
+        source: "Wikimedia Commons",
+        license: "CC BY-SA 4.0",
+        credit: "Dkvtig",
+        note: "Port of Rotterdam aerial visual."
+      }
+    ]
+  },
+  BEANR: {
+    status: "Verified Image",
+    sourceBadge: "Wikimedia Commons",
+    confidence: 92,
+    terminalType: "container terminal and large commercial berths visible",
+    impression: "High-density river port with strong container and industrial terminal character.",
+    bestUse: "Client report, terminal briefing and comparable port slide.",
+    images: [
+      {
+        label: "Terminal view",
+        url: globalPortVisualImage("Port_Anvers_6_Luc_Viatour.jpg"),
+        sourceUrl: "https://commons.wikimedia.org/wiki/File:Port_Anvers_6_Luc_Viatour.jpg",
+        source: "Wikimedia Commons",
+        license: "CC BY-SA 3.0 / GFDL",
+        credit: "Luc Viatour / lucnix.be",
+        note: "Port of Antwerp visual."
+      }
+    ]
+  },
+  DEHAM: {
+    status: "Verified Image",
+    sourceBadge: "Wikimedia Commons",
+    confidence: 96,
+    terminalType: "container terminals, yard stacks and gantry cranes visible",
+    impression: "Dense container terminal layout with rail/yard intensity and night-operation evidence.",
+    bestUse: "Operational briefing, terminal-density comparison and academy case material.",
+    images: [
+      {
+        label: "Aerial terminal",
+        url: globalPortVisualImage("Aerial_image_of_the_Eurogate_and_Burchardkai_container_terminals_%28view_from_the_southeast%29.jpg"),
+        sourceUrl: "https://commons.wikimedia.org/wiki/File:Aerial_image_of_the_Eurogate_and_Burchardkai_container_terminals_(view_from_the_southeast).jpg",
+        source: "Wikimedia Commons",
+        license: "CC BY-SA 4.0",
+        credit: "Carsten Steger",
+        note: "Eurogate and Burchardkai terminals."
+      },
+      {
+        label: "Night operation",
+        url: globalPortVisualImage("Burchardkai-Nacht-%28Hamburg%29-msu-2021-4873-.jpg"),
+        sourceUrl: "https://commons.wikimedia.org/wiki/File:Burchardkai-Nacht-(Hamburg)-msu-2021-4873-.jpg",
+        source: "Wikimedia Commons",
+        license: "CC BY-SA 4.0",
+        credit: "Matthias Suessen",
+        note: "Burchardkai night container operation."
+      }
+    ]
+  },
+  GRPIR: {
+    status: "Verified Image",
+    sourceBadge: "Wikimedia Commons",
+    confidence: 94,
+    terminalType: "passenger, ferry and harbour basin visible",
+    impression: "Urban ferry/cruise-heavy harbour with constrained city-side approach context.",
+    bestUse: "Passenger-port briefing, approach overview and client visual summary.",
+    images: [
+      {
+        label: "Aerial harbour",
+        url: globalPortVisualImage("%CE%9B%CE%B9%CE%BC%CE%AC%CE%BD%CE%B9_%CF%84%CE%BF%CF%85_%CE%A0%CE%B5%CE%B9%CF%81%CE%B1%CE%B9%CE%AC.jpg"),
+        sourceUrl: "https://commons.wikimedia.org/wiki/File:%CE%9B%CE%B9%CE%BC%CE%AC%CE%BD%CE%B9_%CF%84%CE%BF%CF%85_%CE%A0%CE%B5%CE%B9%CF%81%CE%B1%CE%B9%CE%AC.jpg",
+        source: "Wikimedia Commons",
+        license: "CC BY-SA 4.0",
+        credit: "Apaleutos25 (Giorgos Voudouris)",
+        note: "Port of Piraeus aerial visual."
+      }
+    ]
+  },
+  TRMER: {
+    status: "Verified Image",
+    sourceBadge: "Wikimedia Commons",
+    confidence: 90,
+    terminalType: "general cargo berths and harbour craft visible",
+    impression: "Mediterranean general cargo/container gateway with mixed cargo berth context.",
+    bestUse: "Turkey port briefing, cargo compatibility note and agency conversation.",
+    images: [
+      {
+        label: "General cargo berths",
+        url: globalPortVisualImage("Mersin_port_June_2006.jpg"),
+        sourceUrl: "https://commons.wikimedia.org/wiki/File:Mersin_port_June_2006.jpg",
+        source: "Wikimedia Commons",
+        license: "CC BY-SA 4.0",
+        credit: "Niels Johannes",
+        note: "General cargo berths in Port of Mersin."
+      }
+    ]
+  },
+  TRIST: {
+    status: "Verified Image",
+    sourceBadge: "Wikimedia Commons",
+    confidence: 91,
+    terminalType: "urban port, anchorage traffic and container/ro-ro context visible",
+    impression: "City-side Marmara operation with visual constraints around approach and urban density.",
+    bestUse: "Istanbul port briefing, client report cover and Bosphorus/Marmara context.",
+    images: [
+      {
+        label: "Port view",
+        url: globalPortVisualImage("Port_of_Haydarpa%C5%9Fa.jpg"),
+        sourceUrl: "https://commons.wikimedia.org/wiki/File:Port_of_Haydarpa%C5%9Fa.jpg",
+        source: "Wikimedia Commons",
+        license: "CC BY 2.0",
+        credit: "Jorge Franganillo",
+        note: "Port of Haydarpasa visual."
+      },
+      {
+        label: "Approach view",
+        url: globalPortVisualImage("Istanbul_Haydarpasa_port.jpg"),
+        sourceUrl: "https://commons.wikimedia.org/wiki/File:Istanbul_Haydarpasa_port.jpg",
+        source: "Wikimedia Commons",
+        license: "CC BY-SA 3.0",
+        credit: "Myrabella",
+        note: "Haydarpasa port seen from Topkapi Palace."
+      }
+    ]
+  },
+  TRIZM: {
+    status: "Verified Image",
+    sourceBadge: "Wikimedia Commons",
+    confidence: 90,
+    terminalType: "container yard, breakwater and urban harbour edge visible",
+    impression: "Urban Aegean port with visible container stacks and enclosed basin approach.",
+    bestUse: "Turkey/Aegean briefing, port comparison and classroom terminal reading.",
+    images: [
+      {
+        label: "Aerial terminal",
+        url: globalPortVisualImage("Aerial_view_of_the_harbour_of_the_town_of_Izmir_006_%28cropped%29.jpg"),
+        sourceUrl: "https://commons.wikimedia.org/wiki/File:Aerial_view_of_the_harbour_of_the_town_of_Izmir_006_(cropped).jpg",
+        source: "Wikimedia Commons",
+        license: "CC BY-SA 4.0",
+        credit: "Dosseman",
+        note: "Aerial view of the Port of Izmir."
+      }
+    ]
+  }
+};
+
+function getGlobalPortVisual(record = {}) {
+  const visual = globalPortVisualSeed[String(record.code || "").toUpperCase()];
+  if (visual) return { ...visual, hasImages: Boolean(visual.images?.length) };
+  return {
+    status: "Verified image needed",
+    sourceBadge: record.region === "Turkiye" || record.region === "Europe" ? "Visual-ready" : "Atlas placeholder",
+    confidence: 18,
+    terminalType: `${record.typeGroup || "Port"} terminal type inferred from atlas data`,
+    impression: "No source-labeled port photo is attached yet; do not use as verified client evidence.",
+    bestUse: "Data card only until an official, Wikimedia/Openverse or user-reviewed image is attached.",
+    images: [],
+    hasImages: false
+  };
+}
+
+function renderPortVisualCard(slot) {
+  if (slot.url) {
+    return `
+      <figure class="port-visual-thumb">
+        <img src="${escapeHtml(slot.url)}" alt="${escapeHtml(slot.label)} for ${escapeHtml(slot.portName || "port")}" loading="lazy" />
+        <figcaption>
+          <strong>${escapeHtml(slot.label)}</strong>
+          <span>${escapeHtml(slot.source)} / ${escapeHtml(slot.license)}</span>
+          <small>Credit: ${escapeHtml(slot.credit || "source page")}</small>
+        </figcaption>
+      </figure>
+    `;
+  }
+  return `
+    <div class="port-visual-thumb is-needed">
+      <strong>${escapeHtml(slot.label)}</strong>
+      <span>${escapeHtml(slot.intent)}</span>
+      <em>Verified source needed</em>
+    </div>
+  `;
+}
+
+function renderGlobalPortVisual(record, visual) {
+  const images = visual.images || [];
+  const primary = images[0];
+  const slotLabels = new Set(images.map((image) => image.label));
+  const needed = globalPortVisualSlots
+    .filter((slot) => !slotLabels.has(slot.label))
+    .map((slot) => ({ ...slot, source: "", license: "" }));
+  const gallery = [...images.map((image) => ({ ...image, portName: record.name })), ...needed].slice(0, 5);
+  const sourceLinks = images.map((image) => `
+    <a href="${escapeHtml(image.sourceUrl)}" target="_blank" rel="noopener noreferrer">
+      ${escapeHtml(image.label)} source
+    </a>
+  `).join("");
+  return `
+    <section class="port-visual-section ${primary ? "" : "is-empty"}">
+      <div class="port-visual-hero">
+        ${primary ? `
+          <img src="${escapeHtml(primary.url)}" alt="${escapeHtml(record.name)} port visual" loading="lazy" />
+        ` : `
+          <div class="port-visual-placeholder">
+            <span>Focusea visual file</span>
+            <strong>${escapeHtml(record.name)}</strong>
+            <small>No source-labeled photo attached yet.</small>
+          </div>
+        `}
+        <div class="port-visual-badges">
+          <span>${escapeHtml(visual.status)}</span>
+          <span>${escapeHtml(visual.sourceBadge)}</span>
+          <span>${escapeHtml(String(visual.confidence))}% confidence</span>
+        </div>
+      </div>
+      <div class="port-visual-gallery">
+        ${gallery.map(renderPortVisualCard).join("")}
+      </div>
+      <div class="port-visual-intelligence">
+        <div>
+          <span>Terminal type visible</span>
+          <strong>${escapeHtml(visual.terminalType)}</strong>
+        </div>
+        <div>
+          <span>Operational impression</span>
+          <strong>${escapeHtml(visual.impression)}</strong>
+        </div>
+        <div>
+          <span>Best use</span>
+          <strong>${escapeHtml(visual.bestUse)}</strong>
+        </div>
+        <div>
+          <span>Source links</span>
+          <strong>${sourceLinks || "Attach Wikimedia, Openverse, official port or reviewed user upload."}</strong>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
 function getGlobalPorts() {
   const detailed = Object.entries(ports).map(([id, port]) => portRecordFromDetailed(id, port));
   const seed = globalPortSeedText.split("\n").map(portRecordFromLine).filter(Boolean);
@@ -15360,29 +15619,35 @@ function renderGlobalPortStats(allPorts, visiblePorts) {
   const regions = new Set(allPorts.map((port) => port.region));
   const europeCount = allPorts.filter((port) => ["Europe", "Turkiye"].includes(port.region)).length;
   const importedCount = getImportedGlobalPorts().length;
+  const visualCount = allPorts.filter((port) => getGlobalPortVisual(port).hasImages).length;
   globalPortStats.innerHTML = `
     <div><span>Total atlas</span><strong>${allPorts.length.toLocaleString("en-US")}</strong></div>
     <div><span>Filtered</span><strong>${visiblePorts.length.toLocaleString("en-US")}</strong></div>
     <div><span>Europe + Turkey</span><strong>${europeCount.toLocaleString("en-US")}</strong></div>
     <div><span>Countries</span><strong>${countries.size}</strong></div>
+    <div><span>Visuals attached</span><strong>${visualCount.toLocaleString("en-US")}</strong></div>
     <div><span>Imported official</span><strong>${importedCount.toLocaleString("en-US")}</strong></div>
   `;
-  globalPortStats.title = `${regions.size} regions covered. Europe seed expanded; official full-world coverage can still be imported from UN/LOCODE or World Port Index CSV.`;
+  globalPortStats.title = `${regions.size} regions covered. Europe seed expanded; source-labeled port visuals are attached where verified media is available.`;
 }
 
 function renderGlobalPortList(records) {
   if (!globalPortList) return;
   const rows = records.slice(0, 250);
-  globalPortList.innerHTML = rows.map((port) => `
-    <button type="button" class="global-port-card" data-global-port="${escapeHtml(port.id)}">
-      <span>
-        <strong>${escapeHtml(port.name)}</strong>
-        <span>${escapeHtml(port.country)} · ${escapeHtml(port.region)} · ${escapeHtml(port.type)}</span>
-        <small>Depth: ${escapeHtml(port.depth)} · Source: ${escapeHtml(port.source)}</small>
-      </span>
-      <em class="global-port-code">${escapeHtml(port.code || "N/A")}</em>
-    </button>
-  `).join("") || `<div class="global-port-card"><strong>No port found</strong><span>Search another name, country, UN/LOCODE or import official CSV.</span></div>`;
+  globalPortList.innerHTML = rows.map((port) => {
+    const visual = getGlobalPortVisual(port);
+    return `
+      <button type="button" class="global-port-card" data-global-port="${escapeHtml(port.id)}">
+        <span>
+          <strong>${escapeHtml(port.name)}</strong>
+          <span>${escapeHtml(port.country)} · ${escapeHtml(port.region)} · ${escapeHtml(port.type)}</span>
+          <small>Depth: ${escapeHtml(port.depth)} · Source: ${escapeHtml(port.source)}</small>
+          <small class="global-port-visual-badge ${visual.hasImages ? "is-verified" : ""}">${visual.hasImages ? "Verified visual" : "Visual needed"}</small>
+        </span>
+        <em class="global-port-code">${escapeHtml(port.code || "N/A")}</em>
+      </button>
+    `;
+  }).join("") || `<div class="global-port-card"><strong>No port found</strong><span>Search another name, country, UN/LOCODE or import official CSV.</span></div>`;
   if (records.length > rows.length) {
     globalPortList.insertAdjacentHTML("beforeend", `<div class="global-port-card"><strong>${records.length - rows.length} more ports hidden</strong><span>Use search or filters to narrow the list.</span></div>`);
   }
@@ -15398,6 +15663,7 @@ function renderGlobalPortDetail(record) {
   ];
   const documents = detailed?.documents || ["Cargo manifest", "Crew list", "Port clearance", "ISPS declaration"];
   const risks = detailed?.risks || ["Port congestion watch", "Local documentation cut-off", "Weather / berth window risk"];
+  const visual = getGlobalPortVisual(record);
   globalPortDetail.innerHTML = `
     <div class="port-title-row">
       <div>
@@ -15412,6 +15678,7 @@ function renderGlobalPortDetail(record) {
       <div><span>Source</span><strong>${escapeHtml(record.source)}</strong></div>
       <div><span>Coverage</span><strong>${record.detailedId ? "Detailed" : "Atlas"}</strong></div>
     </div>
+    ${renderGlobalPortVisual(record, visual)}
     <div class="port-columns">
       <div><h3>Services</h3><ul>${services.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul></div>
       <div><h3>Documents</h3><ul>${documents.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul></div>
