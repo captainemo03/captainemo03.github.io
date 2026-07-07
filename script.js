@@ -2375,6 +2375,28 @@ const aiFixtureSimulatorForm = document.querySelector("#aiFixtureSimulatorForm")
 const aiFixtureSimulatorResult = document.querySelector("#aiFixtureSimulatorResult");
 const toggleAiPresentation = document.querySelector("#toggleAiPresentation");
 const aiPresentationResult = document.querySelector("#aiPresentationResult");
+const runProOps = document.querySelector("#runProOps");
+const proOpsInboxForm = document.querySelector("#proOpsInboxForm");
+const proOpsInboxResult = document.querySelector("#proOpsInboxResult");
+const saveProOpsOffer = document.querySelector("#saveProOpsOffer");
+const clearProOpsMemory = document.querySelector("#clearProOpsMemory");
+const refreshProOpsDealRoom = document.querySelector("#refreshProOpsDealRoom");
+const proOpsDealRoomResult = document.querySelector("#proOpsDealRoomResult");
+const proOpsAskForm = document.querySelector("#proOpsAskForm");
+const proOpsAskResult = document.querySelector("#proOpsAskResult");
+const proOpsOcrForm = document.querySelector("#proOpsOcrForm");
+const proOpsOcrResult = document.querySelector("#proOpsOcrResult");
+const proOpsPortForm = document.querySelector("#proOpsPortForm");
+const proOpsPortResult = document.querySelector("#proOpsPortResult");
+const proOpsClaimForm = document.querySelector("#proOpsClaimForm");
+const proOpsClaimResult = document.querySelector("#proOpsClaimResult");
+const proOpsMarketAlarmForm = document.querySelector("#proOpsMarketAlarmForm");
+const proOpsMarketAlarmResult = document.querySelector("#proOpsMarketAlarmResult");
+const proOpsLoadicatorForm = document.querySelector("#proOpsLoadicatorForm");
+const proOpsLoadicatorResult = document.querySelector("#proOpsLoadicatorResult");
+const proOpsClientForm = document.querySelector("#proOpsClientForm");
+const proOpsClientResult = document.querySelector("#proOpsClientResult");
+const proOpsScoreResult = document.querySelector("#proOpsScoreResult");
 let activeNewsQuery = "maritime shipping";
 let generatedOpsEmailText = "";
 let selectedCommandScenarioId = "coal";
@@ -2427,6 +2449,16 @@ let lastAiRolePortal = null;
 let lastAiClauseBattle = null;
 let lastAiFixtureSimulator = null;
 let lastAiPresentation = null;
+let lastProOpsOffer = null;
+let lastProOpsDealRoom = null;
+let lastProOpsAsk = null;
+let lastProOpsOcr = null;
+let lastProOpsPort = null;
+let lastProOpsClaim = null;
+let lastProOpsMarketAlarm = null;
+let lastProOpsLoadicator = null;
+let lastProOpsClient = null;
+let lastProOpsScore = null;
 let lastParsedOffer = null;
 let lastCopilotReport = null;
 let lastTceOptimization = null;
@@ -2716,6 +2748,7 @@ const pageGroups = {
   theater: ["#commandTheaterPanel"],
   saasCore: ["#saasCorePanel"],
   aiCore: ["#aiCorePanel"],
+  proOps: ["#proOpsPanel"],
   broker: ["#brokerDesk", "#brokerPro", "#brokerOps"],
   terminal: ["#platformCore", "#brokerIntelligence", "#commandTerminal"],
   edge: ["#edgeSuite"],
@@ -13052,6 +13085,512 @@ function renderAllAiCore() {
   renderAiPresentation();
 }
 
+const proOpsInboxKey = "focusea-proops-inbox-v1";
+const proOpsAuditKey = "focusea-proops-audit-v1";
+
+function proOpsInbox() {
+  return safeLocalGet(proOpsInboxKey, []);
+}
+
+function setProOpsInbox(items) {
+  safeLocalSet(proOpsInboxKey, items.slice(0, 80));
+}
+
+function proOpsAudit() {
+  return safeLocalGet(proOpsAuditKey, []);
+}
+
+function pushProOpsAudit(action, detail) {
+  const item = {
+    id: `AUD-${Date.now().toString().slice(-6)}`,
+    action,
+    detail,
+    at: new Date().toLocaleString()
+  };
+  safeLocalSet(proOpsAuditKey, [item, ...proOpsAudit()].slice(0, 80));
+  return item;
+}
+
+function proOpsRiskText(score) {
+  if (score >= 76) return "AVOID";
+  if (score >= 58) return "WATCH";
+  return "FIX";
+}
+
+function proOpsDecision(score) {
+  if (score >= 76) return "Avoid until protected";
+  if (score >= 58) return "Watch / counter first";
+  return "Fix candidate";
+}
+
+function proOpsCurrentOffer() {
+  if (lastProOpsOffer) return lastProOpsOffer;
+  const saved = proOpsInbox()[0];
+  if (saved) return saved;
+  return renderProOpsInbox(true);
+}
+
+function buildProOpsOffer(values = {}) {
+  const dealText = String(values.dealText || "");
+  const parsed = parseOfferText(dealText);
+  const cargo = getCargoProfile(parsed.cargoType);
+  const gate = workflowGateContext({
+    dealText,
+    cargoType: parsed.cargoType,
+    portId: values.portId || "mersin",
+    draft: values.draft || 12.4,
+    targetTce: values.targetTce || 22000,
+    subjectHours: values.subjectHours || 18,
+    bunkerPrice: liveFeedState.bunker || verifiedBunkerSnapshot.ports.singapore.vlsfo
+  });
+  const offerRisk = scoreParsedOffer(parsed);
+  const redFlags = redTeamFindings(dealText, "Pro Ops");
+  const risk = clamp(Math.round(offerRisk.score * 0.28 + gate.risk * 0.45 + redFlags.length * 7 + (parsed.missing.length * 4)), 0, 100);
+  const missing = parsed.missing.length ? parsed.missing : ["No critical missing term detected"];
+  const dealRef = `FX-${new Date().getFullYear()}-${String(Date.now()).slice(-5)}`;
+  const recap = [
+    "FOCUSEA FIXTURE RECAP DRAFT",
+    `Ref: ${dealRef}`,
+    `Cargo: ${parsed.quantity || defaultQuantityForCargo(cargo)} ${parsed.unit} ${parsed.cargoLabel}`,
+    `Route: ${parsed.route || "TBC"}`,
+    `Laycan: ${parsed.laycan || "TBC"}`,
+    `Freight: ${parsed.freight ? `${money(parsed.freight, 2)} per ${parsed.unit}` : "TBC"}`,
+    `Demurrage: ${parsed.demurrage ? `${money(parsed.demurrage)}/day pro rata` : "TBC"}`,
+    `Commission: ${parsed.commission || "TBC"} pct`,
+    "Subjects: stem / receiver / management approval until confirmed"
+  ].join("\n");
+  const counterMail = [
+    "Dear all,",
+    "",
+    `Many thanks for the offer. Basis ${parsed.route || "route TBC"} / ${parsed.cargoLabel}.`,
+    `Our current Focusea position is ${proOpsDecision(risk)} (${risk}/100 risk).`,
+    "",
+    "Please counter/confirm:",
+    ...missing.slice(0, 5).map((item) => `- ${item}`),
+    redFlags[0] ? `- Clause guard: ${redFlags[0].advice}` : "- NOR, weather exceptions, waiting time and time-bar wording to be clean.",
+    `- Commercials to be checked against target TCE ${money(values.targetTce || 22000)}/day.`,
+    "",
+    "Best regards,"
+  ].join("\n");
+  return {
+    dealRef,
+    savedAt: new Date().toLocaleString(),
+    status: risk >= 76 ? "Avoid" : risk >= 58 ? "Counter needed" : "Fix candidate",
+    dealText,
+    parsed,
+    cargo,
+    gate,
+    offerRisk,
+    redFlags,
+    risk,
+    missing,
+    recap,
+    counterMail
+  };
+}
+
+function renderProOpsInbox(silent = false) {
+  if (!proOpsInboxForm || !proOpsInboxResult) return null;
+  const values = collectFormValues(proOpsInboxForm);
+  const offer = buildProOpsOffer(values);
+  lastProOpsOffer = offer;
+  if (!silent) {
+    proOpsInboxResult.innerHTML = `
+      ${metricCards([
+        { label: "Deal ref", value: escapeHtml(offer.dealRef) },
+        { label: "Status", value: escapeHtml(offer.status) },
+        { label: "Risk", value: `${offer.risk}/100` },
+        { label: "Missing", value: offer.missing.length }
+      ])}
+      <div class="pro-offer-card">
+        <strong>${escapeHtml(offer.parsed.cargoLabel)} / ${escapeHtml(offer.parsed.route || "Route TBC")}</strong>
+        <span>Freight ${offer.parsed.freight ? money(offer.parsed.freight, 2) : "TBC"} / Demurrage ${offer.parsed.demurrage ? money(offer.parsed.demurrage) : "TBC"} / Laycan ${escapeHtml(offer.parsed.laycan || "TBC")}</span>
+        <small>${escapeHtml(offer.counterMail.split("\n").slice(0, 5).join(" "))}</small>
+      </div>
+      <div class="ops-list">${offer.missing.map((item) => `<div><strong>Missing / confirm</strong><span>${escapeHtml(item)}</span></div>`).join("")}</div>
+    `;
+  }
+  renderProOpsScore();
+  return offer;
+}
+
+function saveProOpsOfferToInbox() {
+  const offer = lastProOpsOffer || renderProOpsInbox(true);
+  if (!offer) return;
+  setProOpsInbox([offer, ...proOpsInbox()]);
+  pushProOpsAudit("Offer saved", `${offer.dealRef} / ${offer.status}`);
+  renderProOpsDealRoom();
+  renderProOpsInbox();
+}
+
+function clearProOpsState() {
+  setProOpsInbox([]);
+  safeLocalSet(proOpsAuditKey, []);
+  lastProOpsOffer = null;
+  lastProOpsDealRoom = null;
+  renderAllProOps();
+}
+
+function renderProOpsDealRoom() {
+  if (!proOpsDealRoomResult) return;
+  const offer = proOpsCurrentOffer();
+  const audit = proOpsAudit();
+  const tabs = [
+    ["Offer", offer.status],
+    ["Counter", offer.counterMail ? "Ready" : "Pending"],
+    ["Recap", offer.recap ? "Draft ready" : "Pending"],
+    ["CP", offer.redFlags.length ? `${offer.redFlags.length} flag(s)` : "Clause clean"],
+    ["SOF", lastProOpsOcr?.sofEvents || "OCR pending"],
+    ["Laytime", lastProOpsClaim?.verdict || "Pending"],
+    ["Invoice", lastProOpsOcr?.invoiceAmount ? money(lastProOpsOcr.invoiceAmount) : "Draft"],
+    ["Claim", lastProOpsClaim?.claimType || "Pending"],
+    ["Client report", lastProOpsClient?.portalUrl ? "Link ready" : "Pending"],
+    ["Audit log", `${audit.length} event(s)`]
+  ];
+  lastProOpsDealRoom = { offer, tabs, audit, generatedAt: new Date().toLocaleString(), reportText: proOpsDealRoomText(offer, tabs) };
+  proOpsDealRoomResult.innerHTML = `
+    ${metricCards([
+      { label: "Deal", value: escapeHtml(offer.dealRef) },
+      { label: "Tabs", value: tabs.length },
+      { label: "Decision", value: escapeHtml(proOpsRiskText(offer.risk)) },
+      { label: "Audit", value: audit.length }
+    ])}
+    <div class="pro-tabs-grid">${tabs.map(([name, status]) => `<div><strong>${escapeHtml(name)}</strong><span>${escapeHtml(status)}</span></div>`).join("")}</div>
+  `;
+}
+
+function proOpsDealRoomText(offer = proOpsCurrentOffer(), tabs = []) {
+  return reportLines("FOCUSEA PRO OPS DEAL ROOM", [
+    `Deal ref: ${offer.dealRef}`,
+    `Status: ${offer.status}`,
+    `Cargo: ${offer.parsed.cargoLabel}`,
+    `Route: ${offer.parsed.route || "TBC"}`,
+    `Risk: ${offer.risk}/100`,
+    `TCE: ${money(offer.gate.tce)}/day`,
+    `P&L: ${money(offer.gate.netPnl)}`,
+    "",
+    "Tabs:",
+    ...tabs.map(([name, status]) => `- ${name}: ${status}`),
+    "",
+    "Recap:",
+    offer.recap,
+    "",
+    "Counter mail:",
+    offer.counterMail
+  ]);
+}
+
+function renderProOpsAsk() {
+  if (!proOpsAskForm || !proOpsAskResult) return;
+  const values = collectFormValues(proOpsAskForm);
+  const question = String(values.question || "").toLowerCase();
+  const offer = proOpsCurrentOffer();
+  const answers = [];
+  if (/fix|deal|kabul|counter/.test(question)) {
+    answers.push(`${offer.dealRef}: ${proOpsDecision(offer.risk)}. ${offer.risk >= 58 ? "Counter wording ve eksik ticari alanlar kapanmadan subjects kaldirilmamali." : "Recap ve evidence guard ile fixture candidate."}`);
+  }
+  if (/clause|cp|lehine/.test(question)) {
+    answers.push(offer.redFlags[0] ? `Clause red flag: ${offer.redFlags[0].title}. ${offer.redFlags[0].advice}` : "Clause tarafinda sert kirmizi bayrak yok; yine NOR/time-bar/weather wording kontrol edilmeli.");
+  }
+  if (/demurrage|claim|sof|laytime/.test(question)) {
+    answers.push(lastProOpsClaim ? `Claim view: ${lastProOpsClaim.verdict}, amount ${money(lastProOpsClaim.amount)}.` : "SOF/claim modulu calistirilinca demurrage gucu hesaplanir.");
+  }
+  if (!answers.length) answers.push(`Focusea view: risk ${offer.risk}/100, top action: ${offer.missing[0]}.`);
+  lastProOpsAsk = { question: values.question, answers, generatedAt: new Date().toLocaleString() };
+  proOpsAskResult.innerHTML = `<div class="ai-chat-log"><div><strong>You</strong><span>${escapeHtml(values.question)}</span></div><div class="bot"><strong>Focusea</strong><span>${answers.map(escapeHtml).join("<br>")}</span></div></div>`;
+}
+
+function renderProOpsOcr() {
+  if (!proOpsOcrForm || !proOpsOcrResult) return;
+  const values = collectFormValues(proOpsOcrForm);
+  const fileMeta = saasFileMeta(values.documentFile);
+  const text = String(values.documentText || "");
+  const sof = workflowExtractSof(text);
+  const flags = redTeamFindings(text, "OCR lane");
+  const invoiceAmount = Number(String(text.match(/(?:invoice|amount|claim)[^0-9]*(?:usd|us\$|\$)?\s*([0-9][0-9,]*(?:\.\d+)?)/i)?.[1] || "0").replace(/,/g, "")) || 0;
+  const norFound = sof.events.some((event) => event.label === "NOR tendered" && event.found);
+  const readiness = clamp(20 + sof.events.filter((event) => event.found).length * 15 + sof.stoppages.length * 10 + (invoiceAmount ? 10 : 0) + (norFound ? 10 : 0), 0, 100);
+  lastProOpsOcr = { values, fileMeta, sof, flags, invoiceAmount, readiness, sofEvents: sof.events.filter((event) => event.found).length, generatedAt: new Date().toLocaleString() };
+  proOpsOcrResult.innerHTML = `
+    ${metricCards([
+      { label: "File", value: escapeHtml(fileMeta?.name || "Pasted text") },
+      { label: "SOF events", value: lastProOpsOcr.sofEvents },
+      { label: "Invoice", value: invoiceAmount ? money(invoiceAmount) : "Not found" },
+      { label: "Readiness", value: `${readiness}/100` }
+    ])}
+    <div class="workflow-two-col">
+      <div class="ops-list">${sof.events.map((event) => `<div><strong>${escapeHtml(event.label)}</strong><span>${escapeHtml(event.display || "missing")}</span></div>`).join("")}</div>
+      <div class="ops-list">${(flags.length ? flags : [{ title: "No strong CP flag", advice: "Still check signed docs." }]).map((flag) => `<div><strong>${escapeHtml(flag.title)}</strong><span>${escapeHtml(flag.advice)}</span></div>`).join("")}</div>
+    </div>
+  `;
+  renderProOpsDealRoom();
+}
+
+function renderProOpsPort() {
+  if (!proOpsPortForm || !proOpsPortResult) return;
+  const values = collectFormValues(proOpsPortForm);
+  const { id, port, ops } = turkiyePortProfile(values.portId || "mersin");
+  const cargo = getCargoProfile(values.cargoType || "coal");
+  const margin = turkiyeDraftMargin(port, values.draft);
+  const pda = portCostBase(port) * ops.costFactor * cargo.portCostMultiplier;
+  const waitingRisk = turkiyeWaitingRisk(id, values.waitingDays, cargo.risk);
+  const risk = clamp(waitingRisk + (margin < 0 ? 30 : margin < 1 ? 14 : 0), 0, 100);
+  const docs = port.documents || ["Cargo manifest", "Crew list", "Port clearance"];
+  lastProOpsPort = { values, port, ops, cargo, margin, pda, waitingRisk, risk, decision: turkiyeStatusFromScore(risk) };
+  proOpsPortResult.innerHTML = `
+    ${metricCards([
+      { label: "Decision", value: escapeHtml(lastProOpsPort.decision) },
+      { label: "Draft margin", value: `${margin.toFixed(1)} m` },
+      { label: "PDA estimate", value: money(pda) },
+      { label: "Waiting risk", value: `${waitingRisk}/100` }
+    ])}
+    <div class="pro-port-grid">
+      <div><strong>Pilotage / tug</strong><span>${escapeHtml(ops.pilotage || "Pilotage required")} / ${escapeHtml(ops.tug || "Tug by port order")}</span></div>
+      <div><strong>Local agency note</strong><span>${escapeHtml(ops.agencyNote || "Confirm terminal nomination, documents and local holidays.")}</span></div>
+      <div><strong>Docs</strong><span>${docs.slice(0, 5).map(escapeHtml).join(", ")}</span></div>
+      <div><strong>Action</strong><span>${margin < 1 ? "Get berth-specific max draft and UKC before fixing." : "Keep PDA and terminal cut-off in recap."}</span></div>
+    </div>
+  `;
+  renderProOpsScore();
+}
+
+function proOpsLaytimeFromText(text, allowedHours, demurrageRate) {
+  const sof = workflowExtractSof(text);
+  const start = sof.events.find((event) => event.label === "Operations started" && event.found)?.date
+    || sof.events.find((event) => event.label === "All fast" && event.found)?.date
+    || sof.events.find((event) => event.label === "NOR tendered" && event.found)?.date;
+  const end = sof.events.find((event) => event.label === "Completed" && event.found)?.date;
+  const grossHours = start && end ? Math.max(0, (end - start) / 3600000) : 0;
+  const excludedHours = sof.stoppages.reduce((sum, item) => sum + item.hours, 0);
+  const netHours = Math.max(0, grossHours - excludedHours);
+  const balanceHours = netHours - allowedHours;
+  const amount = balanceHours > 0 ? balanceHours / 24 * demurrageRate : 0;
+  const dispatch = balanceHours < 0 ? Math.abs(balanceHours) / 24 * demurrageRate / 2 : 0;
+  const verdict = amount ? "DEMURRAGE" : dispatch ? "DISPATCH" : "BALANCED";
+  return { sof, grossHours, excludedHours, netHours, balanceHours, amount, dispatch, verdict };
+}
+
+function renderProOpsClaim() {
+  if (!proOpsClaimForm || !proOpsClaimResult) return;
+  const values = collectFormValues(proOpsClaimForm);
+  const allowedHours = Number(values.allowedHours) || 72;
+  const demurrageRate = Number(values.demurrageRate) || 18000;
+  const calc = proOpsLaytimeFromText(values.sofText || "", allowedHours, demurrageRate);
+  const evidence = [
+    "Signed NOR",
+    "Signed SOF",
+    "Rain/weather letter",
+    "Terminal operation log",
+    "CP/recap laytime clause",
+    "Invoice + claim letter"
+  ];
+  const readiness = clamp(calc.sof.events.filter((event) => event.found).length * 18 + calc.sof.stoppages.length * 8 + (calc.grossHours ? 18 : 0), 0, 100);
+  const disputeRisk = clamp(80 - readiness + (calc.amount ? 8 : 0), 0, 100);
+  lastProOpsClaim = { values, claimType: values.claimType, ...calc, allowedHours, demurrageRate, readiness, disputeRisk, evidence, generatedAt: new Date().toLocaleString() };
+  proOpsClaimResult.innerHTML = `
+    ${metricCards([
+      { label: "Claim type", value: escapeHtml(values.claimType) },
+      { label: "Verdict", value: escapeHtml(calc.verdict) },
+      { label: "Amount", value: calc.amount ? money(calc.amount) : money(calc.dispatch) },
+      { label: "Dispute risk", value: `${disputeRisk}/100` }
+    ])}
+    <div class="workflow-two-col">
+      <div class="ops-list">${evidence.map((item) => `<div><strong>Evidence</strong><span>${escapeHtml(item)}</span></div>`).join("")}</div>
+      <pre>${escapeHtml(proOpsClaimLetterText())}</pre>
+    </div>
+  `;
+  renderProOpsDealRoom();
+  renderProOpsScore();
+}
+
+function proOpsClaimLetterText() {
+  const claim = lastProOpsClaim;
+  const offer = proOpsCurrentOffer();
+  if (!claim) return "Run Claim Center first.";
+  return [
+    "Dear all,",
+    "",
+    `Re: ${offer.parsed.route || "subject voyage"} / ${claim.claimType} claim`,
+    `Our preliminary laytime position is ${claim.verdict}. Net used time ${claim.netHours.toFixed(2)}h against allowed ${claim.allowedHours.toFixed(2)}h.`,
+    claim.amount ? `Demurrage amount: ${money(claim.amount)} basis ${money(claim.demurrageRate)}/day pro rata.` : `Dispatch estimate: ${money(claim.dispatch)}.`,
+    "",
+    "Please confirm agreement or provide signed SOF, NOR, rain/weather logs and terminal operation records.",
+    "",
+    "Best regards,"
+  ].join("\n");
+}
+
+function renderProOpsMarketAlarm() {
+  if (!proOpsMarketAlarmForm || !proOpsMarketAlarmResult) return;
+  const values = collectFormValues(proOpsMarketAlarmForm);
+  const offer = proOpsCurrentOffer();
+  const cachedNews = getCachedLiveNews();
+  const bunker = liveFeedState.bunker || verifiedBunkerSnapshot.ports.singapore.vlsfo;
+  const routeText = `${values.routeWatch || ""} ${offer.parsed.route || ""}`.toLowerCase();
+  const newsHit = cachedNews?.items?.some((item) => `${item.title} ${item.source}`.toLowerCase().includes(routeText.split(/\s+/)[0] || "shipping"));
+  const alerts = [
+    bunker >= Number(values.bunkerAlert || 700) && ["Bunker", `Bunker ${money(bunker, 2)}/t crossed alert ${money(values.bunkerAlert, 2)}/t`, "High"],
+    !balticFeedState.connected && ["Baltic", "Baltic live index needs licensed endpoint; do not label as live.", "Medium"],
+    liveFeedState.congestion / 20 >= Number(values.portDelayAlert || 2) && ["Port delay", `Congestion implies port delay pressure near ${(liveFeedState.congestion / 20).toFixed(1)}d`, "Medium"],
+    liveFeedState.weather >= Number(values.weatherAlert || 10) && ["Weather", `Weather alert index ${liveFeedState.weather}`, "Medium"],
+    newsHit && ["News", "Route/cargo keyword appeared in last live maritime news cache.", "Watch"],
+    offer.gate.tce < offer.gate.targetTce && ["TCE", `TCE below target by ${money(offer.gate.targetTce - offer.gate.tce)}/day`, "High"]
+  ].filter(Boolean);
+  lastProOpsMarketAlarm = { values, alerts, bunker, cachedNews, generatedAt: new Date().toLocaleString() };
+  proOpsMarketAlarmResult.innerHTML = `
+    ${metricCards([
+      { label: "Alerts", value: alerts.length },
+      { label: "Bunker", value: `${money(bunker, 2)}/t` },
+      { label: "Baltic", value: balticFeedState.connected ? "Connected" : "Licensed required" },
+      { label: "News cache", value: cachedNews?.items?.length || 0 }
+    ])}
+    <div class="timebar-list">${(alerts.length ? alerts : [["Clear", "No strong alarm on this deal right now.", "Low"]]).map(([name, detail, level]) => `<div class="${level === "High" ? "high" : level === "Medium" ? "medium" : "low"}"><strong>${escapeHtml(name)}</strong><span>${escapeHtml(detail)}</span><em>${escapeHtml(level)}</em></div>`).join("")}</div>
+  `;
+  renderProOpsScore();
+}
+
+function renderProOpsLoadicator() {
+  if (!proOpsLoadicatorForm || !proOpsLoadicatorResult) return;
+  const values = collectFormValues(proOpsLoadicatorForm);
+  const cargoWeight = Number(values.cargoWeight) || 0;
+  const displacement = 65000 + cargoWeight + Number(values.foreBallast || 0) + Number(values.aftBallast || 0) + Number(values.portBallast || 0) + Number(values.stbdBallast || 0);
+  const km = 14.2;
+  const kg = (Number(values.kg) || 0) + cargoWeight / Math.max(displacement, 1) * 0.45;
+  const gm = km - kg;
+  const trim = ((Number(values.lcg) || 0) * cargoWeight + (Number(values.aftBallast || 0) - Number(values.foreBallast || 0)) * 68) / Math.max(displacement, 1) / 6.4;
+  const tcg = ((Number(values.tcg) || 0) * cargoWeight + (Number(values.stbdBallast || 0) - Number(values.portBallast || 0)) * 18) / Math.max(cargoWeight + Number(values.portBallast || 0) + Number(values.stbdBallast || 0), 1);
+  const heel = Math.atan2(tcg, Math.max(gm, 0.2)) * 180 / Math.PI;
+  const sf = Math.abs(Number(values.lcg) || 0) * cargoWeight / 100;
+  const bm = sf * 0.42;
+  const gzRows = [5, 10, 20, 30, 40].map((angle) => [angle, Math.max(0, Math.sin(angle * Math.PI / 180) * gm * 0.82)]);
+  const status = gm < 0.8 || Math.abs(heel) > 5 || Math.abs(trim) > 2.5 ? "ALERT" : gm < 1.4 || Math.abs(heel) > 3 ? "WATCH" : "PASS";
+  const advice = [
+    Math.abs(trim) > 1.5 ? "Move cargo toward midship or adjust fore/aft ballast." : "Trim inside working band.",
+    Math.abs(heel) > 2 ? `Correct ${heel > 0 ? "starboard" : "port"} heel with opposite wing ballast.` : "Port/stbd balance controlled.",
+    gm < 1.2 ? "Lower high KG cargo or add low ballast before sailing." : "GM margin acceptable in demo hydrostatic model."
+  ];
+  lastProOpsLoadicator = { values, displacement, km, kg, gm, trim, heel, sf, bm, gzRows, status, advice, generatedAt: new Date().toLocaleString() };
+  proOpsLoadicatorResult.innerHTML = `
+    ${metricCards([
+      { label: "Status", value: escapeHtml(status) },
+      { label: "GM", value: `${gm.toFixed(2)} m` },
+      { label: "Trim", value: `${trim.toFixed(2)} m` },
+      { label: "Heel", value: `${heel.toFixed(2)} deg` }
+    ])}
+    <div class="pro-load-grid">
+      <div><strong>Hydrostatic</strong><span>Disp ${Math.round(displacement).toLocaleString("en-US")} mt / KM ${km.toFixed(2)} / KG ${kg.toFixed(2)}</span></div>
+      <div><strong>SF / BM proxy</strong><span>SF ${sf.toFixed(0)} / BM ${bm.toFixed(0)} with limit watch</span></div>
+      <div><strong>GZ curve</strong><span>${gzRows.map(([a, gz]) => `${a}deg:${gz.toFixed(2)}m`).join(" | ")}</span></div>
+      <div><strong>Bay-row-tier</strong><span>Container plan should lock heavy tiers low and avoid one-side row bias.</span></div>
+    </div>
+    <ul class="compact-list">${advice.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+    <a class="ghost-button small" href="stability.html" target="_blank" rel="noopener">3D Load-Stability Lab'i Ac</a>
+  `;
+  renderProOpsScore();
+}
+
+function renderProOpsClient() {
+  if (!proOpsClientForm || !proOpsClientResult) return;
+  const values = collectFormValues(proOpsClientForm);
+  const offer = proOpsCurrentOffer();
+  const token = saasToken(`${values.client}-${offer.dealRef}-${Date.now().toString().slice(-4)}`);
+  const portalUrl = `https://captainemo03.github.io/focusea/#client-${token}`;
+  const summary = [
+    `Client: ${values.client}`,
+    `Deal: ${offer.dealRef}`,
+    `Status: ${values.status}`,
+    `ETA: ${values.eta}`,
+    `Route: ${offer.parsed.route || "TBC"}`,
+    `P&L: ${money(offer.gate.netPnl)} / TCE ${money(offer.gate.tce)}/day`,
+    `Risk: ${offer.risk}/100 (${offer.status})`,
+    `Claim: ${lastProOpsClaim?.verdict || "Pending"}`
+  ];
+  lastProOpsClient = { values, portalUrl, summary, generatedAt: new Date().toLocaleString(), reportText: reportLines("FOCUSEA CLIENT PORTAL", summary) };
+  proOpsClientResult.innerHTML = `
+    ${metricCards([
+      { label: "Client", value: escapeHtml(values.client) },
+      { label: "Status", value: escapeHtml(values.status) },
+      { label: "Access", value: escapeHtml(values.access) },
+      { label: "Risk", value: `${offer.risk}/100` }
+    ])}
+    <div class="confidence-row"><span>Client link</span><em class="source-badge simulated">Static preview</em><a href="${portalUrl}" target="_blank" rel="noopener noreferrer">${escapeHtml(portalUrl)}</a></div>
+    <div class="ops-list">${summary.map((item) => `<div><strong>Client pack</strong><span>${escapeHtml(item)}</span></div>`).join("")}</div>
+  `;
+  renderProOpsDealRoom();
+}
+
+function renderProOpsScore() {
+  if (!proOpsScoreResult) return;
+  const offer = lastProOpsOffer || proOpsCurrentOffer();
+  const commercial = clamp(Math.round(100 - offer.gate.commercialRisk), 0, 100);
+  const legal = clamp(Math.round(100 - Math.min(95, offer.redFlags.length * 20 + 28)), 0, 100);
+  const ops = clamp(Math.round(100 - (lastProOpsPort?.risk ?? offer.gate.portRisk)), 0, 100);
+  const claim = clamp(Math.round(lastProOpsClaim ? 100 - lastProOpsClaim.disputeRisk : 58), 0, 100);
+  const market = clamp(Math.round(100 - (lastProOpsMarketAlarm?.alerts?.length || 1) * 14), 0, 100);
+  const compliance = /sanction|ofac|iran|russia|syria|venezuela/i.test(offer.dealText) ? 36 : 82;
+  const data = clamp(Math.round(45 + (offer.parsed.missing.length ? 10 : 25) + (lastProOpsOcr?.readiness || 0) * 0.2), 0, 100);
+  const rows = [
+    ["Commercial", commercial],
+    ["Legal", legal],
+    ["Ops", ops],
+    ["Claim", claim],
+    ["Market", market],
+    ["Compliance", compliance],
+    ["Data confidence", data]
+  ];
+  const score = Math.round(rows.reduce((sum, [, value]) => sum + value, 0) / rows.length);
+  const verdict = score >= 74 ? "FIX" : score >= 55 ? "WATCH" : "AVOID";
+  lastProOpsScore = { score, verdict, rows, generatedAt: new Date().toLocaleString() };
+  proOpsScoreResult.innerHTML = `
+    <div class="workflow-score-ring" style="--score:${score}%"><strong>${score}</strong><span>${escapeHtml(verdict)}</span></div>
+    <div class="ai-explain-list">${rows.map(([label, value]) => `<div><span>${escapeHtml(label)}<small>${escapeHtml(value >= 70 ? "controlled" : value >= 50 ? "watch" : "weak")}</small></span><i style="--bar:${value}%"></i><strong>${value}</strong></div>`).join("")}</div>
+  `;
+}
+
+function proOpsWorkspaceExport() {
+  return {
+    generatedAt: new Date().toLocaleString(),
+    inbox: proOpsInbox(),
+    offer: lastProOpsOffer,
+    dealRoom: lastProOpsDealRoom,
+    ask: lastProOpsAsk,
+    ocr: lastProOpsOcr,
+    port: lastProOpsPort,
+    claim: lastProOpsClaim,
+    marketAlarm: lastProOpsMarketAlarm,
+    loadicator: lastProOpsLoadicator,
+    client: lastProOpsClient,
+    score: lastProOpsScore,
+    audit: proOpsAudit()
+  };
+}
+
+function handleProOpsDownload(type) {
+  if (!lastProOpsOffer) renderProOpsInbox(true);
+  if (!lastProOpsDealRoom) renderProOpsDealRoom();
+  const actions = {
+    "inbox-json": () => downloadJsonFile("focusea-proops-inbox.json", proOpsWorkspaceExport()),
+    "counter-mail": () => downloadTextFile("focusea-proops-counter-mail.txt", lastProOpsOffer?.counterMail || "No counter mail."),
+    "deal-room-pdf": () => downloadPdfFile("focusea-proops-deal-room.pdf", "Focusea Pro Ops Deal Room", lastProOpsDealRoom?.reportText || proOpsDealRoomText()),
+    "claim-letter": () => downloadTextFile("focusea-proops-claim-letter.txt", proOpsClaimLetterText()),
+    "client-pdf": () => downloadPdfFile("focusea-proops-client-portal.pdf", "Focusea Client Portal", lastProOpsClient?.reportText || "Run Client Portal first.")
+  };
+  actions[type]?.();
+}
+
+function renderAllProOps() {
+  renderProOpsInbox();
+  renderProOpsDealRoom();
+  renderProOpsAsk();
+  renderProOpsOcr();
+  renderProOpsPort();
+  renderProOpsClaim();
+  renderProOpsMarketAlarm();
+  renderProOpsLoadicator();
+  renderProOpsClient();
+  renderProOpsScore();
+}
+
 function renderAllWorkflowControl() {
   renderWorkflowGate();
   renderDealIntelligenceGraph();
@@ -15081,6 +15620,14 @@ bindBrokerForm(aiRolePortalForm, renderAiRolePortal);
 bindBrokerForm(aiDocumentVaultForm, renderAiDocumentVault);
 bindBrokerForm(aiClauseBattleForm, renderAiClauseBattle);
 bindBrokerForm(aiFixtureSimulatorForm, renderAiFixtureSimulator);
+bindBrokerForm(proOpsInboxForm, renderProOpsInbox);
+bindBrokerForm(proOpsAskForm, renderProOpsAsk);
+bindBrokerForm(proOpsOcrForm, renderProOpsOcr);
+bindBrokerForm(proOpsPortForm, renderProOpsPort);
+bindBrokerForm(proOpsClaimForm, renderProOpsClaim);
+bindBrokerForm(proOpsMarketAlarmForm, renderProOpsMarketAlarm);
+bindBrokerForm(proOpsLoadicatorForm, renderProOpsLoadicator);
+bindBrokerForm(proOpsClientForm, renderProOpsClient);
 bindBrokerForm(superSuiteForm, renderSuperSuite);
 
 if (offerTrackerForm) {
@@ -15155,6 +15702,19 @@ if (clearAiVault) clearAiVault.addEventListener("click", clearAiVaultDocuments);
 if (toggleAiPresentation) toggleAiPresentation.addEventListener("click", toggleAiPresentationMode);
 document.querySelectorAll("[data-download-ai]").forEach((button) => {
   button.addEventListener("click", () => handleAiDownload(button.dataset.downloadAi));
+});
+if (runProOps) {
+  runProOps.addEventListener("click", () => {
+    renderAllProOps();
+    pushProOpsAudit("Pro Ops run", "All Pro Ops modules refreshed.");
+    renderProOpsDealRoom();
+  });
+}
+if (saveProOpsOffer) saveProOpsOffer.addEventListener("click", saveProOpsOfferToInbox);
+if (clearProOpsMemory) clearProOpsMemory.addEventListener("click", clearProOpsState);
+if (refreshProOpsDealRoom) refreshProOpsDealRoom.addEventListener("click", renderProOpsDealRoom);
+document.querySelectorAll("[data-download-proops]").forEach((button) => {
+  button.addEventListener("click", () => handleProOpsDownload(button.dataset.downloadProops));
 });
 if (superTerminalNoteForm) superTerminalNoteForm.addEventListener("submit", addSuperTerminalNote);
 if (clearSuperNotes) {
@@ -15622,6 +16182,7 @@ renderCommandTheater();
 renderAllWorkflowControl();
 renderAllSaasCore();
 renderAllAiCore();
+renderAllProOps();
 renderAllSuperSuite();
 renderMarketIndexes();
 renderDataTrustLayer();

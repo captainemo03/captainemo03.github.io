@@ -169,6 +169,7 @@ a {
 .command-theater-panel,
 .saas-core-panel,
 .ai-core-panel,
+.pro-ops-panel,
 .super-suite-panel,
 .python-engine-panel,
 .command-deck-panel,
@@ -4607,6 +4608,143 @@ body.ai-presentation-mode .ai-core-hero {
   filter: saturate(1.18) brightness(1.08);
 }
 
+.pro-ops-panel {
+  position: relative;
+  overflow: hidden;
+}
+
+.pro-ops-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 9% 18%, rgba(40, 240, 198, 0.15), transparent 28%),
+    radial-gradient(circle at 92% 18%, rgba(255, 203, 107, 0.12), transparent 32%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.035), transparent 58%);
+}
+
+.pro-ops-panel > * {
+  position: relative;
+  z-index: 1;
+}
+
+.pro-ops-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 18px;
+  padding: 18px;
+  border: 1px solid rgba(40, 240, 198, 0.22);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(40, 240, 198, 0.1), rgba(255, 203, 107, 0.05)),
+    rgba(255, 255, 255, 0.045);
+}
+
+.pro-ops-hero span {
+  color: #6fffe3;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pro-ops-hero strong {
+  display: block;
+  margin-top: 8px;
+  color: var(--text);
+  font-size: clamp(1.32rem, 2vw, 2.05rem);
+  line-height: 1.08;
+}
+
+.pro-ops-hero p {
+  max-width: 960px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.pro-ops-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.pro-ops-grid article {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(40, 240, 198, 0.025)),
+    rgba(255, 255, 255, 0.045);
+}
+
+.pro-ops-main-card {
+  border-color: rgba(40, 240, 198, 0.34) !important;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(40, 240, 198, 0.15), transparent 34%),
+    rgba(255, 255, 255, 0.055) !important;
+}
+
+.pro-offer-card {
+  display: grid;
+  gap: 7px;
+  padding: 13px;
+  border: 1px solid rgba(40, 240, 198, 0.24);
+  border-radius: 8px;
+  background: rgba(2, 13, 18, 0.42);
+}
+
+.pro-offer-card strong {
+  color: var(--text);
+}
+
+.pro-offer-card span,
+.pro-offer-card small {
+  color: var(--muted);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.pro-tabs-grid,
+.pro-port-grid,
+.pro-load-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
+  gap: 10px;
+}
+
+.pro-tabs-grid div,
+.pro-port-grid div,
+.pro-load-grid div {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  padding: 11px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(2, 13, 18, 0.34);
+}
+
+.pro-tabs-grid strong,
+.pro-port-grid strong,
+.pro-load-grid strong {
+  color: var(--text);
+}
+
+.pro-tabs-grid span,
+.pro-port-grid span,
+.pro-load-grid span {
+  color: var(--muted);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
 @keyframes pulse {
   0%, 100% { filter: brightness(1); }
   50% { filter: brightness(1.35); }
@@ -4662,11 +4800,13 @@ body.ai-presentation-mode .ai-core-hero {
   .theater-grid,
   .saas-core-grid,
   .ai-core-grid,
+  .pro-ops-grid,
   .super-suite-grid,
   .python-engine-grid,
   .theater-stage,
   .saas-core-hero,
   .ai-core-hero,
+  .pro-ops-hero,
   .super-suite-hero,
   .python-engine-hero,
   .auto-deal-controls,
@@ -4738,6 +4878,7 @@ body.ai-presentation-mode .ai-core-hero {
   .command-theater-panel,
   .saas-core-panel,
   .ai-core-panel,
+  .pro-ops-panel,
   .super-suite-panel,
   .python-engine-panel,
   .assistant-panel,
@@ -4770,6 +4911,7 @@ body.ai-presentation-mode .ai-core-hero {
   .theater-grid,
   .saas-core-grid,
   .ai-core-grid,
+  .pro-ops-grid,
   .super-suite-grid,
   .python-engine-grid,
   .broker-os-hero,
@@ -4779,6 +4921,7 @@ body.ai-presentation-mode .ai-core-hero {
   .theater-stage,
   .saas-core-hero,
   .ai-core-hero,
+  .pro-ops-hero,
   .super-suite-hero,
   .python-engine-hero,
   .export-actions,
@@ -4824,6 +4967,9 @@ body.ai-presentation-mode .ai-core-hero {
   .ai-role-grid,
   .ai-slide-strip,
   .ai-explain-list div,
+  .pro-tabs-grid,
+  .pro-port-grid,
+  .pro-load-grid,
   .heatmap-row {
     grid-template-columns: 1fr;
   }

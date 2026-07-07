@@ -10,7 +10,7 @@
     <title>Focusea Maritime Platform</title>
     <link rel="icon" href="favicon.svg?v=focusea-badge2" type="image/svg+xml" />
     <link rel="manifest" href="manifest.webmanifest" />
-    <link rel="stylesheet" href="styles.css?v=workflow-news-live-1" />
+    <link rel="stylesheet" href="styles.css?v=workflow-proops-1" />
   </head>
   <body>
     <div class="app-shell">
@@ -27,6 +27,7 @@
           <a href="#theater" data-page-link="theater">Workflow Control</a>
           <a href="#saasCore" data-page-link="saasCore">SaaS Core</a>
           <a href="#aiCore" data-page-link="aiCore">AI Core</a>
+          <a href="#proOps" data-page-link="proOps">Pro Ops</a>
           <a href="#broker" data-page-link="broker">Broker Desk</a>
           <a href="#terminal" data-page-link="terminal">Command Terminal</a>
           <a href="#edge" data-page-link="edge">Edge Suite</a>
@@ -2842,6 +2843,153 @@ Subject: Firm offer
           </div>
         </section>
 
+        <section class="pro-ops-panel" id="proOpsPanel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Focusea Pro Ops</p>
+              <h2>Broker inbox, deal room, AI copilot, OCR lane, Turkiye port ops, claim, market alarm, loadicator, client portal ve Focusea Score</h2>
+            </div>
+            <div class="status-pill">Broker Operating Desk</div>
+          </div>
+
+          <div class="pro-ops-hero">
+            <div>
+              <span>Paste once, operate the whole fixture</span>
+              <strong>Tek fixture metninden teklif karti, deal dosyasi, claim paketi, musteri raporu ve karar skoru uret.</strong>
+              <p>Bu sayfa broker/charter is akisini tek yerde toplar: mail parse eder, eksikleri sorar, risk aciklar, liman ve claim tarafini baglar, PDF/JSON ciktisi verir.</p>
+            </div>
+            <button type="button" class="primary-button" id="runProOps">Run Pro Ops</button>
+          </div>
+
+          <div class="pro-ops-grid">
+            <article class="wide-card pro-ops-main-card">
+              <div class="mini-heading"><span>1. Broker Inbox Pro</span><strong>Mail / WhatsApp teklifini offer kartina cevir</strong></div>
+              <form class="broker-form single-column" id="proOpsInboxForm">
+                <label><span>Fixture mail / WhatsApp</span><textarea name="dealText">Firm offer: 50k coal Indonesia to India laycan 10/15 Jul freight USD 18.50 pmt demurrage USD 18,000/day Supramax. NOR WIBON/WIPON and time lost waiting berth to count as laytime. Subjects receiver approval by 1700 LT.</textarea></label>
+                <div class="auto-deal-controls">
+                  <label><span>Target TCE</span><input name="targetTce" type="number" value="22000" step="500" /></label>
+                  <label><span>Port</span><select name="portId"><option value="mersin">Mersin</option><option value="ambarli">Ambarli</option><option value="aliaga">Aliaga</option><option value="izmir">Izmir</option><option value="iskenderun">Iskenderun</option><option value="samsun">Samsun</option><option value="gemlik">Gemlik</option></select></label>
+                  <label><span>Draft m</span><input name="draft" type="number" value="12.4" step="0.1" /></label>
+                  <label><span>Subject h</span><input name="subjectHours" type="number" value="18" step="1" /></label>
+                </div>
+                <button type="submit">Offer Analiz Et</button>
+              </form>
+              <div class="button-row">
+                <button type="button" class="ghost-button small" id="saveProOpsOffer">Offer'i Kaydet</button>
+                <button type="button" class="ghost-button small" id="clearProOpsMemory">Pro Ops Kayitlarini Temizle</button>
+                <button type="button" class="ghost-button small" data-download-proops="inbox-json">Inbox JSON</button>
+                <button type="button" class="ghost-button small" data-download-proops="counter-mail">Counter Mail TXT</button>
+              </div>
+              <div class="broker-output" id="proOpsInboxResult"></div>
+            </article>
+
+            <article class="wide-card">
+              <div class="mini-heading"><span>2. Real Deal Room</span><strong>FX dosyasi: offer, recap, CP, SOF, claim, portal, audit</strong></div>
+              <div class="button-row">
+                <button type="button" class="ghost-button small" id="refreshProOpsDealRoom">Deal Room Yenile</button>
+                <button type="button" class="ghost-button small" data-download-proops="deal-room-pdf">Deal Room PDF</button>
+              </div>
+              <div class="broker-output" id="proOpsDealRoomResult"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>3. Ask Focusea</span><strong>Is yapan maritime copilot</strong></div>
+              <form class="broker-form single-column" id="proOpsAskForm">
+                <label><span>Question</span><input name="question" value="Bu deal fix edilir mi, demurrage claim guclu mu?" /></label>
+                <button type="submit">Ask Focusea</button>
+              </form>
+              <div class="broker-output" id="proOpsAskResult"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>4. OCR / PDF Intake</span><strong>NOR, SOF, invoice, CP clause okuma hatti</strong></div>
+              <form class="broker-form single-column" id="proOpsOcrForm">
+                <label><span>Upload document</span><input name="documentFile" type="file" accept=".pdf,.doc,.docx,.txt,.eml,.png,.jpg,.jpeg" /></label>
+                <label><span>Pasted OCR text</span><textarea name="documentText">NOR tendered 10 Jul 0800. All fast 10 Jul 1800. Loading started 11 Jul 0600. Rain stop 12 Jul 0300-0900. Completed 14 Jul 2200. Invoice amount USD 42,500. Time lost waiting berth to count as laytime.</textarea></label>
+                <button type="submit">Document AI Oku</button>
+              </form>
+              <div class="broker-output" id="proOpsOcrResult"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>5. Port Intelligence Turkiye+</span><strong>Pilotage, tug, docs, PDA, waiting, draft</strong></div>
+              <form class="broker-form" id="proOpsPortForm">
+                <label><span>Turkiye port</span><select name="portId"><option value="mersin">Mersin</option><option value="ambarli">Ambarli</option><option value="aliaga">Aliaga</option><option value="izmir">Izmir</option><option value="iskenderun">Iskenderun</option><option value="samsun">Samsun</option><option value="gemlik">Gemlik</option><option value="izmit">Izmit</option></select></label>
+                <label><span>Cargo</span><select name="cargoType" data-cargo-select><option value="coal">Coal</option><option value="grain">Grain</option><option value="container">Container</option><option value="ironOre">Iron Ore</option><option value="crudeOil">Crude Oil</option><option value="lng">LNG</option><option value="chemicals">Chemicals</option></select></label>
+                <label><span>Draft m</span><input name="draft" type="number" value="12.4" step="0.1" /></label>
+                <label><span>Waiting days</span><input name="waitingDays" type="number" value="2" step="0.5" /></label>
+                <button type="submit">Port Ops Hesapla</button>
+              </form>
+              <div class="broker-output" id="proOpsPortResult"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>6. Claim Center</span><strong>Demurrage, off-hire, cargo damage claim paketi</strong></div>
+              <form class="broker-form single-column" id="proOpsClaimForm">
+                <div class="auto-deal-controls">
+                  <label><span>Claim type</span><select name="claimType"><option>Demurrage</option><option>Off-hire</option><option>Cargo damage</option></select></label>
+                  <label><span>Allowed h</span><input name="allowedHours" type="number" value="72" step="1" /></label>
+                  <label><span>Demurrage $/day</span><input name="demurrageRate" type="number" value="18000" step="500" /></label>
+                </div>
+                <label><span>SOF / evidence text</span><textarea name="sofText">NOR tendered 10 Jul 0800. Loading started 11 Jul 0600. Rain stop 12 Jul 0300-0900. Completed 14 Jul 2200.</textarea></label>
+                <button type="submit">Claim Paketi Uret</button>
+              </form>
+              <div class="button-row">
+                <button type="button" class="ghost-button small" data-download-proops="claim-letter">Claim Letter TXT</button>
+              </div>
+              <div class="broker-output" id="proOpsClaimResult"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>7. Market Alarm System</span><strong>Haber, bunker, Baltic, port delay, weather deal'e baglansin</strong></div>
+              <form class="broker-form" id="proOpsMarketAlarmForm">
+                <label><span>Route watch</span><input name="routeWatch" value="Indonesia India" /></label>
+                <label><span>Bunker alert $/t</span><input name="bunkerAlert" type="number" value="700" step="5" /></label>
+                <label><span>Port delay alert d</span><input name="portDelayAlert" type="number" value="2" step="0.5" /></label>
+                <label><span>Weather alert idx</span><input name="weatherAlert" type="number" value="10" step="1" /></label>
+                <button type="submit">Alarmlari Tara</button>
+              </form>
+              <div class="broker-output" id="proOpsMarketAlarmResult"></div>
+            </article>
+
+            <article class="wide-card">
+              <div class="mini-heading"><span>8. Loadicator 2.0 Bridge</span><strong>Hydrostatic, GZ, SF/BM, ballast, bay-row-tier</strong></div>
+              <form class="broker-form" id="proOpsLoadicatorForm">
+                <label><span>Cargo mt</span><input name="cargoWeight" type="number" value="28500" step="100" /></label>
+                <label><span>LCG m</span><input name="lcg" type="number" value="8" step="1" /></label>
+                <label><span>TCG m</span><input name="tcg" type="number" value="1.5" step="0.1" /></label>
+                <label><span>KG m</span><input name="kg" type="number" value="9.4" step="0.1" /></label>
+                <label><span>Fore ballast mt</span><input name="foreBallast" type="number" value="900" step="100" /></label>
+                <label><span>Aft ballast mt</span><input name="aftBallast" type="number" value="450" step="100" /></label>
+                <label><span>Port ballast mt</span><input name="portBallast" type="number" value="300" step="50" /></label>
+                <label><span>Stbd ballast mt</span><input name="stbdBallast" type="number" value="180" step="50" /></label>
+                <button type="submit">Loadicator Analiz Et</button>
+              </form>
+              <div class="broker-output" id="proOpsLoadicatorResult"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>9. Client Portal</span><strong>Musteriye tek link + PDF rapor</strong></div>
+              <form class="broker-form" id="proOpsClientForm">
+                <label><span>Client</span><input name="client" value="Atlas Commodities" /></label>
+                <label><span>Status</span><select name="status"><option>On subjects</option><option>Fixed</option><option>Loading</option><option>Claim review</option></select></label>
+                <label><span>Access</span><select name="access"><option>Summary only</option><option>Reports + claim</option><option>Full client pack</option></select></label>
+                <label><span>ETA</span><input name="eta" value="18 Jul 2026" /></label>
+                <button type="submit">Portal Link Uret</button>
+              </form>
+              <div class="button-row">
+                <button type="button" class="ghost-button small" data-download-proops="client-pdf">Client PDF</button>
+              </div>
+              <div class="broker-output" id="proOpsClientResult"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>10. Focusea Score</span><strong>Commercial, legal, ops, claim, market, compliance, data</strong></div>
+              <div class="broker-output" id="proOpsScoreResult"></div>
+            </article>
+          </div>
+        </section>
+
         <section class="super-suite-panel" id="superSuitePanel">
           <div class="panel-heading">
             <div>
@@ -3635,6 +3783,6 @@ Subject: Firm offer
       </main>
     </div>
 
-    <script src="script.js?v=workflow-news-live-1"></script>
+    <script src="script.js?v=workflow-proops-1"></script>
   </body>
 </html>
