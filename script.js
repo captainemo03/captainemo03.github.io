@@ -2390,6 +2390,7 @@ const clientPortalForm = document.querySelector("#clientPortalForm");
 const clientPortalResult = document.querySelector("#clientPortalResult");
 const memberSignupForm = document.querySelector("#memberSignupForm");
 const memberLoginForm = document.querySelector("#memberLoginForm");
+const memberForgotForm = document.querySelector("#memberForgotForm");
 const memberSignupHint = document.querySelector("#memberSignupHint");
 const memberAuthStatus = document.querySelector("#memberAuthStatus");
 const memberSessionPill = document.querySelector("#memberSessionPill");
@@ -3320,8 +3321,53 @@ function normalizeMemberUsername(username = "") {
   return String(username).trim().toLowerCase();
 }
 
+function normalizeMemberEmail(email = "") {
+  return String(email).trim().toLowerCase();
+}
+
 function validMemberUsername(username = "") {
   return /^[a-z0-9._-]{3,32}$/.test(normalizeMemberUsername(username));
+}
+
+function validGmailAddress(email = "") {
+  return /^[a-z0-9._%+-]+@gmail\.com$/.test(normalizeMemberEmail(email));
+}
+
+function memberAccountByEmail(email = "") {
+  const normalized = normalizeMemberEmail(email);
+  if (!normalized) return null;
+  return Object.values(getMemberAccounts()).find((account) => normalizeMemberEmail(account.email) === normalized) || null;
+}
+
+function memberEmailAvailability(email = "", currentUsername = "") {
+  const normalized = normalizeMemberEmail(email);
+  if (!normalized) {
+    return {
+      ok: false,
+      status: "empty",
+      message: "Enter your Gmail address."
+    };
+  }
+  if (!validGmailAddress(normalized)) {
+    return {
+      ok: false,
+      status: "invalid",
+      message: "Use a valid Gmail address ending with @gmail.com."
+    };
+  }
+  const owner = memberAccountByEmail(normalized);
+  if (owner && normalizeMemberUsername(owner.username) !== normalizeMemberUsername(currentUsername)) {
+    return {
+      ok: false,
+      status: "taken",
+      message: "This Gmail is already connected to another Focusea account."
+    };
+  }
+  return {
+    ok: true,
+    status: "available",
+    message: "Gmail available for account recovery."
+  };
 }
 
 function memberUsernameAvailability(username = "") {
@@ -3357,12 +3403,17 @@ function memberUsernameAvailability(username = "") {
 function renderMemberSignupHint() {
   if (!memberSignupForm || !memberSignupHint) return true;
   const username = memberSignupForm.elements.signupUsername?.value || "";
+  const email = memberSignupForm.elements.signupEmail?.value || "";
   const availability = memberUsernameAvailability(username);
+  const emailStatus = memberEmailAvailability(email, username);
   const submit = memberSignupForm.querySelector('button[type="submit"]');
-  memberSignupHint.textContent = availability.message;
-  memberSignupHint.dataset.status = availability.status;
-  if (submit) submit.disabled = Boolean(username) && !availability.ok;
-  return availability.ok;
+  const activeStatus = !availability.ok ? availability : email ? emailStatus : { ...emailStatus, status: "empty" };
+  memberSignupHint.textContent = availability.ok
+    ? (email ? emailStatus.message : "Username available. Enter Gmail for login and recovery.")
+    : availability.message;
+  memberSignupHint.dataset.status = activeStatus.status;
+  if (submit) submit.disabled = (Boolean(username) && !availability.ok) || (Boolean(email) && !emailStatus.ok);
+  return availability.ok && emailStatus.ok;
 }
 
 function passwordRuleChecks(password = "") {
@@ -3406,6 +3457,16 @@ async function hashMemberText(text = "") {
     hash = Math.imul(hash, 16777619);
   }
   return `fallback-${(hash >>> 0).toString(16)}`;
+}
+
+async function hashMemberPassword(account, username, email, password) {
+  const salt = account.salt || "";
+  const normalizedUsername = normalizeMemberUsername(username);
+  const normalizedEmail = normalizeMemberEmail(email || account.email || "");
+  if (account.passwordVersion === 2) {
+    return hashMemberText(`${salt}:${normalizedUsername}:${normalizedEmail}:${password}`);
+  }
+  return hashMemberText(`${salt}:${normalizedUsername}:${password}`);
 }
 
 function getMemberAccounts() {
@@ -3519,9 +3580,12 @@ function renderMemberAuthStatus(message = "") {
   memberAuthStatus.innerHTML = `
     ${metricCards([
       { label: "User", value: escapeHtml(account.displayName || account.username) },
+      { label: "Gmail", value: escapeHtml(account.email || "Legacy account") },
       { label: "Last page", value: escapeHtml(memberPageLabel(lastPage)) },
       { label: "Workspace", value: "User-scoped" },
-      { label: "Password", value: "Salted hash stored" }
+      { label: "Recovery", value: account.email ? "Gmail enabled" : "Add Gmail on login" },
+      { label: "Failed logins", value: Number(account.failedLoginCount || 0) },
+      { label: "Password", value: account.passwordResetAt ? "Reset active" : "Salted hash stored" }
     ])}
     <small>${escapeHtml(message || `Welcome back. Resume will open ${memberPageLabel(lastPage)}.`)}</small>
   `;
@@ -3531,11 +3595,17 @@ async function handleMemberSignup(event) {
   event.preventDefault();
   const values = collectFormValues(memberSignupForm);
   const username = normalizeMemberUsername(values.signupUsername);
+  const email = normalizeMemberEmail(values.signupEmail);
   const password = String(values.signupPassword || "");
   const availability = memberUsernameAvailability(username);
+  const emailStatus = memberEmailAvailability(email, username);
   renderMemberSignupHint();
   if (!availability.ok) {
     renderMemberAuthStatus(availability.message);
+    return;
+  }
+  if (!emailStatus.ok) {
+    renderMemberAuthStatus(emailStatus.message);
     return;
   }
   const passwordProblem = passwordRuleMessage(password);
@@ -3548,11 +3618,15 @@ async function handleMemberSignup(event) {
   accounts[username] = {
     username,
     displayName: username,
+    email,
     salt,
-    passwordHash: await hashMemberText(`${salt}:${username}:${password}`),
+    passwordVersion: 2,
+    passwordHash: await hashMemberText(`${salt}:${username}:${email}:${password}`),
     createdAt: new Date().toISOString(),
     lastSeenAt: new Date().toISOString(),
     lastPage: pageFromHash(),
+    failedLoginCount: 0,
+    recoveryEnabled: true,
     workspaceKey: memberWorkspaceKey(username)
   };
   setMemberAccounts(accounts);
@@ -3563,30 +3637,105 @@ async function handleMemberSignup(event) {
   saveWorkspaceState("Account created. Workspace saved to your user profile.");
   memberSignupForm.reset();
   renderMemberSignupHint();
-  renderMemberAuthStatus("Account created. Focusea will now remember your last page on this browser.");
+  renderMemberAuthStatus("Account created. Login now requires username, Gmail and password. Focusea will remember your last page on this browser.");
 }
 
 async function handleMemberLogin(event) {
   event.preventDefault();
   const values = collectFormValues(memberLoginForm);
   const username = normalizeMemberUsername(values.loginUsername);
+  const email = normalizeMemberEmail(values.loginEmail);
   const password = String(values.loginPassword || "");
   const account = getMemberAccounts()[username];
   if (!account) {
     renderMemberAuthStatus("Account not found. Create an account first.");
     return;
   }
-  const passwordHash = await hashMemberText(`${account.salt}:${username}:${password}`);
+  if (!validGmailAddress(email)) {
+    renderMemberAuthStatus("Enter the Gmail connected to this account. Login requires username, Gmail and password.");
+    return;
+  }
+  if (account.email && normalizeMemberEmail(account.email) !== email) {
+    renderMemberAuthStatus("Gmail does not match this username. Use the Gmail connected to the account.");
+    return;
+  }
+  const passwordHash = await hashMemberPassword(account, username, email, password);
   if (passwordHash !== account.passwordHash) {
+    const accounts = getMemberAccounts();
+    if (accounts[username]) {
+      accounts[username].failedLoginCount = Number(accounts[username].failedLoginCount || 0) + 1;
+      accounts[username].lastFailedLoginAt = new Date().toISOString();
+      setMemberAccounts(accounts);
+    }
     renderMemberAuthStatus("Wrong password. Check uppercase/lowercase, number and * character.");
     return;
   }
+  if (!account.email) {
+    const emailStatus = memberEmailAvailability(email, username);
+    if (!emailStatus.ok) {
+      renderMemberAuthStatus(emailStatus.message);
+      return;
+    }
+    const accounts = getMemberAccounts();
+    accounts[username] = {
+      ...accounts[username],
+      email,
+      passwordVersion: 2,
+      passwordHash: await hashMemberText(`${account.salt}:${username}:${email}:${password}`),
+      gmailLinkedAt: new Date().toISOString()
+    };
+    setMemberAccounts(accounts);
+  }
   setMemberSession(username);
-  updateCurrentMember((item) => ({ ...item, lastSeenAt: new Date().toISOString() }));
+  updateCurrentMember((item) => ({ ...item, lastSeenAt: new Date().toISOString(), failedLoginCount: 0 }));
   memberLoginForm.reset();
   loadWorkspaceState("Signed in. No saved workspace found for this user yet.");
   const destination = currentMemberAccount()?.lastPage || "dashboard";
   renderMemberAuthStatus(`Signed in. Opening ${memberPageLabel(destination)}.`);
+  activatePage(destination);
+}
+
+async function handleMemberForgotPassword(event) {
+  event.preventDefault();
+  const values = collectFormValues(memberForgotForm);
+  const username = normalizeMemberUsername(values.forgotUsername);
+  const email = normalizeMemberEmail(values.forgotEmail);
+  const newPassword = String(values.forgotPassword || "");
+  const accounts = getMemberAccounts();
+  const account = accounts[username];
+  if (!account) {
+    renderMemberAuthStatus("Recovery failed. Username was not found in this browser.");
+    return;
+  }
+  if (!validGmailAddress(email)) {
+    renderMemberAuthStatus("Recovery requires the Gmail address connected to the account.");
+    return;
+  }
+  if (normalizeMemberEmail(account.email) !== email) {
+    renderMemberAuthStatus("Recovery failed. Gmail does not match this username.");
+    return;
+  }
+  const passwordProblem = passwordRuleMessage(newPassword);
+  if (passwordProblem) {
+    renderMemberAuthStatus(passwordProblem);
+    return;
+  }
+  const salt = randomMemberSalt();
+  accounts[username] = {
+    ...account,
+    salt,
+    passwordVersion: 2,
+    passwordHash: await hashMemberText(`${salt}:${username}:${email}:${newPassword}`),
+    failedLoginCount: 0,
+    passwordResetAt: new Date().toISOString(),
+    lastSeenAt: new Date().toISOString()
+  };
+  setMemberAccounts(accounts);
+  setMemberSession(username);
+  memberForgotForm.reset();
+  loadWorkspaceState("Password reset. No saved workspace found for this user yet.");
+  const destination = currentMemberAccount()?.lastPage || "dashboard";
+  renderMemberAuthStatus(`Password reset successful. Signed in and opening ${memberPageLabel(destination)}.`);
   activatePage(destination);
 }
 
@@ -17663,6 +17812,7 @@ if (memberSignupForm) memberSignupForm.addEventListener("submit", handleMemberSi
 if (memberSignupForm) memberSignupForm.addEventListener("input", renderMemberSignupHint);
 if (memberSignupForm) memberSignupForm.addEventListener("change", renderMemberSignupHint);
 if (memberLoginForm) memberLoginForm.addEventListener("submit", handleMemberLogin);
+if (memberForgotForm) memberForgotForm.addEventListener("submit", handleMemberForgotPassword);
 if (memberResumeLast) memberResumeLast.addEventListener("click", resumeMemberLastPage);
 if (memberLogout) memberLogout.addEventListener("click", logoutMember);
 if (pushImportToInbox) pushImportToInbox.addEventListener("click", pushImportedOfferToInbox);

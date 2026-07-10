@@ -4104,6 +4104,26 @@ main {
   margin: 0;
 }
 
+.forgot-password-panel {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid rgba(40, 240, 198, 0.16);
+  border-radius: 8px;
+  background: rgba(2, 13, 18, 0.22);
+}
+
+.forgot-password-panel summary {
+  cursor: pointer;
+  color: #86ffee;
+  font-weight: 950;
+}
+
+.forgot-password-panel small {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
 .username-availability {
   width: fit-content;
   padding: 7px 9px;

@@ -10,7 +10,7 @@
     <title>Focusea Maritime Platform</title>
     <link rel="icon" href="favicon.svg?v=focusea-badge2" type="image/svg+xml" />
     <link rel="manifest" href="manifest.webmanifest" />
-    <link rel="stylesheet" href="styles.css?v=workflow-trust-autopilot-1" />
+    <link rel="stylesheet" href="styles.css?v=workflow-auth-recovery-1" />
   </head>
   <body>
     <div class="app-shell">
@@ -3640,9 +3640,10 @@ Subject: Firm offer
           </div>
           <div class="membership-layout">
             <article class="membership-card">
-              <div class="mini-heading"><span>Sign Up</span><strong>Username + secure password</strong></div>
+              <div class="mini-heading"><span>Sign Up</span><strong>Unique username + Gmail + secure password</strong></div>
               <form class="broker-form auth-form" id="memberSignupForm">
                 <label><span>Username</span><input name="signupUsername" autocomplete="username" placeholder="broker_eyup" minlength="3" maxlength="32" /></label>
+                <label><span>Gmail</span><input name="signupEmail" type="email" autocomplete="email" placeholder="name@gmail.com" /></label>
                 <div class="username-availability" id="memberSignupHint">Choose a unique username.</div>
                 <label><span>Password</span><input name="signupPassword" type="password" autocomplete="new-password" placeholder="Example: Focus*2026" /></label>
                 <button type="submit">Create Account</button>
@@ -3652,6 +3653,7 @@ Subject: Firm offer
                 <li>Must include at least one uppercase letter.</li>
                 <li>Must include at least one number.</li>
                 <li>Must include the * character.</li>
+                <li>Gmail and username must be unique. Real email reset needs a backend mail service.</li>
               </ul>
             </article>
 
@@ -3659,9 +3661,20 @@ Subject: Firm offer
               <div class="mini-heading"><span>Log In</span><strong>Resume where you left off</strong></div>
               <form class="broker-form auth-form" id="memberLoginForm">
                 <label><span>Username</span><input name="loginUsername" autocomplete="username" placeholder="broker_eyup" /></label>
+                <label><span>Gmail</span><input name="loginEmail" type="email" autocomplete="email" placeholder="name@gmail.com" /></label>
                 <label><span>Password</span><input name="loginPassword" type="password" autocomplete="current-password" /></label>
                 <button type="submit">Log In</button>
               </form>
+              <details class="forgot-password-panel">
+                <summary>Forgot password?</summary>
+                <form class="broker-form auth-form" id="memberForgotForm">
+                  <label><span>Username</span><input name="forgotUsername" autocomplete="username" placeholder="broker_eyup" /></label>
+                  <label><span>Gmail</span><input name="forgotEmail" type="email" autocomplete="email" placeholder="name@gmail.com" /></label>
+                  <label><span>New password</span><input name="forgotPassword" type="password" autocomplete="new-password" placeholder="Example: Focus*2027" /></label>
+                  <button type="submit">Reset Password</button>
+                </form>
+                <small>Static demo reset: username and Gmail must match the local account. Production Gmail reset requires backend email verification.</small>
+              </details>
               <div class="button-row">
                 <button type="button" class="ghost-button small" id="memberResumeLast">Resume Last Page</button>
                 <button type="button" class="ghost-button small" id="memberLogout">Log Out</button>
@@ -3900,17 +3913,18 @@ Subject: Firm offer
               <p>
                 Calculators, market panels, risk scores and AI-assisted outputs provide decision support only. Final
                 commercial, operational, legal and financial decisions remain the user's responsibility. Live or licensed
-                data requirements are separated with clear source labels. If a password is stolen, lost, reused,
-                disclosed or compromised outside Focusea's control, site management is not responsible for resulting
-                access, data loss or account misuse.
+                data requirements are separated with clear source labels. Account recovery in this static version uses
+                the username and Gmail stored in the browser; production email verification requires a backend mail
+                service. If a password is stolen, lost, reused, disclosed or compromised outside Focusea's control,
+                site management is not responsible for resulting access, data loss or account misuse.
               </p>
             </article>
             <article id="community-rules">
               <span>Community and Account Rules</span>
               <p>
-                Users must keep passwords private, avoid sharing accounts, and must not upload malicious, illegal or
-                confidential third-party material. If a password is stolen or disclosed from the user's side, Focusea
-                site management is not responsible for the consequences.
+                Users must keep passwords and Gmail access private, avoid sharing accounts, and must not upload
+                malicious, illegal or confidential third-party material. If a password or Gmail account is stolen or
+                disclosed from the user's side, Focusea site management is not responsible for the consequences.
               </p>
             </article>
             <article id="cookies">
@@ -3944,6 +3958,6 @@ Subject: Firm offer
       </main>
     </div>
 
-    <script src="script.js?v=workflow-trust-autopilot-1"></script>
+    <script src="script.js?v=workflow-auth-recovery-1"></script>
   </body>
 </html>
