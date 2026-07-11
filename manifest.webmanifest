@@ -25,6 +25,11 @@
   "categories": ["business", "education", "productivity"],
   "shortcuts": [
     {
+      "name": "Deal Passport",
+      "short_name": "Passport",
+      "url": "./index.html#passport"
+    },
+    {
       "name": "AI Core",
       "short_name": "AI Core",
       "url": "./index.html#aiCore"

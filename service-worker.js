@@ -1,4 +1,4 @@
-const FOCUSEA_CACHE = "focusea-auth-recovery-1";
+const FOCUSEA_CACHE = "focusea-deal-passport-1";
 const FOCUSEA_ASSETS = [
   "./",
   "./index.html",

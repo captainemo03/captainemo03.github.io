@@ -10,7 +10,7 @@
     <title>Focusea Maritime Platform</title>
     <link rel="icon" href="favicon.svg?v=focusea-badge2" type="image/svg+xml" />
     <link rel="manifest" href="manifest.webmanifest" />
-    <link rel="stylesheet" href="styles.css?v=workflow-auth-recovery-1" />
+    <link rel="stylesheet" href="styles.css?v=deal-passport-1" />
   </head>
   <body>
     <div class="app-shell">
@@ -24,6 +24,7 @@
 
         <nav class="nav-list" data-page-nav>
           <a href="#dashboard" class="active" data-page-link="dashboard">Dashboard</a>
+          <a href="#passport" data-page-link="passport">Deal Passport</a>
           <a href="#theater" data-page-link="theater">Workflow Control</a>
           <a href="#saasCore" data-page-link="saasCore">SaaS Core</a>
           <a href="#aiCore" data-page-link="aiCore">AI Core</a>
@@ -56,17 +57,17 @@
         <section class="hero" id="command">
           <div>
             <p class="eyebrow">Maritime Command Center</p>
-            <h1>Learn, calculate and manage maritime operations with Focusea.</h1>
+            <h1>Turn maritime deals into traceable decisions.</h1>
             <p>
-              Broker and charter calculations, AI route optimization, demurrage/dispatch,
-              laytime, TCE, voyage estimates, port intelligence and live news in one platform.
+              Parse a fixture, challenge its economics, expose missing terms and leave a decision trail
+              before subjects are lifted. Broker tools, claims, ports, market intelligence and load planning stay connected.
             </p>
           </div>
 
           <div class="hero-actions">
             <button type="button" class="ghost-button" data-command-presentation>Demo Flow</button>
-            <a href="#broker" class="primary-button" data-page-link="broker">Open Broker Desk</a>
-            <a href="#tools" class="ghost-button" data-page-link="tools">Open Calculators</a>
+            <a href="#passport" class="primary-button" data-page-link="passport">Open Deal Passport</a>
+            <a href="#broker" class="ghost-button" data-page-link="broker">Open Broker Desk</a>
           </div>
         </section>
 
@@ -318,6 +319,106 @@
           <div class="presentation-strip" id="presentationStrip" hidden>
             <strong>Ürün demo akışı hazır:</strong>
             <span>Problem -> veri güven etiketi -> broker hesap motoru -> risk radarı -> belge paketi -> stabilite modülü -> geliştirme yol haritası.</span>
+          </div>
+        </section>
+
+        <section class="decision-passport-panel" id="decisionPassportPanel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Focusea Flagship Workspace</p>
+              <h2>Deal Passport: one maritime decision, with its evidence attached.</h2>
+            </div>
+            <div class="status-pill passport-status-pill">No Blind Fix</div>
+          </div>
+
+          <div class="passport-hero">
+            <div>
+              <span>From raw offer to decision record</span>
+              <strong>Commercial upside means little if the clause, evidence or market basis cannot survive review.</strong>
+              <p>Focusea combines fixture parsing, TCE economics, stress testing, risk ownership and data confidence in one versioned passport.</p>
+            </div>
+            <div class="passport-principles" aria-label="Deal Passport principles">
+              <span>Explain every score</span>
+              <span>Label every assumption</span>
+              <span>Block incomplete fixes</span>
+            </div>
+          </div>
+
+          <div class="passport-workspace">
+            <article class="passport-input-card">
+              <div class="mini-heading"><span>1. Deal Intake</span><strong>Paste offer, recap or broker message</strong></div>
+              <div class="passport-scenario-row" aria-label="Deal Passport sample scenarios">
+                <button type="button" data-passport-scenario="coal">Coal / Supramax</button>
+                <button type="button" data-passport-scenario="grain">Grain / Panamax</button>
+                <button type="button" data-passport-scenario="tanker">Crude / Aframax</button>
+              </div>
+              <form class="broker-form single-column" id="decisionPassportForm">
+                <label>
+                  <span>Fixture / recap text</span>
+                  <textarea name="dealText">Firm offer: 50k coal Indonesia to India laycan 10/15 Jul freight USD 18.50 pmt FIOST, demurrage USD 18,000/day, Supramax. 2.5 pct total commission. Subjects stem and receiver approval by 1700 LT. NOR WIBON/WIPON and time lost waiting berth to count as laytime.</textarea>
+                </label>
+                <div class="passport-control-grid">
+                  <label><span>Target TCE $/day</span><input name="targetTce" type="number" value="22000" min="0" step="500" /></label>
+                  <label><span>Bunker $/mt</span><input name="bunkerPrice" type="number" value="686.5" min="0" step="0.1" /></label>
+                  <label><span>Expected delay days</span><input name="delayDays" type="number" value="1.5" min="0" step="0.5" /></label>
+                  <label><span>Confidence gate %</span><input name="confidenceGate" type="number" value="75" min="40" max="95" step="1" /></label>
+                  <label class="wide-label"><span>Market basis</span><select name="marketBasis"><option value="unverified" selected>Unverified / planning input</option><option value="company">Company benchmark</option><option value="licensed">User-verified licensed source</option></select></label>
+                </div>
+                <button type="submit">Run Decision Gate</button>
+              </form>
+              <div class="passport-source-legend" aria-label="Source labels">
+                <span class="passport-source input">user input</span>
+                <span class="passport-source model">model assumption</span>
+                <span class="passport-source licensed">licensed required</span>
+                <span class="passport-source calculated">calculated</span>
+              </div>
+            </article>
+
+            <article class="passport-decision-card" aria-live="polite">
+              <div class="mini-heading"><span>2. Decision Gate</span><strong id="decisionPassportRef">Passport pending</strong></div>
+              <div class="broker-output" id="decisionPassportSummary"></div>
+            </article>
+          </div>
+
+          <div class="passport-analysis-grid">
+            <article>
+              <div class="mini-heading"><span>3. Scenario Envelope</span><strong>Best / base / stress</strong></div>
+              <div id="decisionPassportScenarios"></div>
+            </article>
+            <article>
+              <div class="mini-heading"><span>4. Explainable Risk</span><strong>Why the gate moved</strong></div>
+              <div id="decisionPassportRisks"></div>
+            </article>
+            <article>
+              <div class="mini-heading"><span>5. Evidence Ledger</span><strong>Inputs, assumptions and sources</strong></div>
+              <div id="decisionPassportLedger"></div>
+            </article>
+            <article>
+              <div class="mini-heading"><span>6. Next Best Actions</span><strong>Broker-ready sequence</strong></div>
+              <div id="decisionPassportActions"></div>
+            </article>
+          </div>
+
+          <div class="passport-command-bar">
+            <div class="button-row">
+              <button type="button" class="primary-button small" id="saveDecisionPassport">Save Version</button>
+              <button type="button" class="ghost-button small" id="compareDecisionPassport">Compare Last Two</button>
+              <button type="button" class="ghost-button small" data-download-passport="pdf">Passport PDF</button>
+              <button type="button" class="ghost-button small" data-download-passport="json">Audit JSON</button>
+              <button type="button" class="ghost-button small" id="copyDecisionPassportBrief">Copy Client Brief</button>
+            </div>
+            <span id="decisionPassportStatus">Local decision record ready.</span>
+          </div>
+
+          <div class="passport-history-grid">
+            <article>
+              <div class="mini-heading"><span>Version History</span><strong>Latest 12 local passports</strong></div>
+              <div id="decisionPassportHistory"></div>
+            </article>
+            <article>
+              <div class="mini-heading"><span>Version Delta</span><strong>What changed before fixing?</strong></div>
+              <div id="decisionPassportComparison" class="broker-output"></div>
+            </article>
           </div>
         </section>
 
@@ -3931,7 +4032,7 @@ Subject: Firm offer
               <span>Cookies and Local Data</span>
               <p>
                 This static version does not require third-party tracking cookies. Saved forms, report history,
-                preferred settings and demo workspaces may be stored in browser localStorage.
+                preferred settings, Deal Passport versions and demo workspaces may be stored in browser localStorage.
               </p>
             </article>
             <article id="security-policy">
@@ -3958,6 +4059,6 @@ Subject: Firm offer
       </main>
     </div>
 
-    <script src="script.js?v=workflow-auth-recovery-1"></script>
+    <script src="script.js?v=deal-passport-1"></script>
   </body>
 </html>

@@ -2343,6 +2343,20 @@ const backendWorkspaceResult = document.querySelector("#backendWorkspaceResult")
 const adminProForm = document.querySelector("#adminProForm");
 const adminProResult = document.querySelector("#adminProResult");
 const pageNavLinks = document.querySelectorAll("[data-page-link]");
+const decisionPassportForm = document.querySelector("#decisionPassportForm");
+const decisionPassportRef = document.querySelector("#decisionPassportRef");
+const decisionPassportSummary = document.querySelector("#decisionPassportSummary");
+const decisionPassportScenarios = document.querySelector("#decisionPassportScenarios");
+const decisionPassportRisks = document.querySelector("#decisionPassportRisks");
+const decisionPassportLedger = document.querySelector("#decisionPassportLedger");
+const decisionPassportActions = document.querySelector("#decisionPassportActions");
+const decisionPassportStatus = document.querySelector("#decisionPassportStatus");
+const decisionPassportHistory = document.querySelector("#decisionPassportHistory");
+const decisionPassportComparison = document.querySelector("#decisionPassportComparison");
+const saveDecisionPassport = document.querySelector("#saveDecisionPassport");
+const compareDecisionPassport = document.querySelector("#compareDecisionPassport");
+const copyDecisionPassportBrief = document.querySelector("#copyDecisionPassportBrief");
+const decisionPassportScenarioButtons = document.querySelectorAll("[data-passport-scenario]");
 const timelineForm = document.querySelector("#timelineForm");
 const timelineResult = document.querySelector("#timelineResult");
 const fixtureImportProForm = document.querySelector("#fixtureImportProForm");
@@ -2729,6 +2743,7 @@ let lastFrontDocumentRoom = null;
 let lastFrontTimeBar = null;
 let lastFrontBackend = null;
 let lastFrontDailyBrief = null;
+let lastDecisionPassport = null;
 let selectedMarketIndexId = "bdi";
 let lastRedFlagReport = null;
 let lastRecapReport = null;
@@ -3010,6 +3025,7 @@ function applyBunkerDefaultsToForms() {
 
 const pageGroups = {
   dashboard: ["#command", ".dashboard-strip", "#newsBulletin", "#trustAutopilotCenter", ".ops-board", "#commandDeck", "#smartOps"],
+  passport: ["#decisionPassportPanel"],
   theater: ["#commandTheaterPanel"],
   saasCore: ["#saasCorePanel"],
   aiCore: ["#aiCorePanel"],
@@ -3029,6 +3045,531 @@ const pageGroups = {
   academyPage: ["#academyCenter", "#academicLibrary", "#accountCenter"],
   portsPage: ["#academy"]
 };
+
+const decisionPassportSamples = {
+  coal: "Firm offer: 50k coal Indonesia to India laycan 10/15 Jul freight USD 18.50 pmt FIOST, demurrage USD 18,000/day, Supramax. 2.5 pct total commission. Subjects stem and receiver approval by 1700 LT. NOR WIBON/WIPON and time lost waiting berth to count as laytime.",
+  grain: "Firm offer: 60k wheat Santos to Alexandria laycan 01/05 Aug freight USD 27.25 pmt FIOST, demurrage USD 19,500/day, Panamax. 2.5 pct total commission. Subject shippers approval. Weather working days, NOR to be valid after free pratique.",
+  tanker: "Firm offer: 80k crude Ras Tanura to Rotterdam laycan 20/23 Aug freight USD 24.75 pmt, demurrage USD 32,000/day, Aframax. 1.25 pct total commission. Subjects terminal acceptance and vetting. Reachable on arrival berth, NOR WIBON and time lost waiting berth to count."
+};
+
+function decisionPassportCargoLabel(cargoType = "grain") {
+  return {
+    grain: "Grain",
+    coal: "Coal",
+    container: "Container",
+    ironOre: "Iron ore",
+    crudeOil: "Crude oil",
+    lng: "LNG",
+    chemicals: "Chemicals",
+    projectCargo: "Project cargo"
+  }[cargoType] || "Cargo";
+}
+
+function decisionPassportTrace(value = "") {
+  let hash = 2166136261;
+  const text = String(value);
+  for (let index = 0; index < text.length; index += 1) {
+    hash ^= text.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(16).padStart(8, "0").toUpperCase();
+}
+
+function decisionPassportRiskColor(score = 0) {
+  if (score >= 68) return "#ff6b9c";
+  if (score >= 44) return "#ffcb72";
+  return "#5bffdc";
+}
+
+function decisionPassportSeaConsumption(cargoType = "grain") {
+  if (cargoType === "container") return 43;
+  if (cargoType === "lng") return 38;
+  if (["crudeOil", "chemicals"].includes(cargoType)) return 34;
+  if (cargoType === "ironOre") return 31;
+  return 28;
+}
+
+function decisionPassportPortDays(cargoType = "grain") {
+  if (cargoType === "container") return 3.5;
+  if (cargoType === "lng") return 4;
+  if (["crudeOil", "chemicals"].includes(cargoType)) return 3.5;
+  if (cargoType === "projectCargo") return 7;
+  return 4.5;
+}
+
+function decisionPassportPortConsumption(cargoType = "grain") {
+  if (cargoType === "container") return 7;
+  if (cargoType === "lng") return 9;
+  if (["crudeOil", "chemicals"].includes(cargoType)) return 6;
+  return 4;
+}
+
+function evaluateDecisionPassportScenario(parsed, values, variant) {
+  const cargo = getCargoProfile(parsed.cargoType);
+  const distance = estimateAutoDealDistance(parsed, parsed.rawText);
+  const quantity = parsed.quantity || defaultQuantityForCargo(cargo);
+  const freightRate = (parsed.freight || cargo.baseFreight) * variant.freightMultiplier;
+  const delayDays = Math.max(0, (Number(values.delayDays) || 0) + variant.extraDelayDays);
+  const bunkerPrice = (Number(values.bunkerPrice) || liveFeedState.bunker || 620) * variant.bunkerMultiplier;
+  const portCosts = autoDealPortCost(parsed.cargoType) * variant.portCostMultiplier;
+  const canalCosts = /suez|panama|canal/i.test(parsed.rawText) ? 220000 : 0;
+  const estimate = calculateVoyageEstimate({
+    cargoType: parsed.cargoType,
+    distance,
+    speed: autoDealSpeedFor(parsed.cargoType),
+    cargoQty: quantity,
+    freightRate,
+    seaCons: decisionPassportSeaConsumption(parsed.cargoType),
+    portCons: decisionPassportPortConsumption(parsed.cargoType),
+    portDays: decisionPassportPortDays(parsed.cargoType) + delayDays,
+    bunkerPrice,
+    portCosts,
+    canalCosts,
+    dailyHire: autoDealDailyHire(parsed.cargoType),
+    commission: parsed.commission || 2.5
+  });
+  return {
+    key: variant.key,
+    label: variant.label,
+    note: variant.note,
+    distance,
+    quantity,
+    freightRate,
+    delayDays,
+    bunkerPrice,
+    ...estimate
+  };
+}
+
+function decisionPassportFieldChecks(parsed) {
+  const vesselExplicit = /\b(handymax|supramax|ultramax|panamax|kamsarmax|capesize|cape|aframax|suezmax|vlcc|lng carrier|container ship|bulk carrier|[0-9]{2,3}k\s*dwt)\b/i.test(parsed.rawText);
+  return [
+    { label: "Load and discharge ports", present: Boolean(parsed.route), weight: 18, critical: true },
+    { label: "Cargo quantity", present: Boolean(parsed.quantity), weight: 16, critical: true },
+    { label: "Freight rate", present: Boolean(parsed.freight), weight: 18, critical: true },
+    { label: "Laycan", present: Boolean(parsed.laycan), weight: 14, critical: true },
+    { label: "Demurrage rate", present: Boolean(parsed.demurrage), weight: 12, critical: true },
+    { label: "Commission", present: Boolean(parsed.commission), weight: 8, critical: false },
+    { label: "Vessel size", present: vesselExplicit, weight: 7, critical: false },
+    { label: "Subjects / clause basis", present: Boolean(parsed.subjects) || /nor|laytime|wibon|wipon|shinc|weather/i.test(parsed.rawText), weight: 7, critical: false }
+  ];
+}
+
+function decisionPassportMarketConfidence(marketBasis = "unverified") {
+  if (marketBasis === "licensed") return 88;
+  if (marketBasis === "company") return 72;
+  return 20;
+}
+
+function buildDecisionPassport(values = {}) {
+  const dealText = String(values.dealText || "").trim();
+  const parsed = parseOfferText(dealText);
+  const cargo = getCargoProfile(parsed.cargoType);
+  const parsedRisk = scoreParsedOffer(parsed);
+  const clause = analyzeClauseText(dealText);
+  const targetTce = Number(values.targetTce) || 22000;
+  const confidenceGate = clamp(Number(values.confidenceGate) || 75, 40, 95);
+  const fieldChecks = decisionPassportFieldChecks(parsed);
+  const totalWeight = fieldChecks.reduce((sum, item) => sum + item.weight, 0);
+  const presentWeight = fieldChecks.filter((item) => item.present).reduce((sum, item) => sum + item.weight, 0);
+  const completeness = Math.round(presentWeight / Math.max(totalWeight, 1) * 100);
+  const criticalMissing = fieldChecks.filter((item) => item.critical && !item.present).map((item) => item.label);
+  const assumptionQuality = clamp(Math.round(82 - parsed.missing.length * 5 - (parsed.route ? 0 : 10) - (parsed.freight ? 0 : 8)), 20, 90);
+  const marketConfidence = decisionPassportMarketConfidence(values.marketBasis);
+  const dataConfidence = clamp(Math.round(completeness * 0.5 + assumptionQuality * 0.2 + marketConfidence * 0.3), 0, 100);
+
+  const variants = [
+    { key: "best", label: "Best", freightMultiplier: 1.03, bunkerMultiplier: 0.95, portCostMultiplier: 0.95, extraDelayDays: -0.75, note: "+3% freight, -5% bunker, shorter delay" },
+    { key: "base", label: "Base", freightMultiplier: 1, bunkerMultiplier: 1, portCostMultiplier: 1, extraDelayDays: 0, note: "Current commercial and delay assumptions" },
+    { key: "stress", label: "Stress", freightMultiplier: 0.96, bunkerMultiplier: 1.12, portCostMultiplier: 1.15, extraDelayDays: 2.5, note: "-4% freight, +12% bunker, +2.5 delay days" }
+  ];
+  const scenarios = variants.map((variant) => evaluateDecisionPassportScenario(parsed, values, variant));
+  const base = scenarios.find((scenario) => scenario.key === "base");
+  const stress = scenarios.find((scenario) => scenario.key === "stress");
+  const quantity = base.quantity;
+  const commissionFraction = clamp((parsed.commission || 2.5) / 100, 0, 0.3);
+  const effectiveQuantity = Math.max(quantity * cargo.freightMultiplier * (1 - commissionFraction), 1);
+  const targetFreight = (targetTce * base.totalDays + base.bunkerCost + base.portCosts + base.canalCosts) / effectiveQuantity;
+  const pnlBreakEvenFreight = (base.bunkerCost + base.portCosts + base.canalCosts + base.hireCost) / effectiveQuantity;
+  const currentFreight = parsed.freight || cargo.baseFreight;
+  const negotiationGap = targetFreight - currentFreight;
+
+  const tceShortfallRatio = Math.max(0, targetTce - base.tce) / Math.max(targetTce, 1);
+  const commercialRisk = clamp(Math.round(22 + tceShortfallRatio * 92 + (base.netPnl < 0 ? 22 : 0) + (stress.netPnl < 0 ? 12 : 0)), 0, 100);
+  const legalRisk = clamp(Math.round(Math.max(clause.ownerRisk, clause.chartererRisk) * 0.78 + clause.dangerousSentences.length * 6), 0, 100);
+  const operationalRisk = clamp(Math.round(cargo.risk * 0.42 + (Number(values.delayDays) || 0) * 9 + liveFeedState.congestion * 0.24 + (parsed.route ? 0 : 14)), 0, 100);
+  const sanctionsKeyword = /iran|russia|syria|north korea|venezuela|crimea|sanction|embargo/i.test(dealText);
+  const complianceRisk = clamp(Math.round(18 + (sanctionsKeyword ? 62 : 0) + (["crudeOil", "chemicals", "lng"].includes(parsed.cargoType) ? 10 : 0)), 0, 100);
+  const claimRisk = clamp(Math.round(clause.chartererRisk * 0.42 + (Number(values.delayDays) || 0) * 7 + (parsed.demurrage ? 0 : 22) + (/nor/i.test(dealText) ? 0 : 10)), 0, 100);
+  const dataRisk = 100 - dataConfidence;
+  const riskRows = [
+    { label: "Commercial", score: commercialRisk, reason: base.tce < targetTce ? "Base TCE is below target." : "Base TCE clears target." },
+    { label: "Legal / clause", score: legalRisk, reason: clause.dangerousSentences[0]?.sentence || "Clause wording needs CP review." },
+    { label: "Operational", score: operationalRisk, reason: `${Number(values.delayDays) || 0} expected delay days; congestion input ${liveFeedState.congestion}%.` },
+    { label: "Claim", score: claimRisk, reason: parsed.demurrage ? "Demurrage rate found; evidence basis still matters." : "Demurrage rate is missing." },
+    { label: "Compliance", score: complianceRisk, reason: sanctionsKeyword ? "Sanctions keyword detected." : "No sanctions keyword detected; counterparty screening still required." },
+    { label: "Data quality", score: dataRisk, reason: `${completeness}% term completeness; ${dataConfidence}% decision confidence.` }
+  ];
+  const overallRisk = clamp(Math.round(
+    commercialRisk * 0.28
+    + legalRisk * 0.21
+    + operationalRisk * 0.18
+    + claimRisk * 0.12
+    + complianceRisk * 0.11
+    + dataRisk * 0.1
+  ), 0, 100);
+
+  const blockers = [];
+  if (dealText.length < 40) blockers.push("Deal text is too short for a defensible review.");
+  if (criticalMissing.length) blockers.push(`Critical terms missing: ${criticalMissing.join(", ")}.`);
+  if (values.marketBasis === "unverified") blockers.push("Market basis is unverified; confirm freight, bunker and port assumptions.");
+  if (dataConfidence < confidenceGate) blockers.push(`Data confidence ${dataConfidence}% is below the ${confidenceGate}% gate.`);
+  if (complianceRisk >= 70) blockers.push("Compliance risk requires sanctions and counterparty clearance.");
+
+  let decision = "FIX WITH GUARDS";
+  if (blockers.length) decision = "HOLD / VERIFY";
+  else if (overallRisk >= 68 || (base.netPnl < 0 && stress.netPnl < 0)) decision = "AVOID / REWORK";
+  else if (overallRisk >= 48 || base.tce < targetTce) decision = "WATCH / COUNTER";
+  const rawReadiness = Math.round(dataConfidence * 0.55 + (100 - overallRisk) * 0.45);
+  const readiness = blockers.length ? Math.min(rawReadiness, 59) : clamp(rawReadiness, 0, 100);
+
+  const actions = [];
+  if (criticalMissing.length) actions.push({ title: "Close critical terms", note: `Request ${criticalMissing.join(", ").toLowerCase()} before a clean recap.` });
+  if (values.marketBasis === "unverified") actions.push({ title: "Verify the market basis", note: "Attach the licensed/company freight indication, bunker timestamp and port-cost source." });
+  if (negotiationGap > 0.01) actions.push({ title: `Counter near ${money(targetFreight, 2)}/${parsed.unit}`, note: `Current rate is ${money(currentFreight, 2)}/${parsed.unit}; this counter targets ${money(targetTce)}/day TCE.` });
+  if (legalRisk >= 48) actions.push({ title: "Protect the recap wording", note: "Confirm NOR validity, WIBON/WIPON, waiting time, weather exceptions and evidence requirements." });
+  if (operationalRisk >= 48) actions.push({ title: "Get an operational reality check", note: "Ask agent for current line-up, draft limit, berth productivity, weather delay and PDA." });
+  if (complianceRisk >= 45) actions.push({ title: "Run counterparty and sanctions screening", note: "Check owner, charterer, vessel, cargo origin, destination and payment chain." });
+  if (!actions.length) actions.push({ title: "Proceed with controlled subjects", note: "Keep source evidence, recap version and approval trail attached to this passport." });
+  actions.push({ title: "Save this decision version", note: "Create a before/after trail when freight, clauses or assumptions change." });
+
+  const marketBasisLabel = values.marketBasis === "licensed" ? "User-verified licensed source" : values.marketBasis === "company" ? "Company benchmark" : "Unverified planning input";
+  const ledger = [
+    { field: "Fixture terms", value: `${decisionPassportCargoLabel(parsed.cargoType)} | ${parsed.route || "route TBC"}`, source: "input", sourceLabel: "user input" },
+    { field: "Freight / laycan", value: `${parsed.freight ? `${money(parsed.freight, 2)}/${parsed.unit}` : "freight TBC"} | ${parsed.laycan || "laycan TBC"}`, source: "input", sourceLabel: "user input" },
+    { field: "Market basis", value: marketBasisLabel, source: values.marketBasis === "licensed" ? "licensed" : values.marketBasis === "company" ? "input" : "licensed", sourceLabel: values.marketBasis === "licensed" ? "licensed verified" : values.marketBasis === "company" ? "company input" : "licensed required" },
+    { field: "Distance / vessel cost", value: `${base.distance.toLocaleString("en-US")} nm | ${money(autoDealDailyHire(parsed.cargoType))}/day`, source: "model", sourceLabel: "model assumption" },
+    { field: "Bunker / delay", value: `${money(Number(values.bunkerPrice) || liveFeedState.bunker, 2)}/mt | ${Number(values.delayDays) || 0} days`, source: "input", sourceLabel: "user input" },
+    { field: "TCE / P&L", value: `${money(base.tce)}/day | ${money(base.netPnl)}`, source: "calculated", sourceLabel: "calculated" },
+    { field: "Baltic / congestion", value: "Not injected into freight as live licensed data", source: "licensed", sourceLabel: "licensed required" }
+  ];
+
+  const fingerprintPayload = JSON.stringify({
+    dealText: dealText.replace(/\s+/g, " "),
+    targetTce,
+    bunkerPrice: Number(values.bunkerPrice) || 0,
+    delayDays: Number(values.delayDays) || 0,
+    confidenceGate,
+    marketBasis: values.marketBasis,
+    decision,
+    tce: Math.round(base.tce),
+    risk: overallRisk
+  });
+  const fingerprint = decisionPassportTrace(fingerprintPayload);
+  const passportId = `FDP-${new Date().getFullYear()}-${decisionPassportTrace(`${parsed.route}|${parsed.cargoType}|${parsed.quantity}`).slice(0, 6)}`;
+  const generatedAt = new Date().toISOString();
+  const clientBrief = [
+    `FOCUSEA CLIENT DECISION BRIEF | ${passportId}`,
+    `Cargo / route: ${decisionPassportCargoLabel(parsed.cargoType)} | ${parsed.route || "TBC"}`,
+    `Decision status: ${decision}`,
+    `Readiness: ${readiness}% | Data confidence: ${dataConfidence}%`,
+    `Commercial indication: ${parsed.freight ? `${money(parsed.freight, 2)}/${parsed.unit}` : "TBC"}`,
+    `Laycan: ${parsed.laycan || "TBC"}`,
+    `Open gates: ${blockers.length ? blockers.join(" ") : "No blocking gate; final approvals remain required."}`,
+    `Next action: ${actions[0].title} - ${actions[0].note}`,
+    `Trace fingerprint: ${fingerprint}`,
+    "Decision-support output only. Verify CP wording, market data and operational facts before fixing."
+  ].join("\n");
+  const reportText = [
+    `FOCUSEA DEAL PASSPORT | ${passportId}`,
+    `Generated: ${new Date(generatedAt).toLocaleString()}`,
+    `Trace fingerprint: ${fingerprint}`,
+    "",
+    `Decision: ${decision}`,
+    `Readiness: ${readiness}%`,
+    `Overall risk: ${overallRisk}/100`,
+    `Data confidence: ${dataConfidence}% (gate ${confidenceGate}%)`,
+    `Term completeness: ${completeness}%`,
+    "",
+    `Cargo: ${decisionPassportCargoLabel(parsed.cargoType)} | Quantity ${quantity.toLocaleString("en-US")} ${parsed.unit}`,
+    `Route: ${parsed.route || "TBC"}`,
+    `Laycan: ${parsed.laycan || "TBC"}`,
+    `Current freight: ${money(currentFreight, 2)}/${parsed.unit}`,
+    `Target-TCE freight: ${money(targetFreight, 2)}/${parsed.unit}`,
+    `P&L break-even freight: ${money(pnlBreakEvenFreight, 2)}/${parsed.unit}`,
+    "",
+    "SCENARIO ENVELOPE",
+    ...scenarios.map((scenario) => `${scenario.label}: TCE ${money(scenario.tce)}/day | P&L ${money(scenario.netPnl)} | ${scenario.delayDays.toFixed(1)} delay/port-risk days | bunker ${money(scenario.bunkerPrice, 2)}/mt`),
+    "",
+    "EXPLAINABLE RISK",
+    ...riskRows.map((row) => `${row.label}: ${row.score}/100 | ${row.reason}`),
+    "",
+    "NO BLIND FIX GATES",
+    ...(blockers.length ? blockers.map((item) => `- ${item}`) : ["- All configured gates passed."]),
+    "",
+    "NEXT ACTIONS",
+    ...actions.slice(0, 6).map((item, index) => `${index + 1}. ${item.title}: ${item.note}`),
+    "",
+    "EVIDENCE LEDGER",
+    ...ledger.map((item) => `${item.field}: ${item.value} [${item.sourceLabel}]`),
+    "",
+    "NOTICE: Decision-support output only. Verify licensed market data, charter party wording, port facts, compliance clearance and approved vessel calculations before commercial use."
+  ].join("\n");
+
+  return {
+    passportId,
+    fingerprint,
+    generatedAt,
+    values,
+    parsed,
+    targetTce,
+    confidenceGate,
+    fieldChecks,
+    criticalMissing,
+    completeness,
+    assumptionQuality,
+    marketConfidence,
+    dataConfidence,
+    scenarios,
+    base,
+    stress,
+    currentFreight,
+    targetFreight,
+    pnlBreakEvenFreight,
+    negotiationGap,
+    riskRows,
+    overallRisk,
+    blockers,
+    decision,
+    readiness,
+    actions: actions.slice(0, 6),
+    ledger,
+    clientBrief,
+    reportText
+  };
+}
+
+function decisionPassportHistoryKey() {
+  const account = currentMemberAccount();
+  const owner = normalizeMemberUsername(account?.username || "guest") || "guest";
+  return `focusea-deal-passports-v1-${owner}`;
+}
+
+function getDecisionPassportHistory() {
+  const stored = safeLocalGet(decisionPassportHistoryKey(), []);
+  return Array.isArray(stored) ? stored : [];
+}
+
+function setDecisionPassportHistory(items = []) {
+  safeLocalSet(decisionPassportHistoryKey(), items.slice(0, 12));
+}
+
+function decisionPassportSnapshot(result, version) {
+  return {
+    passportId: result.passportId,
+    version,
+    fingerprint: result.fingerprint,
+    generatedAt: result.generatedAt,
+    cargo: decisionPassportCargoLabel(result.parsed.cargoType),
+    route: result.parsed.route || "TBC",
+    decision: result.decision,
+    readiness: result.readiness,
+    dataConfidence: result.dataConfidence,
+    overallRisk: result.overallRisk,
+    tce: result.base.tce,
+    netPnl: result.base.netPnl,
+    currentFreight: result.currentFreight,
+    targetFreight: result.targetFreight,
+    blockerCount: result.blockers.length,
+    clientBrief: result.clientBrief,
+    reportText: result.reportText
+  };
+}
+
+function saveDecisionPassportVersion() {
+  if (!lastDecisionPassport) renderDecisionPassport();
+  if (!lastDecisionPassport) return;
+  const history = getDecisionPassportHistory();
+  const version = history.filter((item) => item.passportId === lastDecisionPassport.passportId).length + 1;
+  const snapshot = decisionPassportSnapshot(lastDecisionPassport, version);
+  history.unshift(snapshot);
+  setDecisionPassportHistory(history);
+  renderDecisionPassportHistory();
+  if (decisionPassportStatus) decisionPassportStatus.textContent = `${snapshot.passportId} v${version} saved locally with trace ${snapshot.fingerprint}.`;
+}
+
+function renderDecisionPassportHistory() {
+  if (!decisionPassportHistory) return;
+  const history = getDecisionPassportHistory();
+  if (!history.length) {
+    decisionPassportHistory.innerHTML = '<p class="passport-empty">No saved versions yet. Save a passport to create a local audit trail.</p>';
+    return;
+  }
+  decisionPassportHistory.innerHTML = `<div class="passport-history-list">${history.map((item) => `
+    <div class="passport-history-item">
+      <div>
+        <strong>${escapeHtml(item.passportId)} v${Number(item.version) || 1}</strong>
+        <span>${escapeHtml(item.cargo)} | ${escapeHtml(item.route)}</span>
+        <small>${new Date(item.generatedAt).toLocaleString()} | trace ${escapeHtml(item.fingerprint)}</small>
+      </div>
+      <em>${escapeHtml(item.decision)}<br>${Math.round(item.readiness)}% ready</em>
+    </div>
+  `).join("")}</div>`;
+}
+
+function passportDeltaLabel(value, suffix = "") {
+  const number = Number(value) || 0;
+  const sign = number > 0 ? "+" : "";
+  return `${sign}${number.toLocaleString("en-US", { maximumFractionDigits: 1 })}${suffix}`;
+}
+
+function compareDecisionPassportVersions() {
+  if (!decisionPassportComparison) return;
+  const history = getDecisionPassportHistory();
+  if (history.length < 2) {
+    decisionPassportComparison.innerHTML = '<p class="passport-empty">Save at least two versions to compare commercial and risk movement.</p>';
+    return;
+  }
+  const current = history[0];
+  const previous = history[1];
+  const rows = [
+    { label: "Base TCE", value: passportDeltaLabel(current.tce - previous.tce, "/day"), note: `${money(previous.tce)} -> ${money(current.tce)}` },
+    { label: "Net P&L", value: passportDeltaLabel(current.netPnl - previous.netPnl), note: `${money(previous.netPnl)} -> ${money(current.netPnl)}` },
+    { label: "Overall risk", value: passportDeltaLabel(current.overallRisk - previous.overallRisk, " pts"), note: `${previous.overallRisk} -> ${current.overallRisk}` },
+    { label: "Data confidence", value: passportDeltaLabel(current.dataConfidence - previous.dataConfidence, " pts"), note: `${previous.dataConfidence}% -> ${current.dataConfidence}%` },
+    { label: "Decision", value: current.decision, note: `${previous.decision} -> ${current.decision}` }
+  ];
+  decisionPassportComparison.innerHTML = `<div class="passport-delta-list">${rows.map((row) => `
+    <div class="passport-delta-item"><div><strong>${escapeHtml(row.label)}</strong><span>${escapeHtml(row.note)}</span></div><strong>${escapeHtml(row.value)}</strong></div>
+  `).join("")}</div>`;
+}
+
+function renderDecisionPassport() {
+  if (!decisionPassportForm || !decisionPassportSummary) return;
+  const values = collectFormValues(decisionPassportForm);
+  lastDecisionPassport = buildDecisionPassport(values);
+  const result = lastDecisionPassport;
+  const ringColor = decisionPassportRiskColor(result.overallRisk);
+  if (decisionPassportRef) decisionPassportRef.textContent = `${result.passportId} | trace ${result.fingerprint}`;
+
+  decisionPassportSummary.innerHTML = `
+    <div class="passport-verdict">
+      <div class="passport-score-ring" style="--score:${result.readiness};--ring-color:${ringColor}"><strong>${result.readiness}</strong><span>readiness</span></div>
+      <div class="passport-decision-copy">
+        <span>Decision status</span>
+        <strong>${escapeHtml(result.decision)}</strong>
+        <p>${result.blockers.length ? `${result.blockers.length} blocking gate${result.blockers.length === 1 ? "" : "s"} must close before a defensible fix.` : "Configured gates passed. Keep final commercial, legal and operational approvals attached."}</p>
+      </div>
+    </div>
+    <div class="passport-gate-list">
+      ${result.blockers.length ? result.blockers.map((item) => `<div>${escapeHtml(item)}</div>`).join("") : '<div class="pass">No Blind Fix gate passed at the configured confidence threshold.</div>'}
+    </div>
+    <div class="passport-kpis">
+      <div><span>Base TCE</span><strong>${money(result.base.tce)}/day</strong></div>
+      <div><span>Base P&L</span><strong>${money(result.base.netPnl)}</strong></div>
+      <div><span>Target-TCE freight</span><strong>${money(result.targetFreight, 2)}/${escapeHtml(result.parsed.unit)}</strong></div>
+      <div><span>Data confidence</span><strong>${result.dataConfidence}% / gate ${result.confidenceGate}%</strong></div>
+    </div>
+  `;
+
+  if (decisionPassportScenarios) {
+    decisionPassportScenarios.innerHTML = `<div class="passport-scenario-grid">${result.scenarios.map((scenario) => `
+      <div class="passport-scenario ${escapeHtml(scenario.key)}">
+        <span>${escapeHtml(scenario.label)}</span>
+        <strong>${money(scenario.tce)}/day</strong>
+        <small>P&L ${money(scenario.netPnl)}<br>${scenario.delayDays.toFixed(1)} port/delay days<br>${escapeHtml(scenario.note)}</small>
+      </div>
+    `).join("")}</div>`;
+  }
+
+  if (decisionPassportRisks) {
+    decisionPassportRisks.innerHTML = `<div class="passport-risk-list">${result.riskRows.map((row) => `
+      <div class="passport-risk-item">
+        <div class="passport-risk-row">
+          <span>${escapeHtml(row.label)}</span>
+          <i style="--risk:${row.score}%;--risk-color:${decisionPassportRiskColor(row.score)}"></i>
+          <strong>${row.score}</strong>
+        </div>
+        <small>${escapeHtml(row.reason)}</small>
+      </div>
+    `).join("")}</div>`;
+  }
+
+  if (decisionPassportLedger) {
+    decisionPassportLedger.innerHTML = `<div class="passport-ledger">${result.ledger.map((item) => `
+      <div class="passport-ledger-row">
+        <span>${escapeHtml(item.field)}</span>
+        <strong>${escapeHtml(item.value)}</strong>
+        <em class="passport-source ${escapeHtml(item.source)}">${escapeHtml(item.sourceLabel)}</em>
+      </div>
+    `).join("")}</div>`;
+  }
+
+  if (decisionPassportActions) {
+    decisionPassportActions.innerHTML = `<div class="passport-action-list">${result.actions.map((item, index) => `
+      <div class="passport-action"><b>${index + 1}</b><div><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.note)}</small></div></div>
+    `).join("")}</div>`;
+  }
+
+  if (decisionPassportStatus) {
+    decisionPassportStatus.textContent = result.blockers.length
+      ? `Decision held: ${result.blockers.length} gate${result.blockers.length === 1 ? "" : "s"} open. Nothing is presented as verified live market data.`
+      : `Decision gate passed with ${result.dataConfidence}% confidence. Save a version before changing terms.`;
+  }
+  renderDecisionPassportHistory();
+  if (decisionPassportComparison && !decisionPassportComparison.innerHTML.trim()) {
+    decisionPassportComparison.innerHTML = '<p class="passport-empty">Version changes will appear here after two saves.</p>';
+  }
+}
+
+function selectDecisionPassportScenario(scenarioId) {
+  if (!decisionPassportForm || !decisionPassportSamples[scenarioId]) return;
+  decisionPassportForm.elements.dealText.value = decisionPassportSamples[scenarioId];
+  decisionPassportForm.elements.marketBasis.value = "unverified";
+  decisionPassportScenarioButtons.forEach((button) => button.classList.toggle("active", button.dataset.passportScenario === scenarioId));
+  renderDecisionPassport();
+}
+
+function handleDecisionPassportDownload(type) {
+  if (!lastDecisionPassport) renderDecisionPassport();
+  if (!lastDecisionPassport) return;
+  const action = String(type || "").toLowerCase();
+  if (decisionPassportStatus) {
+    decisionPassportStatus.dataset.lastExport = action;
+    decisionPassportStatus.textContent = action === "pdf" ? "Preparing Deal Passport PDF..." : "Preparing audit JSON...";
+  }
+  if (action === "pdf") downloadPdfFile("focusea-deal-passport.pdf", "Focusea Deal Passport", lastDecisionPassport.reportText);
+  if (action === "json") downloadJsonFile("focusea-deal-passport-audit.json", lastDecisionPassport);
+  if (decisionPassportStatus && ["pdf", "json"].includes(action)) {
+    decisionPassportStatus.textContent = `${action.toUpperCase()} export started for ${lastDecisionPassport.passportId}.`;
+  }
+}
+
+async function copyDecisionPassportClientBrief() {
+  if (!lastDecisionPassport) renderDecisionPassport();
+  if (!lastDecisionPassport) return;
+  let copied = false;
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(lastDecisionPassport.clientBrief);
+      copied = true;
+    }
+  } catch (error) {
+    copied = false;
+  }
+  if (!copied) {
+    const textarea = document.createElement("textarea");
+    textarea.value = lastDecisionPassport.clientBrief;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.append(textarea);
+    textarea.select();
+    copied = document.execCommand("copy");
+    textarea.remove();
+  }
+  if (decisionPassportStatus) decisionPassportStatus.textContent = copied ? "Client-safe brief copied." : "Clipboard access was blocked; use the PDF or JSON export.";
+}
 
 const commandDeckScenarios = {
   coal: {
@@ -3268,6 +3809,7 @@ function activatePage(pageName = "dashboard", updateHash = true) {
     history.pushState(null, "", `#${activePage}`);
   }
   recordMemberLocation(activePage);
+  if (activePage === "passport") renderDecisionPassportHistory();
   window.scrollTo({ top: 0, behavior: "auto" });
 }
 
@@ -17913,6 +18455,34 @@ pageNavLinks.forEach((link) => {
   });
 });
 
+if (decisionPassportForm) {
+  let decisionPassportTimer = 0;
+  decisionPassportForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    window.clearTimeout(decisionPassportTimer);
+    renderDecisionPassport();
+  });
+  decisionPassportForm.addEventListener("input", () => {
+    window.clearTimeout(decisionPassportTimer);
+    decisionPassportTimer = window.setTimeout(renderDecisionPassport, 180);
+  });
+  decisionPassportForm.addEventListener("change", renderDecisionPassport);
+}
+
+decisionPassportScenarioButtons.forEach((button) => {
+  button.addEventListener("click", () => selectDecisionPassportScenario(button.dataset.passportScenario));
+});
+
+if (saveDecisionPassport) saveDecisionPassport.addEventListener("click", saveDecisionPassportVersion);
+if (compareDecisionPassport) compareDecisionPassport.addEventListener("click", compareDecisionPassportVersions);
+if (copyDecisionPassportBrief) copyDecisionPassportBrief.addEventListener("click", copyDecisionPassportClientBrief);
+document.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-download-passport]");
+  if (!button) return;
+  event.preventDefault();
+  handleDecisionPassportDownload(button.dataset.downloadPassport);
+});
+
 window.addEventListener("popstate", () => activatePage(pageFromHash(), false));
 
 document.querySelectorAll("[data-export-report]").forEach((button) => {
@@ -18370,6 +18940,7 @@ renderBalticFeedPanel();
 renderSecurityShield();
 renderPythonHistory();
 renderCommandDeck();
+renderDecisionPassport();
 initializeSmartOps();
 updateLiveFeed();
 setupPageSections();
