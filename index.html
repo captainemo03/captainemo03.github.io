@@ -14,7 +14,8 @@
     <link rel="canonical" href="https://captainemo03.github.io/" />
     <link rel="icon" href="favicon.svg?v=focusea-badge2" type="image/svg+xml" />
     <link rel="manifest" href="manifest.webmanifest" />
-    <link rel="stylesheet" href="styles.css?v=monetization-ready-1" />
+    <script src="theme.js?v=theme-1"></script>
+    <link rel="stylesheet" href="styles.css?v=theme-1" />
   </head>
   <body>
     <div class="app-shell">
@@ -51,9 +52,15 @@
         </nav>
 
         <div class="mission-card">
-          <span>Active Mission</span>
-          <strong>Istanbul -> Singapore</strong>
-          <p>Assess fuel, weather, piracy risk and port congestion in one operational view.</p>
+          <div class="theme-switcher" role="group" aria-label="Appearance">
+            <button type="button" data-theme-value="dark" aria-pressed="true">Dark</button>
+            <button type="button" data-theme-value="light" aria-pressed="false">Light</button>
+          </div>
+          <div class="mission-card-copy">
+            <span>Active Mission</span>
+            <strong>Istanbul -> Singapore</strong>
+            <p>Assess fuel, weather, piracy risk and port congestion in one operational view.</p>
+          </div>
         </div>
       </aside>
 

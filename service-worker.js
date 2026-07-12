@@ -1,9 +1,10 @@
-const FOCUSEA_CACHE = "focusea-monetization-ready-3";
+const FOCUSEA_CACHE = "focusea-theme-1";
 const FOCUSEA_ASSETS = [
   "./",
   "./index.html",
   "./styles.css",
   "./script.js",
+  "./theme.js",
   "./monetization-config.js",
   "./monetization.js",
   "./stability.html",

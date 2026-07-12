@@ -3,9 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#09091f" />
     <title>Focusea Cargo & Stability Lab</title>
     <link rel="icon" href="favicon.svg?v=focusea-badge2" type="image/svg+xml" />
-    <link rel="stylesheet" href="stability.css?v=stability-legal-1" />
+    <script src="theme.js?v=theme-1"></script>
+    <link rel="stylesheet" href="stability.css?v=theme-1" />
   </head>
   <body>
     <header class="lab-header">
@@ -16,6 +18,10 @@
           <small>Cargo & Stability Lab</small>
         </span>
       </a>
+      <div class="theme-switcher theme-switcher-compact" role="group" aria-label="Appearance">
+        <button type="button" data-theme-value="dark" aria-pressed="true">Dark</button>
+        <button type="button" data-theme-value="light" aria-pressed="false">Light</button>
+      </div>
       <nav class="lab-nav" aria-label="Stability tools">
         <a href="#gmLab">GM</a>
         <a href="#loadicator3d">3D Loadicator</a>
