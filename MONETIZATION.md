@@ -6,7 +6,8 @@ The site is monetization-ready but intentionally sends no Google ad request unti
 
 - Publisher ID `ca-pub-8225865281154040` is installed in the configuration and homepage verification meta tag.
 - The root `ads.txt` declaration is installed for publisher `pub-8225865281154040`.
-- Ad requests remain disabled until AdSense for web shows the site as ready and a Google-certified CMP is configured.
+- Google's three-choice CMP is configured for the site.
+- Ad requests remain disabled until AdSense for web shows the site as ready.
 
 ## Activate after Google approval
 

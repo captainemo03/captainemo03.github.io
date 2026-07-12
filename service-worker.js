@@ -1,4 +1,4 @@
-const FOCUSEA_CACHE = "focusea-monetization-ready-2";
+const FOCUSEA_CACHE = "focusea-monetization-ready-3";
 const FOCUSEA_ASSETS = [
   "./",
   "./index.html",
