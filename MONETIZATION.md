@@ -2,6 +2,12 @@
 
 The site is monetization-ready but intentionally sends no Google ad request until a real AdSense publisher account and a Google-certified CMP are ready.
 
+## Current installation state
+
+- Publisher ID `ca-pub-8225865281154040` is installed in the configuration and homepage verification meta tag.
+- The root `ads.txt` declaration is installed for publisher `pub-8225865281154040`.
+- Ad requests remain disabled until AdSense for web shows the site as ready and a Google-certified CMP is configured.
+
 ## Activate after Google approval
 
 1. Apply at <https://adsense.google.com/start/> with a domain that AdSense can review.

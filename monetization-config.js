@@ -1,6 +1,6 @@
 window.FOCUSEA_MONETIZATION = Object.freeze({
   enabled: false,
-  publisherId: "",
+  publisherId: "ca-pub-8225865281154040",
   certifiedCmpReady: false,
   autoAds: true,
   placements: Object.freeze({
