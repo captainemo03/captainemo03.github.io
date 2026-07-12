@@ -5602,6 +5602,189 @@ body.ai-presentation-mode .ai-core-hero {
   line-height: 1.5;
 }
 
+.ad-placement[hidden] {
+  display: none !important;
+}
+
+.ad-placement {
+  position: relative;
+  width: 100%;
+  min-width: 250px;
+  min-height: 112px;
+  margin-top: 18px;
+  padding: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(111, 255, 227, 0.16);
+  border-radius: 8px;
+  background: rgba(6, 15, 35, 0.58);
+}
+
+.ad-placement-inline {
+  margin: 18px 0;
+}
+
+.ad-disclosure {
+  display: block;
+  margin-bottom: 8px;
+  color: rgba(185, 184, 230, 0.75);
+  font-size: 0.62rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.ad-placement .adsbygoogle {
+  display: block;
+  width: 100%;
+  min-width: 250px;
+  min-height: 90px;
+}
+
+.ad-placement-preview {
+  display: grid;
+  place-items: center;
+  border-style: dashed;
+  border-color: rgba(111, 255, 227, 0.34);
+  background:
+    linear-gradient(90deg, rgba(111, 255, 227, 0.025) 1px, transparent 1px),
+    rgba(6, 15, 35, 0.68);
+  background-size: 32px 32px;
+}
+
+.ad-preview-shell {
+  width: min(100%, 760px);
+  padding: 18px;
+  text-align: center;
+}
+
+.ad-preview-shell span,
+.ad-preview-shell strong,
+.ad-preview-shell small {
+  display: block;
+}
+
+.ad-preview-shell span {
+  color: #6fffe3;
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ad-preview-shell strong {
+  margin-top: 7px;
+  font-size: 1rem;
+}
+
+.ad-preview-shell small {
+  margin-top: 6px;
+  color: var(--muted);
+}
+
+.footer-bottom button {
+  padding: 0;
+  border: 0;
+  color: #6fffe3;
+  background: transparent;
+  font: inherit;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.footer-bottom button:hover,
+.footer-bottom button:focus-visible {
+  color: #ffffff;
+}
+
+.ad-privacy-dialog {
+  width: min(720px, calc(100vw - 32px));
+  max-width: none;
+  padding: 0;
+  border: 1px solid rgba(111, 255, 227, 0.3);
+  border-radius: 8px;
+  color: var(--text);
+  background: #111039;
+  box-shadow: 0 30px 90px rgba(3, 4, 20, 0.72);
+}
+
+.ad-privacy-dialog::backdrop {
+  background: rgba(4, 5, 20, 0.76);
+  backdrop-filter: blur(8px);
+}
+
+.ad-privacy-dialog form {
+  display: grid;
+  gap: 18px;
+  padding: 22px;
+}
+
+.ad-dialog-heading {
+  display: flex;
+  gap: 16px;
+  align-items: start;
+  justify-content: space-between;
+}
+
+.ad-dialog-heading span {
+  color: #6fffe3;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ad-dialog-heading h2 {
+  margin: 5px 0 0;
+  font-size: 1.45rem;
+}
+
+.ad-dialog-close {
+  min-height: 36px;
+  padding: 7px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 6px;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+}
+
+.ad-status-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.ad-status-grid > div {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.ad-status-grid span,
+.ad-status-grid strong {
+  display: block;
+}
+
+.ad-status-grid span {
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.ad-status-grid strong {
+  overflow-wrap: anywhere;
+  margin-top: 5px;
+  font-size: 0.86rem;
+}
+
+.ad-privacy-dialog p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
 @media (max-width: 1120px) {
   .app-shell {
     grid-template-columns: 1fr;
@@ -5869,6 +6052,15 @@ body.ai-presentation-mode .ai-core-hero {
 
   .passport-risk-row strong {
     text-align: left;
+  }
+
+  .ad-status-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ad-dialog-heading {
+    align-items: stretch;
+    flex-direction: column;
   }
 
   .port-visual-hero,

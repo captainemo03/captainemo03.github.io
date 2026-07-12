@@ -3,14 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' https: http://127.0.0.1:* http://localhost:*; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests" />
+    <meta name="description" content="Focusea is a maritime decision workspace for chartering, voyage estimates, laytime, claims, port intelligence, market monitoring and load planning." />
+    <meta name="robots" content="index,follow,max-image-preview:large" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' https://pagead2.googlesyndication.com https://*.googlesyndication.com https://*.doubleclick.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' https: http://127.0.0.1:* http://localhost:*; frame-src https:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=(), serial=()" />
     <meta name="theme-color" content="#061522" />
     <title>Focusea Maritime Platform</title>
+    <link rel="canonical" href="https://captainemo03.github.io/focusea/" />
     <link rel="icon" href="favicon.svg?v=focusea-badge2" type="image/svg+xml" />
     <link rel="manifest" href="manifest.webmanifest" />
-    <link rel="stylesheet" href="styles.css?v=deal-passport-1" />
+    <link rel="stylesheet" href="styles.css?v=monetization-ready-1" />
   </head>
   <body>
     <div class="app-shell">
@@ -114,6 +117,7 @@
           </div>
           <div class="news-status" id="newsStatus">Loading real maritime news sources...</div>
           <div class="news-grid" id="newsGrid"></div>
+          <aside class="ad-placement ad-placement-horizontal" data-ad-placement="news" aria-label="Advertisement" hidden></aside>
         </section>
 
         <section class="trust-autopilot-panel" id="trustAutopilotCenter">
@@ -3729,6 +3733,7 @@ Subject: Firm offer
               <small>Open academic paper / arXiv</small>
             </a>
           </div>
+          <aside class="ad-placement ad-placement-horizontal" data-ad-placement="academy" aria-label="Advertisement" hidden></aside>
         </section>
 
         <section class="account-center" id="accountCenter">
@@ -3981,6 +3986,7 @@ Subject: Firm offer
               <div class="global-port-stats" id="globalPortStats"></div>
               <div class="global-port-list" id="globalPortList"></div>
               <div class="global-port-detail" id="globalPortDetail"></div>
+              <aside class="ad-placement ad-placement-inline" data-ad-placement="ports" aria-label="Advertisement" hidden></aside>
 
               <form class="global-port-import" id="globalPortImportForm">
                 <label>
@@ -4006,7 +4012,9 @@ Subject: Firm offer
               <p>
                 Focusea uses calculation forms, demo scenarios, local records and user-entered text only to generate
                 in-platform analysis, reports and workflows. Mask sensitive details before sharing real fixtures,
-                identity data, passwords, API keys or confidential company documents.
+                identity data, passwords, API keys or confidential company documents. If advertising is activated,
+                Google and the configured certified consent platform may process advertising and device data according
+                to the choices shown to each visitor.
               </p>
             </article>
             <article id="terms">
@@ -4031,8 +4039,31 @@ Subject: Firm offer
             <article id="cookies">
               <span>Cookies and Local Data</span>
               <p>
-                This static version does not require third-party tracking cookies. Saved forms, report history,
-                preferred settings, Deal Passport versions and demo workspaces may be stored in browser localStorage.
+                Saved forms, report history, preferred settings, Deal Passport versions and demo workspaces may be
+                stored in browser localStorage. Google advertising storage is not loaded until AdSense is activated
+                with a valid publisher ID and a Google-certified CMP is configured.
+              </p>
+            </article>
+            <article id="about-focusea">
+              <span>About Focusea</span>
+              <p>
+                Focusea is an independent maritime decision-support project combining chartering workflows,
+                educational resources, port intelligence, claims tools and stability planning in one interface.
+              </p>
+            </article>
+            <article id="advertising-policy">
+              <span>Advertising Policy</span>
+              <p>
+                Paid placements are clearly labelled and kept outside calculation controls and decision outputs.
+                Advertising never changes a risk score, recommendation or editorial result. Users are never asked to
+                click ads. Ad blocking and advertiser controls are managed through the publisher account.
+              </p>
+            </article>
+            <article id="contact-focusea">
+              <span>Contact</span>
+              <p>
+                Product, content, privacy and advertising questions can be submitted through
+                <a href="https://github.com/captainemo03/focusea/issues" target="_blank" rel="noopener noreferrer">Focusea GitHub Issues</a>.
               </p>
             </article>
             <article id="security-policy">
@@ -4050,6 +4081,10 @@ Subject: Firm offer
             <nav aria-label="Footer links">
               <a href="#privacy">Privacy</a>
               <a href="#terms">Terms</a>
+              <a href="#about-focusea">About</a>
+              <a href="#contact-focusea">Contact</a>
+              <a href="#advertising-policy">Advertising Policy</a>
+              <button type="button" id="adPrivacySettings">Advertising &amp; Privacy</button>
               <a href="#community-rules">Community Rules</a>
               <a href="#cookies">Cookies</a>
               <a href="#security-policy">Security</a>
@@ -4059,6 +4094,34 @@ Subject: Firm offer
       </main>
     </div>
 
-    <script src="script.js?v=deal-passport-1"></script>
+    <dialog class="ad-privacy-dialog" id="adPrivacyDialog" aria-labelledby="adPrivacyTitle">
+      <form method="dialog">
+        <div class="ad-dialog-heading">
+          <div>
+            <span>Advertising &amp; Privacy</span>
+            <h2 id="adPrivacyTitle">Focusea advertising status</h2>
+          </div>
+          <button type="submit" class="ad-dialog-close" aria-label="Close advertising status">Close</button>
+        </div>
+        <div class="ad-status-grid">
+          <div><span>Service</span><strong id="advertisingStatus">Advertising not active</strong></div>
+          <div><span>Publisher</span><strong id="advertisingPublisherStatus">Publisher ID required</strong></div>
+          <div><span>Consent</span><strong id="advertisingCmpStatus">Google-certified CMP required</strong></div>
+          <div><span>Ad requests</span><strong id="advertisingRequestStatus">not requested</strong></div>
+        </div>
+        <p>
+          When AdSense is activated, Google&apos;s certified consent message manages choices for visitors in the EEA,
+          the UK and Switzerland. Focusea does not load the Google ad script before the publisher and consent gates pass.
+        </p>
+        <div class="button-row">
+          <a class="ghost-button small" href="#privacy">Privacy Policy</a>
+          <a class="ghost-button small" href="#advertising-policy">Advertising Policy</a>
+        </div>
+      </form>
+    </dialog>
+
+    <script src="monetization-config.js?v=monetization-ready-1"></script>
+    <script src="script.js?v=monetization-ready-1"></script>
+    <script src="monetization.js?v=monetization-ready-1"></script>
   </body>
 </html>

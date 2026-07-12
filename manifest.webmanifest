@@ -1,7 +1,7 @@
 {
   "name": "Focusea Maritime Command Center",
   "short_name": "Focusea",
-  "description": "Broker, chartering, market, document and stability operating platform.",
+  "description": "Maritime decision, chartering, market, document, port and stability operating platform.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

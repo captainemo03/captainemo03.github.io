@@ -1,9 +1,11 @@
-const FOCUSEA_CACHE = "focusea-deal-passport-1";
+const FOCUSEA_CACHE = "focusea-monetization-ready-1";
 const FOCUSEA_ASSETS = [
   "./",
   "./index.html",
   "./styles.css",
   "./script.js",
+  "./monetization-config.js",
+  "./monetization.js",
   "./stability.html",
   "./stability.css",
   "./stability.js",

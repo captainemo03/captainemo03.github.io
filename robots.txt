@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://captainemo03.github.io/focusea/sitemap.xml
