@@ -520,6 +520,88 @@ main {
   font-size: 2rem;
 }
 
+.seo-intro-panel,
+.seo-tools-panel,
+.domain-readiness-panel {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 24px;
+  background:
+    linear-gradient(135deg, rgba(111, 255, 227, 0.08), rgba(100, 97, 255, 0.09) 42%, rgba(18, 16, 62, 0.72)),
+    var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.seo-intro-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(340px, 1.05fr);
+  gap: 22px;
+  align-items: stretch;
+}
+
+.seo-intro-copy h2,
+.domain-readiness-panel h2 {
+  margin: 0 0 12px;
+  font-size: clamp(1.55rem, 2vw, 2.35rem);
+}
+
+.seo-intro-copy p,
+.domain-readiness-panel p,
+.seo-tools-grid p {
+  color: var(--text-soft);
+  line-height: 1.65;
+}
+
+.seo-proof-grid,
+.seo-tools-grid,
+.domain-card-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.seo-proof-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.seo-tools-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.domain-card-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 18px;
+}
+
+.seo-proof-grid article,
+.seo-tools-grid article,
+.domain-card-grid article {
+  min-width: 0;
+  border: 1px solid rgba(111, 255, 227, 0.16);
+  border-radius: 8px;
+  padding: 16px;
+  background: rgba(2, 13, 18, 0.28);
+}
+
+.seo-proof-grid span,
+.seo-tools-grid span,
+.domain-card-grid span,
+.domain-card-grid small {
+  display: block;
+  color: var(--muted);
+}
+
+.seo-proof-grid strong,
+.domain-card-grid strong {
+  display: block;
+  margin-top: 8px;
+  overflow-wrap: anywhere;
+}
+
+.seo-tools-grid span {
+  color: var(--cyan);
+  font-weight: 800;
+}
+
 .ops-board article,
 .intelligence-panel,
 .smart-ops-panel,
@@ -5810,6 +5892,10 @@ body.ai-presentation-mode .ai-core-hero {
 
   .nav-list,
   .dashboard-strip,
+  .seo-intro-panel,
+  .seo-proof-grid,
+  .seo-tools-grid,
+  .domain-card-grid,
   .footer-legal-grid,
   .ops-board,
   .command-deck-hero,
@@ -5940,6 +6026,10 @@ body.ai-presentation-mode .ai-core-hero {
 
   .nav-list,
   .dashboard-strip,
+  .seo-intro-panel,
+  .seo-proof-grid,
+  .seo-tools-grid,
+  .domain-card-grid,
   .footer-legal-grid,
   .ops-board,
   .command-deck-hero,

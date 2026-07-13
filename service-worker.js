@@ -1,4 +1,4 @@
-const FOCUSEA_CACHE = "focusea-backend-fix-1";
+const FOCUSEA_CACHE = "focusea-seo-domain-1";
 const FOCUSEA_ASSETS = [
   "./",
   "./index.html",
