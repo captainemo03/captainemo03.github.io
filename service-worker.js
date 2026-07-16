@@ -1,4 +1,4 @@
-const FOCUSEA_CACHE = "focusea-trust-pages-1";
+const FOCUSEA_CACHE = "focusea-loadicator-pro-1";
 const FOCUSEA_ASSETS = [
   "./",
   "./index.html",
@@ -16,6 +16,7 @@ const FOCUSEA_ASSETS = [
   "./maritime-broker-tools.html",
   "./stability.css",
   "./stability.js",
+  "./stability-loadicator-basic.js",
   "./stability-3d.js",
   "./assets/brand/focusea-mark.svg",
   "./assets/brand/focusea-mark.png",

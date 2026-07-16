@@ -2557,6 +2557,74 @@ a {
   font-size: 1.55rem;
 }
 
+.loadicator-summary-panel {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  border: 1px solid rgba(45, 241, 202, 0.2);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(45, 241, 202, 0.12), transparent 30%),
+    linear-gradient(135deg, rgba(7, 8, 30, 0.82), rgba(22, 20, 68, 0.62));
+  box-shadow: 0 20px 42px rgba(0, 0, 0, 0.18);
+}
+
+.loadicator-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.loadicator-summary-grid article {
+  min-height: 104px;
+  padding: 13px;
+  border: 1px solid rgba(138, 134, 255, 0.22);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.loadicator-summary-grid article.ok {
+  border-color: rgba(45, 241, 202, 0.28);
+}
+
+.loadicator-summary-grid article.watch {
+  border-color: rgba(245, 211, 107, 0.5);
+  background: rgba(245, 211, 107, 0.08);
+}
+
+.loadicator-summary-grid article.danger {
+  border-color: rgba(255, 107, 156, 0.52);
+  background: rgba(255, 107, 156, 0.08);
+}
+
+.loadicator-summary-grid span,
+.loadicator-summary-grid small {
+  display: block;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.loadicator-summary-grid strong {
+  display: block;
+  margin: 8px 0 5px;
+  color: var(--text);
+  font-size: 1.14rem;
+  line-height: 1.18;
+}
+
+.loadicator-source-note {
+  padding: 12px 14px;
+  border: 1px solid rgba(45, 241, 202, 0.16);
+  border-radius: 8px;
+  color: var(--muted);
+  background: rgba(45, 241, 202, 0.055);
+  line-height: 1.5;
+}
+
+.loadicator-source-note strong {
+  color: var(--cyan);
+}
+
 .professional-load-suite {
   display: grid;
   gap: 16px;
@@ -3998,7 +4066,8 @@ a {
   .loadicator-intel,
   .engineering-metrics,
   .hold-drop-grid,
-  .loadicator-metrics {
+  .loadicator-metrics,
+  .loadicator-summary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -4231,6 +4300,7 @@ a {
   .engineering-metrics,
   .loadicator-input-grid,
   .loadicator-metrics,
+  .loadicator-summary-grid,
   .hold-form label {
     grid-template-columns: 1fr;
   }

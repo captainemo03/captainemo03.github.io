@@ -8,6 +8,8 @@
   const shipViewButtons = Array.from(document.querySelectorAll("[data-ship-view]"));
   const seaDraftReadout = document.querySelector("#seaDraftReadout");
   const metrics = document.querySelector("#loadicatorMetrics");
+  const loadicatorSummaryGrid = document.querySelector("#loadicatorSummaryGrid");
+  const loadicatorSourceNote = document.querySelector("#loadicatorSourceNote");
   const riskPill = document.querySelector("#loadicatorRisk");
   const holdLabel = document.querySelector("#loadicatorHoldLabel");
   const liveTrim = document.querySelector("#loadicatorLiveTrim");
@@ -77,6 +79,8 @@
       lbp: 180,
       tpc: 42,
       draftBase: 9.4,
+      summerDwt: 56000,
+      lightweight: 11200,
       maxCargo: 9000,
       capacity: 56000,
       width: "min(600px, 84%)",
@@ -96,6 +100,8 @@
       lbp: 225,
       tpc: 62,
       draftBase: 11.6,
+      summerDwt: 82000,
+      lightweight: 12800,
       maxCargo: 12000,
       capacity: 76000,
       width: "min(660px, 86%)",
@@ -115,6 +121,8 @@
       lbp: 245,
       tpc: 76,
       draftBase: 12.8,
+      summerDwt: 115000,
+      lightweight: 18500,
       maxCargo: 15000,
       capacity: 118000,
       width: "min(700px, 88%)",
@@ -134,6 +142,8 @@
       lbp: 165,
       tpc: 31,
       draftBase: 8.1,
+      summerDwt: 27500,
+      lightweight: 7600,
       maxCargo: 6200,
       capacity: 34000,
       width: "min(570px, 82%)",
@@ -153,6 +163,8 @@
       lbp: 285,
       tpc: 86,
       draftBase: 11.9,
+      summerDwt: 82000,
+      lightweight: 32000,
       maxCargo: 13000,
       capacity: 170000,
       width: "min(720px, 90%)",
@@ -172,6 +184,8 @@
       lbp: 145,
       tpc: 26,
       draftBase: 7.4,
+      summerDwt: 18000,
+      lightweight: 6200,
       maxCargo: 4500,
       capacity: 22000,
       width: "min(540px, 80%)",
@@ -525,6 +539,30 @@
         { templateKey: "container20", hold: "36", weight: 26, kg: 13.2, sf: 1.65, z: 4 }
       ],
       note: "High KG and port/stbd lashing balance scenario."
+    },
+    tankerPartial: {
+      label: "Tanker partial loading",
+      vesselType: "aframaxTanker",
+      cargoType: "crudeOil",
+      ballast: { forePeak: 300, aftPeak: 900, dbPort: 650, dbStbd: 450, wingPort: 300, wingStbd: 900 },
+      parcels: [
+        { templateKey: "liquidTankParcel", hold: "-36", weight: 2800, kg: 8.9, sf: 0.95, z: -6 },
+        { templateKey: "liquidTankParcel", hold: "0", weight: 3400, kg: 9.1, sf: 0.95, z: 4 },
+        { templateKey: "liquidTankParcel", hold: "36", weight: 2600, kg: 9.0, sf: 0.95, z: 8 }
+      ],
+      note: "Slack tank/free-surface case with deliberate port-starboard imbalance."
+    },
+    projectHeavyLift: {
+      label: "Project cargo heavy lift",
+      vesselType: "mpv",
+      cargoType: "projectCargo",
+      ballast: { forePeak: 450, aftPeak: 250, dbPort: 300, dbStbd: 500, wingPort: 180, wingStbd: 380 },
+      parcels: [
+        { templateKey: "projectCargoParcel", hold: "-36", weight: 240, kg: 11.8, sf: 2.4, z: -4 },
+        { templateKey: "projectCargoParcel", hold: "0", weight: 320, kg: 12.5, sf: 2.4, z: 0 },
+        { templateKey: "projectCargoParcel", hold: "36", weight: 180, kg: 10.9, sf: 2.4, z: 6 }
+      ],
+      note: "Heavy lift training case with high KG, point-load and lashing focus."
     }
   };
 
@@ -795,6 +833,13 @@
     const fsc = number("fsc");
     const mctc = Math.max(number("mctc"), 1);
     const lbp = Math.max(number("lbp"), 1);
+    const summerDwt = Math.max(number("summerDwt"), 1);
+    const lightweight = Math.max(number("lightweight"), 1);
+    const constants = Math.max(number("constants"), 0);
+    const fuelRob = Math.max(number("fuelRob"), 0);
+    const freshWater = Math.max(number("freshWater"), 0);
+    const storesRob = Math.max(number("storesRob"), 0);
+    const nonCargoWeight = constants + fuelRob + freshWater + storesRob;
     const ballast = ballastLoads();
     const ballastWeight = ballast.reduce((sum, item) => sum + item.weight, 0);
     const cargoWeight = cargoPlan.reduce((sum, parcel) => sum + parcel.weight, 0);
@@ -819,6 +864,10 @@
     const meanDraft = vessel.draftBase + ((cargoWeight + ballastWeight - Math.min(4200, vessel.maxCargo * 0.42)) / vessel.tpc / 100);
     const fwdDraft = meanDraft - trimMeters / 2;
     const aftDraft = meanDraft + trimMeters / 2;
+    const loadicatorDisplacement = Math.max(lightweight + cargoWeight + ballastWeight + nonCargoWeight, displacement);
+    const dwtUsed = ((cargoWeight + ballastWeight + nonCargoWeight) / summerDwt) * 100;
+    const dwtRemaining = summerDwt - cargoWeight - ballastWeight - nonCargoWeight;
+    const fscApplied = fsc + liquidPenalty;
     const holdEvaluations = holdDefs.map((hold) => {
       const parcels = cargoPlan.filter((parcel) => parcel.hold === hold.value);
       const load = parcels.reduce((sum, parcel) => sum + parcel.weight, 0);
@@ -863,14 +912,27 @@
       ballastWeight,
       cargoVolume,
       displacement,
+      loadicatorDisplacement,
+      summerDwt,
+      lightweight,
+      constants,
+      fuelRob,
+      freshWater,
+      storesRob,
+      nonCargoWeight,
+      dwtUsed,
+      dwtRemaining,
       kg,
       correctedGm,
+      fscApplied,
+      slackTankWarning: liquidPenalty > 0 || fscApplied > 0.3,
       trimCm,
       trimMeters,
       heelDeg,
       heelMoment,
       fwdDraft,
       aftDraft,
+      meanDraft,
       holdEvaluations,
       stationResults,
       criteria,
@@ -1088,6 +1150,12 @@
     setValue("fsc", vessel.fsc);
     setValue("mctc", vessel.mctc);
     setValue("lbp", vessel.lbp);
+    setValue("summerDwt", vessel.summerDwt || Math.round(vessel.capacity * 0.78));
+    setValue("lightweight", vessel.lightweight || Math.round(vessel.baseDisplacement * 0.2));
+    setValue("constants", vessel.visual === "lng" ? 620 : 350);
+    setValue("fuelRob", vessel.visual === "lng" ? 2200 : vessel.visual === "tanker" ? 1900 : 1450);
+    setValue("freshWater", vessel.visual === "container" ? 180 : 280);
+    setValue("storesRob", vessel.visual === "mpv" ? 120 : 180);
 
     const cargoWeight = form.elements.cargoWeight;
     if (cargoWeight) {
@@ -1116,9 +1184,18 @@
     const fsc = number("fsc");
     const mctc = Math.max(number("mctc"), 1);
     const lbp = Math.max(number("lbp"), 1);
+    const summerDwt = Math.max(number("summerDwt"), 1);
+    const lightweight = Math.max(number("lightweight"), 1);
+    const constants = Math.max(number("constants"), 0);
+    const fuelRob = Math.max(number("fuelRob"), 0);
+    const freshWater = Math.max(number("freshWater"), 0);
+    const storesRob = Math.max(number("storesRob"), 0);
+    const nonCargoWeight = constants + fuelRob + freshWater + storesRob;
+    const liquidCargoPenalty = ["crudeOil", "lng", "chemicals"].includes(cargo.key) ? cargoWeight * 0.000012 : 0;
+    const fscApplied = fsc + liquidCargoPenalty;
     const displacement = baseDisplacement + cargoWeight;
     const kg = ((baseDisplacement * baseKg) + (cargoWeight * cargoKg)) / displacement;
-    const correctedGm = km - kg - fsc;
+    const correctedGm = km - kg - fscApplied;
     const trimCm = (cargoWeight * x) / mctc;
     const trimMeters = trimCm / 100;
     const heelMoment = cargoWeight * z;
@@ -1128,6 +1205,9 @@
     const meanDraft = vessel.draftBase + ((cargoWeight - Math.min(4200, vessel.maxCargo * 0.42)) / vessel.tpc / 100);
     const fwdDraft = meanDraft - trimMeters / 2;
     const aftDraft = meanDraft + trimMeters / 2;
+    const loadicatorDisplacement = Math.max(lightweight + cargoWeight + nonCargoWeight, displacement);
+    const dwtUsed = ((cargoWeight + nonCargoWeight) / summerDwt) * 100;
+    const dwtRemaining = summerDwt - cargoWeight - nonCargoWeight;
     const cargoVolume = cargoWeight * cargoSf;
     const capacityUse = vessel.capacity > 0 ? cargoVolume / vessel.capacity * 100 : 0;
     const compatibility = compatibilityFor(vessel, cargo);
@@ -1145,8 +1225,20 @@
       cargoVolume,
       capacityUse,
       displacement,
+      loadicatorDisplacement,
+      summerDwt,
+      lightweight,
+      constants,
+      fuelRob,
+      freshWater,
+      storesRob,
+      nonCargoWeight,
+      dwtUsed,
+      dwtRemaining,
       kg,
       correctedGm,
+      fscApplied,
+      slackTankWarning: liquidCargoPenalty > 0 || fscApplied > 0.3,
       trimCm,
       trimMeters,
       heelMoment,
@@ -1155,6 +1247,7 @@
       pitchRad,
       fwdDraft,
       aftDraft,
+      meanDraft,
       risk
     };
   }
@@ -1191,10 +1284,10 @@
 
   function renderMetrics(model) {
     metrics.innerHTML = [
-      ["Corrected GM", `${fmt(model.correctedGm, 2)} m`, `KG ${fmt(model.kg, 2)} m / FSC applied`],
+      ["Corrected GM", `${fmt(model.correctedGm, 2)} m`, `KG ${fmt(model.kg, 2)} m / FSC ${fmt(model.fscApplied, 2)} m`],
       ["Trim change", `${fmt(model.trimCm, 1)} cm`, `${model.trimMeters < 0 ? "Bow down" : "Stern down"} visualized`],
       ["Heel angle", `${fmt(model.heelDeg, 2)} deg`, `${model.z < 0 ? "Port" : model.z > 0 ? "Starboard" : "No transverse offset"}`],
-      ["Draft F / A", `${fmt(model.fwdDraft, 2)} / ${fmt(model.aftDraft, 2)} m`, `Disp. ${fmt(model.displacement, 0)} mt`],
+      ["Draft F / A", `${fmt(model.fwdDraft, 2)} / ${fmt(model.aftDraft, 2)} m`, `Disp. ${fmt(model.loadicatorDisplacement, 0)} mt`],
       ["Cargo volume", `${fmt(model.cargoVolume, 0)} m3`, `SF ${fmt(model.cargoSf, 2)} / cap ${fmt(model.capacityUse, 1)}%`],
       ["Vessel match", model.compatibility.level, model.compatibility.note]
     ].map(([label, metricValue, note]) => `
@@ -1207,6 +1300,49 @@
 
     riskPill.className = `scene-status ${model.risk.className}`;
     riskPill.textContent = `${model.risk.level} - ${model.risk.note}`;
+    renderLoadicatorSummary(model, latestProfessionalPlan);
+  }
+
+  function summaryLevel(value, watchLimit, dangerLimit, absolute = true) {
+    const check = absolute ? Math.abs(value) : value;
+    if (check >= dangerLimit) return "danger";
+    if (check >= watchLimit) return "watch";
+    return "ok";
+  }
+
+  function renderLoadicatorSummary(model, plan) {
+    if (!loadicatorSummaryGrid) return;
+    const stressRatio = plan?.stationResults?.ratio || 0;
+    const worstHold = (plan?.holdEvaluations || []).reduce((worst, item) => {
+      if (!worst) return item;
+      return item.loadPct > worst.loadPct ? item : worst;
+    }, null);
+    const ballastWeight = plan?.ballastWeight || 0;
+    const summaryCards = [
+      ["Displacement", `${fmt(model.loadicatorDisplacement, 0)} mt`, `Lightship ${fmt(model.lightweight, 0)} / ROB+constants ${fmt(model.nonCargoWeight, 0)} mt`, "ok"],
+      ["DWT used", `${fmt(model.dwtUsed, 1)}%`, `${fmt(Math.max(model.dwtRemaining, 0), 0)} mt remaining`, summaryLevel(model.dwtUsed, 82, 96, false)],
+      ["Draft F / A", `${fmt(model.fwdDraft, 2)} / ${fmt(model.aftDraft, 2)} m`, `Mean ${fmt(model.meanDraft, 2)} m`, summaryLevel(Math.max(model.fwdDraft, model.aftDraft), model.vessel.draftBase + 1.2, model.vessel.draftBase + 2.2, false)],
+      ["Trim", `${fmt(model.trimMeters, 2)} m`, model.trimMeters < 0 ? "By head" : "By stern", summaryLevel(model.trimMeters, 1.2, 2)],
+      ["Heel", `${fmt(model.heelDeg, 2)} deg`, model.z < 0 ? "Port side moment" : model.z > 0 ? "Starboard side moment" : "Centerline", summaryLevel(model.heelDeg, 2.5, 5)],
+      ["KG / KM / GM", `${fmt(model.kg, 2)} / ${fmt(model.vessel.km, 2)} / ${fmt(model.correctedGm, 2)}`, "Corrected GM after FSC", model.correctedGm < 0.55 ? "danger" : model.correctedGm < 0.85 ? "watch" : "ok"],
+      ["Free surface", `${fmt(model.fscApplied, 2)} m`, model.slackTankWarning ? "Slack/liquid tank warning" : "No major slack warning", model.slackTankWarning ? "watch" : "ok"],
+      ["Ballast", `${fmt(ballastWeight, 0)} mt`, "Fore/aft and P/S tank plan", summaryLevel(ballastWeight, 4500, 7500, false)],
+      ["Stress envelope", `${fmt(stressRatio, 0)}%`, "SF/BM simplified limit", summaryLevel(stressRatio, 72, 92, false)],
+      ["Worst hold", worstHold ? `${worstHold.hold.name} ${fmt(worstHold.loadPct, 0)}%` : "--", worstHold ? `Tanktop ${fmt(worstHold.tanktopPct, 0)}% / volume ${fmt(worstHold.volumePct, 0)}%` : "No parcels yet", worstHold ? worstHold.level : "ok"]
+    ];
+
+    loadicatorSummaryGrid.innerHTML = summaryCards.map(([label, valueText, note, level]) => `
+      <article class="${level}">
+        <span>${label}</span>
+        <strong>${valueText}</strong>
+        <small>${note}</small>
+      </article>
+    `).join("");
+
+    if (loadicatorSourceNote) {
+      const status = model.risk.level === "ALERT" ? "Class-approved loadicator required before approval." : model.risk.level === "WATCH" ? "Review the warnings before fixing the plan." : "Training envelope looks clean.";
+      loadicatorSourceNote.innerHTML = `<strong>${status}</strong> Engineering training estimate only; final operations require the vessel's approved stability booklet, loading computer and master/class confirmation.`;
+    }
   }
 
   function renderCargoPalette(model) {
@@ -1244,6 +1380,7 @@
     renderCriteria(plan.criteria);
     renderAdvice(plan.advice);
     renderDecisionSupport(singleModel, plan);
+    renderLoadicatorSummary(singleModel, plan);
 
     if (professionalPlanStatus) {
       const statusLabel = plan.overallLevel === "danger" ? "ALERT" : plan.overallLevel === "watch" ? "WATCH" : "OK";
@@ -2079,8 +2216,13 @@
       `Vessel: ${plan.vessel.label}`,
       `Total cargo: ${fmt(plan.cargoWeight, 0)} mt`,
       `Total ballast: ${fmt(plan.ballastWeight, 0)} mt`,
-      `Displacement: ${fmt(plan.displacement, 0)} mt`,
+      `Displacement: ${fmt(plan.loadicatorDisplacement || plan.displacement, 0)} mt`,
+      `Summer DWT: ${fmt(plan.summerDwt || 0, 0)} mt`,
+      `DWT used: ${fmt(plan.dwtUsed || 0, 1)}%`,
+      `DWT remaining: ${fmt(plan.dwtRemaining || 0, 0)} mt`,
+      `ROB/constants: fuel ${fmt(plan.fuelRob || 0, 0)} mt, fresh water ${fmt(plan.freshWater || 0, 0)} mt, stores/lube ${fmt(plan.storesRob || 0, 0)} mt, constants ${fmt(plan.constants || 0, 0)} mt`,
       `Corrected GM: ${fmt(plan.correctedGm, 2)} m`,
+      `Free surface correction: ${fmt(plan.fscApplied || 0, 2)} m`,
       `Trim: ${fmt(plan.trimMeters, 2)} m`,
       `Heel: ${fmt(plan.heelDeg, 2)} deg`,
       `Draft F/A: ${fmt(plan.fwdDraft, 2)} / ${fmt(plan.aftDraft, 2)} m`,
