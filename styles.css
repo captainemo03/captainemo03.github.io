@@ -591,7 +591,8 @@ main {
 .seo-intro-panel,
 .seo-tools-panel,
 .domain-readiness-panel,
-.data-source-panel {
+.data-source-panel,
+.product-navigator-panel {
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 24px;
@@ -599,6 +600,132 @@ main {
     linear-gradient(135deg, rgba(111, 255, 227, 0.08), rgba(100, 97, 255, 0.09) 42%, rgba(18, 16, 62, 0.72)),
     var(--surface);
   box-shadow: var(--shadow);
+}
+
+.product-navigator-panel {
+  background:
+    radial-gradient(circle at 8% 0%, rgba(40, 240, 198, 0.16), transparent 26%),
+    radial-gradient(circle at 85% 0%, rgba(100, 97, 255, 0.2), transparent 30%),
+    linear-gradient(135deg, rgba(3, 18, 27, 0.94), rgba(18, 16, 62, 0.78));
+}
+
+.command-search-card {
+  margin: 18px 0;
+  padding: 16px;
+  border: 1px solid rgba(40, 240, 198, 0.24);
+  border-radius: 8px;
+  background: rgba(2, 13, 18, 0.34);
+}
+
+.command-search-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.command-search-form label {
+  display: grid;
+  gap: 7px;
+}
+
+.command-search-form span {
+  color: #8dfbe8;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.command-search-form input {
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid rgba(100, 97, 255, 0.32);
+  border-radius: 8px;
+  background: rgba(3, 8, 22, 0.68);
+  color: var(--text);
+  font: inherit;
+}
+
+.command-search-form button,
+.role-picker button,
+.workflow-template-grid button {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid rgba(40, 240, 198, 0.28);
+  border-radius: 8px;
+  background: rgba(40, 240, 198, 0.12);
+  color: var(--text);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.command-search-result {
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid rgba(100, 97, 255, 0.22);
+  border-radius: 8px;
+  background: rgba(8, 14, 35, 0.52);
+}
+
+.product-navigator-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 16px;
+}
+
+.product-navigator-grid article,
+.report-history-grid div,
+.explainability-list div {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid rgba(100, 97, 255, 0.22);
+  border-radius: 8px;
+  background: rgba(8, 14, 35, 0.5);
+}
+
+.product-navigator-grid .wide-card {
+  grid-column: 1 / -1;
+}
+
+.role-picker,
+.workflow-template-grid,
+.report-history-grid,
+.explainability-list {
+  display: grid;
+  gap: 10px;
+}
+
+.role-picker {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.role-picker button.active,
+.workflow-template-grid button:hover {
+  border-color: rgba(91, 255, 220, 0.55);
+  background: rgba(91, 255, 220, 0.18);
+}
+
+.workflow-template-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
+}
+
+.explainability-list {
+  margin-top: 10px;
+}
+
+.explainability-list span,
+.report-history-grid span {
+  color: #8dfbe8;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.report-history-grid small,
+.explainability-list p {
+  color: var(--muted);
 }
 
 .seo-intro-panel {
@@ -7298,6 +7425,12 @@ code,
 
   .glossary-actions > * {
     width: 100%;
+  }
+
+  .command-search-form,
+  .role-picker,
+  .workflow-template-grid {
+    grid-template-columns: 1fr;
   }
 }
 

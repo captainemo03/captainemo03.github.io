@@ -2529,6 +2529,19 @@ const flagshipBackendMap = document.querySelector("#flagshipBackendMap");
 const flagshipHeadline = document.querySelector("#flagshipHeadline");
 const flagshipSummary = document.querySelector("#flagshipSummary");
 const runFlagshipWorkflow = document.querySelector("#runFlagshipWorkflow");
+const commandSearchForm = document.querySelector("#commandSearchForm");
+const commandSearchInput = document.querySelector("#commandSearchInput");
+const commandSearchResult = document.querySelector("#commandSearchResult");
+const startPublicDemo = document.querySelector("#startPublicDemo");
+const nextPublicDemo = document.querySelector("#nextPublicDemo");
+const publicDemoResult = document.querySelector("#publicDemoResult");
+const rolePicker = document.querySelector("#rolePicker");
+const onboardingResult = document.querySelector("#onboardingResult");
+const workflowTemplateResult = document.querySelector("#workflowTemplateResult");
+const dealScoreExplain = document.querySelector("#dealScoreExplain");
+const saveNavigatorReport = document.querySelector("#saveNavigatorReport");
+const downloadReportHistory = document.querySelector("#downloadReportHistory");
+const reportHistoryResult = document.querySelector("#reportHistoryResult");
 const redFlagForm = document.querySelector("#redFlagForm");
 const redFlagResult = document.querySelector("#redFlagResult");
 const recapBuilderForm = document.querySelector("#recapBuilderForm");
@@ -3072,6 +3085,9 @@ let decisionWatchlist = [
 ];
 let selectedVesselId = "orion";
 let selectedPortId = "istanbul";
+let activeDemoStep = 0;
+const navigatorRoleKey = "focusea-navigator-role-v1";
+const navigatorReportHistoryKey = "focusea-navigator-report-history-v1";
 let focuseaDb = {
   companies: [
     { name: "Atlas Commodities", type: "Charterer" },
@@ -3271,7 +3287,7 @@ function applyBunkerDefaultsToForms() {
 }
 
 const pageGroups = {
-  dashboard: ["#command", ".dashboard-strip", "#newsBulletin", "#trustAutopilotCenter", ".ops-board", "#commandDeck", "#smartOps"],
+  dashboard: ["#command", ".dashboard-strip", "#productNavigator", "#newsBulletin", "#trustAutopilotCenter", ".ops-board", "#commandDeck", "#smartOps"],
   flagship: ["#flagshipWorkflow"],
   passport: ["#decisionPassportPanel"],
   theater: ["#commandTheaterPanel"],
@@ -6849,6 +6865,7 @@ function renderFlagshipWorkflow() {
       </div>
     `).join("");
   }
+  renderDealScoreExplainability();
 }
 
 function handleFlagshipDownload(type) {
@@ -6859,6 +6876,172 @@ function handleFlagshipDownload(type) {
     return;
   }
   downloadPdfFile("focusea-flagship-workflow-pack.pdf", "Focusea Flagship Workflow Pack", lastFlagshipWorkflow.reportText);
+}
+
+function navigatorSearchItems() {
+  return [
+    { keywords: ["demurrage", "despatch", "dispatch", "laytime", "sof", "nor"], page: "tools", title: "Laytime / Demurrage tools", action: "Open calculator tools and use the laytime or demurrage page.", link: "demurrage-calculator.html" },
+    { keywords: ["fixture", "recap", "offer", "coal", "grain", "tanker", "container", "risk"], page: "flagship", title: "Flagship Workflow", action: "Paste the fixture mail and generate risk, TCE, recap and client output." },
+    { keywords: ["broker", "chartering", "mail", "counter", "subjects"], page: "broker", title: "Broker Desk", action: "Use parser, counter email, recap and negotiation tools." },
+    { keywords: ["port", "mersin", "rotterdam", "singapore", "draft", "pilotage", "tug"], page: "portsPage", title: "Port Intelligence", action: "Search the port atlas and open port cost / restriction tools." },
+    { keywords: ["gm", "gz", "stability", "trim", "heel", "ballast", "loadicator", "shear", "bending"], page: "portsPage", title: "Load-Stability Lab", action: "Open the side stability site for GM, trim, heel, SF/BM and ballast.", link: "stability.html" },
+    { keywords: ["glossary", "dictionary", "sözlük", "sozluk", "meaning", "ne demek"], page: "portsPage", title: "Maritime Dictionary", action: "Search glossary definitions with broker use and examples." },
+    { keywords: ["news", "market", "baltic", "bunker", "index"], page: "market", title: "Market & News", action: "Open market intelligence, news and source-confidence panels." },
+    { keywords: ["account", "login", "sign up", "üye", "uye"], page: "accountPage", title: "Account Center", action: "Create account, log in and resume the last workspace." }
+  ];
+}
+
+function runCommandSearch(queryValue = "", shouldNavigate = true) {
+  if (!commandSearchResult) return;
+  const query = String(queryValue || commandSearchInput?.value || "").trim().toLowerCase();
+  const match = navigatorSearchItems().find((item) => item.keywords.some((keyword) => query.includes(keyword))) || navigatorSearchItems()[1];
+  commandSearchResult.innerHTML = `
+    <strong>${escapeHtml(match.title)}</strong>
+    <p>${escapeHtml(match.action)}</p>
+    <div class="button-row">
+      <button type="button" class="ghost-button small" data-navigator-open="${escapeHtml(match.page)}">Open section</button>
+      ${match.link ? `<a class="ghost-button small" href="${escapeHtml(match.link)}">Open direct page</a>` : ""}
+    </div>
+  `;
+  if (query && shouldNavigate) activatePage(match.page);
+}
+
+const publicDemoSteps = [
+  { page: "dashboard", title: "1. Command Search", text: "Start with one search box so visitors can find calculators, glossary terms, ports or broker workflows." },
+  { page: "flagship", title: "2. Flagship Workflow", text: "Paste one fixture mail and produce TCE, P&L, risk, document checks, alerts and client output." },
+  { page: "passport", title: "3. Deal Passport", text: "Show the decision trail: who entered what, why the score changed and what action is next." },
+  { page: "market", title: "4. Market & News", text: "Show source-labelled news, bunker and licensed-required index fields honestly." },
+  { page: "portsPage", title: "5. Port / Glossary / Stability", text: "Finish with port intelligence, maritime dictionary and the load-stability side site." }
+];
+
+function renderPublicDemo(step = activeDemoStep, shouldNavigate = true) {
+  if (!publicDemoResult) return;
+  activeDemoStep = ((step % publicDemoSteps.length) + publicDemoSteps.length) % publicDemoSteps.length;
+  const item = publicDemoSteps[activeDemoStep];
+  if (shouldNavigate) activatePage(item.page);
+  publicDemoResult.innerHTML = `
+    <strong>${escapeHtml(item.title)}</strong>
+    <p>${escapeHtml(item.text)}</p>
+    <small>Step ${activeDemoStep + 1} of ${publicDemoSteps.length}. Use Next Step to continue the product tour.</small>
+  `;
+}
+
+function roleRecommendations(role = "Broker") {
+  const rows = {
+    Broker: ["Start in Flagship Workflow", "Use Broker Desk for counter mail", "Save client-ready PDF packs"],
+    Student: ["Start with Maritime Dictionary", "Use calculators and stability lab", "Run Public Demo before presentation"],
+    Chartering: ["Use Voyage Estimate and Deal Score", "Check clauses and subjects", "Track market/source confidence"],
+    Operations: ["Use Port Intelligence", "Check laytime/SOF and weather delay", "Use Loadicator for cargo and ballast"]
+  };
+  return rows[role] || rows.Broker;
+}
+
+function renderOnboarding(role = safeLocalGet(navigatorRoleKey, "Broker")) {
+  if (!onboardingResult) return;
+  safeLocalSet(navigatorRoleKey, role);
+  if (rolePicker) {
+    rolePicker.querySelectorAll("[data-role]").forEach((button) => {
+      button.classList.toggle("active", button.dataset.role === role);
+    });
+  }
+  onboardingResult.innerHTML = `
+    <strong>${escapeHtml(role)} mode active</strong>
+    <div class="ops-list">
+      ${roleRecommendations(role).map((item) => `<div><strong>${escapeHtml(item)}</strong><span>Recommended workspace action</span></div>`).join("")}
+    </div>
+  `;
+}
+
+function workflowTemplates() {
+  return {
+    dryBulk: { page: "flagship", title: "Dry Bulk Fixture", steps: ["Paste coal/grain offer", "Run TCE and bunker sensitivity", "Check NOR, laytime and demurrage", "Generate recap and counter mail"] },
+    tanker: { page: "broker", title: "Tanker Fixture", steps: ["Check cargo grade and Worldscale/freight", "Review vetting and terminal approval", "Estimate bunker and demurrage", "Prepare firm offer or counter"] },
+    container: { page: "commercial", title: "Container Shipment", steps: ["Check TEU freight and D&D exposure", "Review port cut-off and congestion", "Build client summary", "Export report"] },
+    claim: { page: "dealIQ", title: "Demurrage Claim", steps: ["Paste SOF/NOR", "Calculate laytime balance", "Check time bar and evidence", "Generate claim pack"] },
+    portCost: { page: "portsPage", title: "Port Cost Estimate", steps: ["Select port and cargo", "Check draft/LOA restrictions", "Estimate pilotage/towage/dues", "Save client-ready note"] }
+  };
+}
+
+function renderWorkflowTemplate(key = "dryBulk", shouldNavigate = true) {
+  if (!workflowTemplateResult) return;
+  const template = workflowTemplates()[key] || workflowTemplates().dryBulk;
+  if (shouldNavigate) activatePage(template.page);
+  workflowTemplateResult.innerHTML = `
+    <strong>${escapeHtml(template.title)}</strong>
+    <ol>${template.steps.map((step) => `<li>${escapeHtml(step)}</li>`).join("")}</ol>
+  `;
+}
+
+function renderDealScoreExplainability() {
+  if (!dealScoreExplain) return;
+  if (!lastFlagshipWorkflow) renderFlagshipWorkflow();
+  const pack = lastFlagshipWorkflow;
+  const rows = pack ? [
+    [`Commercial`, pack.estimate.tce < 22000 ? "TCE below common target; improve freight or reduce costs." : "TCE clears the default target screen."],
+    [`Legal`, pack.clause.ownerRisk > 55 ? "Clause wording pushes risk toward owner/needs review." : "No extreme clause risk detected."],
+    [`Ops`, pack.alerts.some((item) => /watch|missing|risk/i.test(item.status)) ? "Alerts show schedule/document/market exposure." : "Operational alerts are controlled."],
+    [`Data`, "Bunker is labelled; Baltic-style values remain licensed-required unless connected."]
+  ] : [
+    ["Pending", "Run Flagship Workflow to build the explainability panel."]
+  ];
+  dealScoreExplain.innerHTML = `
+    <strong>${pack ? `${pack.decision} / ${pack.decisionScore} of 100` : "No score yet"}</strong>
+    <div class="explainability-list">
+      ${rows.map(([label, text]) => `<div><span>${escapeHtml(label)}</span><p>${escapeHtml(text)}</p></div>`).join("")}
+    </div>
+  `;
+}
+
+function getNavigatorReports() {
+  return safeLocalGet(navigatorReportHistoryKey, []) || [];
+}
+
+function saveNavigatorSnapshot() {
+  const history = getNavigatorReports();
+  const role = safeLocalGet(navigatorRoleKey, "Broker");
+  const pack = lastFlagshipWorkflow || buildFlagshipWorkflowPack();
+  history.unshift({
+    title: "Navigator Snapshot",
+    role,
+    decision: pack.decision,
+    score: pack.decisionScore,
+    tce: Math.round(pack.estimate.tce),
+    route: pack.parsed.route || "TBC",
+    time: new Date().toLocaleString()
+  });
+  safeLocalSet(navigatorReportHistoryKey, history.slice(0, 12));
+  renderReportHistory();
+}
+
+function renderReportHistory() {
+  if (!reportHistoryResult) return;
+  const history = getNavigatorReports();
+  reportHistoryResult.innerHTML = history.length ? history.slice(0, 8).map((item) => `
+    <div>
+      <strong>${escapeHtml(item.title)}</strong>
+      <span>${escapeHtml(item.time)} | ${escapeHtml(item.role)} | ${escapeHtml(item.decision)}</span>
+      <small>Score ${item.score}/100 | TCE ${money(item.tce)}/day | ${escapeHtml(item.route)}</small>
+    </div>
+  `).join("") : `<div><strong>No saved report yet</strong><span>Use Save Navigator Snapshot after running a workflow.</span></div>`;
+}
+
+function navigatorHistoryText() {
+  const history = getNavigatorReports();
+  return [
+    "FOCUSEA REPORT HISTORY",
+    `Generated: ${new Date().toLocaleString()}`,
+    "",
+    ...history.map((item) => `${item.time} | ${item.role} | ${item.decision} | score ${item.score} | TCE ${item.tce} | ${item.route}`)
+  ].join("\n");
+}
+
+function initializeProductNavigator() {
+  runCommandSearch(commandSearchInput?.value || "demurrage", false);
+  renderOnboarding();
+  renderPublicDemo(0, false);
+  renderWorkflowTemplate("dryBulk", false);
+  renderDealScoreExplainability();
+  renderReportHistory();
 }
 
 function renderFrontFixtureAutopilot() {
@@ -18960,7 +19143,43 @@ bindBrokerForm(frontBackendForm, renderFrontBackendPlan);
 bindBrokerForm(flagshipWorkflowForm, renderFlagshipWorkflow);
 bindBrokerForm(flagshipOcrForm, renderFlagshipWorkflow);
 if (runFlagshipWorkflow) {
-  runFlagshipWorkflow.addEventListener("click", renderFlagshipWorkflow);
+  runFlagshipWorkflow.addEventListener("click", () => {
+    renderFlagshipWorkflow();
+    renderDealScoreExplainability();
+  });
+}
+if (commandSearchForm) {
+  commandSearchForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    runCommandSearch(commandSearchInput?.value || "");
+  });
+}
+if (startPublicDemo) {
+  startPublicDemo.addEventListener("click", () => renderPublicDemo(0));
+}
+if (nextPublicDemo) {
+  nextPublicDemo.addEventListener("click", () => renderPublicDemo(activeDemoStep + 1));
+}
+if (rolePicker) {
+  rolePicker.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-role]");
+    if (!button) return;
+    renderOnboarding(button.dataset.role || "Broker");
+  });
+}
+document.querySelectorAll("[data-workflow-template]").forEach((button) => {
+  button.addEventListener("click", () => renderWorkflowTemplate(button.dataset.workflowTemplate));
+});
+document.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-navigator-open]");
+  if (!button) return;
+  activatePage(button.dataset.navigatorOpen || "dashboard");
+});
+if (saveNavigatorReport) {
+  saveNavigatorReport.addEventListener("click", saveNavigatorSnapshot);
+}
+if (downloadReportHistory) {
+  downloadReportHistory.addEventListener("click", () => downloadTextFile("focusea-report-history.txt", navigatorHistoryText()));
 }
 bindBrokerForm(redFlagForm, renderRedFlagSystem);
 bindBrokerForm(recapBuilderForm, renderRecapBuilder);
@@ -19826,6 +20045,7 @@ renderMarketIndexes();
 renderDataTrustLayer();
 runAllTrustAutopilot();
 renderFlagshipWorkflow();
+initializeProductNavigator();
 renderBalticFeedPanel();
 renderSecurityShield();
 renderPythonHistory();

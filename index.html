@@ -26,7 +26,7 @@
     <link rel="icon" href="favicon.svg?v=focusea-badge2" type="image/svg+xml" />
     <link rel="manifest" href="manifest.webmanifest" />
     <script src="theme.js?v=theme-1"></script>
-    <link rel="stylesheet" href="styles.css?v=glossary-center-1" />
+    <link rel="stylesheet" href="styles.css?v=product-navigator-1" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -183,6 +183,76 @@
             <strong data-live="weather">9</strong>
             <small data-live-note="weather">Indian Ocean watch</small>
           </article>
+        </section>
+
+        <section class="product-navigator-panel" id="productNavigator" aria-label="Focusea product navigator">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Product Navigator</p>
+              <h2>Search, demo and workflow templates so users know exactly where to go.</h2>
+            </div>
+            <div class="status-pill">Guided Mode</div>
+          </div>
+
+          <div class="command-search-card">
+            <form class="command-search-form" id="commandSearchForm">
+              <label>
+                <span>Focusea Command Search</span>
+                <input id="commandSearchInput" name="commandSearch" placeholder="Try: demurrage hesapla, coal fixture risk, Mersin port, GM stability, chartering glossary" value="demurrage hesapla" />
+              </label>
+              <button type="submit">Go</button>
+            </form>
+            <div class="command-search-result" id="commandSearchResult"></div>
+          </div>
+
+          <div class="product-navigator-grid">
+            <article>
+              <div class="mini-heading"><span>Public Demo Mode</span><strong>3-minute guided tour</strong></div>
+              <p>Run the strongest path for teachers, friends or first-time visitors.</p>
+              <div class="button-row">
+                <button type="button" id="startPublicDemo">Start Demo</button>
+                <button type="button" class="ghost-button small" id="nextPublicDemo">Next Step</button>
+              </div>
+              <div class="broker-output" id="publicDemoResult"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>Professional Onboarding</span><strong>Personalize the dashboard</strong></div>
+              <div class="role-picker" id="rolePicker">
+                <button type="button" data-role="Broker">Broker</button>
+                <button type="button" data-role="Student">Student</button>
+                <button type="button" data-role="Chartering">Chartering</button>
+                <button type="button" data-role="Operations">Operations</button>
+              </div>
+              <div class="broker-output" id="onboardingResult"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>Broker Workflow Templates</span><strong>Open the right tools in order</strong></div>
+              <div class="workflow-template-grid">
+                <button type="button" data-workflow-template="dryBulk">Dry Bulk Fixture</button>
+                <button type="button" data-workflow-template="tanker">Tanker Fixture</button>
+                <button type="button" data-workflow-template="container">Container Shipment</button>
+                <button type="button" data-workflow-template="claim">Demurrage Claim</button>
+                <button type="button" data-workflow-template="portCost">Port Cost Estimate</button>
+              </div>
+              <div class="broker-output" id="workflowTemplateResult"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>Deal Score Explainability</span><strong>Why Fix / Watch / Avoid?</strong></div>
+              <div class="score-explain-card" id="dealScoreExplain"></div>
+            </article>
+
+            <article class="wide-card">
+              <div class="mini-heading"><span>Report Center</span><strong>Generated outputs and history</strong></div>
+              <div class="button-row">
+                <button type="button" id="saveNavigatorReport">Save Navigator Snapshot</button>
+                <button type="button" class="ghost-button small" id="downloadReportHistory">Download History</button>
+              </div>
+              <div class="report-history-grid" id="reportHistoryResult"></div>
+            </article>
+          </div>
         </section>
 
         <section class="seo-intro-panel" aria-labelledby="whatIsFocuseaTitle">
@@ -4527,7 +4597,7 @@ Subject: Firm offer
     </dialog>
 
     <script src="monetization-config.js?v=monetization-ready-3"></script>
-    <script src="script.js?v=glossary-center-1"></script>
+    <script src="script.js?v=product-navigator-1"></script>
     <script src="monetization.js?v=monetization-ready-3"></script>
   </body>
 </html>
