@@ -2570,6 +2570,7 @@ const insuranceClaimRiskResult = document.querySelector("#insuranceClaimRiskResu
 const insuranceGlossaryResult = document.querySelector("#insuranceGlossaryResult");
 const insuranceDownloadTxt = document.querySelector("#insuranceDownloadTxt");
 const insuranceDownloadPdf = document.querySelector("#insuranceDownloadPdf");
+const insuranceDownloadEmail = document.querySelector("#insuranceDownloadEmail");
 const insuranceExportStatus = document.querySelector("#insuranceExportStatus");
 const redFlagForm = document.querySelector("#redFlagForm");
 const redFlagResult = document.querySelector("#redFlagResult");
@@ -7932,7 +7933,7 @@ function calculateInsuranceQuote(values = {}) {
   const deductibleCredit = deductibleRatio >= 0.02 ? 0.88 : deductibleRatio >= 0.01 ? 0.94 : 1;
   const premium = (Number(values.insuredValue) || 0) * coverage.baseRate * zone.multiplier * ageMultiplier * typeMultiplier * cargoMultiplier * claimMultiplier * deductibleCredit;
   const riskScore = clamp(Math.round(coverage.risk + zone.score + cargo.risk * 0.26 + age * 0.9 + (Number(values.claims) || 0) * 8), 0, 100);
-  const referral = riskScore >= 72 ? "Refer to Underwriter" : riskScore >= 48 ? "Medium / review terms" : "Low / quoteable";
+  const referral = riskScore >= 78 ? "Refer to Underwriter" : riskScore >= 62 ? "High / senior review" : riskScore >= 42 ? "Medium / review terms" : "Low / quoteable";
   const recommendedDeductible = Math.max(Number(values.deductible) || 0, (Number(values.insuredValue) || 0) * (riskScore >= 70 ? 0.012 : riskScore >= 45 ? 0.008 : 0.005));
   return {
     coverage,
@@ -7959,6 +7960,32 @@ function insuranceClaimRisks(values = {}, quote = calculateInsuranceQuote(values
   ];
 }
 
+function insuranceEmailDraft(values = collectFormValues(insuranceQuoteForm), quote = calculateInsuranceQuote(values)) {
+  return [
+    `Subject: Marine insurance indication - ${values.vesselName || "Vessel"} / ${values.coverageType || "Cover"}`,
+    "",
+    "Dear Underwriting Team,",
+    "",
+    "Please find below an indicative marine insurance quote request generated in Focusea:",
+    "",
+    `Vessel: ${values.vesselName || "-"} / IMO ${values.imo || "-"}`,
+    `Type / flag / class: ${values.vesselType || "-"} / ${values.flag || "-"} / ${values.classSociety || "-"}`,
+    `Voyage: ${values.loadPort || "-"} to ${values.dischargePort || "-"} (${values.route || "-"})`,
+    `Cargo: ${quote.cargo.label}`,
+    `Coverage: ${values.coverageType || "-"}`,
+    `Insured value: ${money(values.insuredValue || 0)}`,
+    `Deductible: ${money(values.deductible || 0)} / suggested ${money(quote.recommendedDeductible)}`,
+    `Estimated premium indication: ${money(quote.premium)}`,
+    `Risk result: ${quote.referral} (${quote.riskScore}/100)`,
+    "",
+    `Broker / underwriter note: ${values.underwriterNote || "Please review terms, exclusions and subjectivities."}`,
+    "",
+    "Subject to underwriter review, sanctions screening, claims record, class confirmation and final policy wording.",
+    "",
+    "Best regards,"
+  ].join("\n");
+}
+
 function insuranceQuoteText(values = collectFormValues(insuranceQuoteForm), quote = calculateInsuranceQuote(values)) {
   const risks = insuranceClaimRisks(values, quote);
   return [
@@ -7972,6 +7999,8 @@ function insuranceQuoteText(values = collectFormValues(insuranceQuoteForm), quot
     "",
     "VOYAGE / COVER",
     `Route: ${values.route || "-"}`,
+    `Load port: ${values.loadPort || "-"}`,
+    `Discharge port: ${values.dischargePort || "-"}`,
     `Cargo: ${quote.cargo.label}`,
     `Coverage: ${values.coverageType || "-"}`,
     `Risk zone: ${values.riskZone || "-"}`,
@@ -7987,6 +8016,7 @@ function insuranceQuoteText(values = collectFormValues(insuranceQuoteForm), quot
     quote.coverage.note,
     quote.zone.note,
     `Cargo note: ${quote.cargo.note}`,
+    `Broker / underwriter note: ${values.underwriterNote || "-"}`,
     "",
     "CLAIM RISK PANEL",
     ...risks.map((risk) => `- ${risk.name}: ${Math.round(risk.score)}/100 - ${risk.note}`),
@@ -8017,6 +8047,7 @@ function renderInsuranceDesk() {
       <div class="ops-list">
         <div><strong>${escapeHtml(values.coverageType || "Coverage")}</strong><span>${escapeHtml(quote.coverage.note)}</span></div>
         <div><strong>Route watch</strong><span>${escapeHtml(quote.zone.note)}</span></div>
+        <div><strong>Broker / underwriter note</strong><span>${escapeHtml(values.underwriterNote || "No note entered.")}</span></div>
         <div><strong>Exclusions to review</strong><span>War breach, sanctions, wear and tear, unseaworthiness, improper packing, late notice, undeclared dangerous cargo.</span></div>
       </div>
     `;
@@ -8035,6 +8066,7 @@ function renderInsuranceGlossary() {
   const terms = [
     ["Institute Cargo Clauses", "Standard cargo insurance wording sets for cargo risks."],
     ["Deductible", "Amount retained by assured before insurer pays."],
+    ["Total Loss", "Actual loss where ship or cargo is completely lost or irrecoverable."],
     ["Constructive Total Loss", "Loss where recovery/repair cost may exceed insured value threshold."],
     ["General Average", "Shared contribution after extraordinary sacrifice or expenditure for common safety."],
     ["Salvage", "Reward/cost related to saving ship or cargo from peril."],
@@ -20234,6 +20266,15 @@ if (insuranceDownloadPdf) {
     if (!lastInsuranceQuote) renderInsuranceDesk();
     downloadPdfFile("focusea-marine-insurance-quote.pdf", "Focusea Marine Insurance Quote", lastInsuranceQuote?.reportText || insuranceQuoteText());
     if (insuranceExportStatus) insuranceExportStatus.innerHTML = `<small class="download-confirm">Downloaded PDF quote.</small>`;
+  });
+}
+if (insuranceDownloadEmail) {
+  insuranceDownloadEmail.addEventListener("click", () => {
+    if (!lastInsuranceQuote) renderInsuranceDesk();
+    const values = lastInsuranceQuote?.values || collectFormValues(insuranceQuoteForm);
+    const quote = lastInsuranceQuote?.quote || calculateInsuranceQuote(values);
+    downloadTextFile("focusea-marine-insurance-email-draft.txt", insuranceEmailDraft(values, quote));
+    if (insuranceExportStatus) insuranceExportStatus.innerHTML = `<small class="download-confirm">Downloaded email draft.</small>`;
   });
 }
 bindBrokerForm(redFlagForm, renderRedFlagSystem);

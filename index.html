@@ -27,7 +27,7 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <script src="theme.js?v=theme-1"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="styles.css?v=marine-insurance-desk-1" />
+    <link rel="stylesheet" href="styles.css?v=insurance-quote-complete-1" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -4662,10 +4662,13 @@ Subject: Firm offer
                 <label><span>Cargo type</span><select name="cargoType"><option value="coal">Coal</option><option value="grain">Grain</option><option value="ironOre">Iron ore</option><option value="container">Container</option><option value="crudeOil">Crude oil</option><option value="lng">LNG</option><option value="chemicals">Chemicals</option><option value="projectCargo">Project cargo</option></select></label>
                 <label><span>Coverage</span><select name="coverageType"><option>Hull & Machinery</option><option>P&I</option><option>Cargo Insurance</option><option>War Risk</option><option>Kidnap & Ransom</option><option>Charterers Liability</option><option>Freight, Demurrage & Defence</option><option>Pollution Liability</option><option>Port Risk Cover</option></select></label>
                 <label><span>Route</span><input name="route" value="Indonesia -> India via Malacca" /></label>
+                <label><span>Load port</span><input name="loadPort" value="Taboneo, Indonesia" /></label>
+                <label><span>Discharge port</span><input name="dischargePort" value="Paradip, India" /></label>
                 <label><span>Insured value USD</span><input name="insuredValue" type="number" value="28000000" min="0" step="100000" /></label>
                 <label><span>Deductible USD</span><input name="deductible" type="number" value="150000" min="0" step="10000" /></label>
                 <label><span>Claims last 5 years</span><input name="claims" type="number" value="1" min="0" step="1" /></label>
                 <label><span>Risk zone</span><select name="riskZone"><option>Normal trading area</option><option>Congested port / strait</option><option>Weather exposed</option><option>War risk / piracy watch</option><option>Sanctions-sensitive route</option></select></label>
+                <label class="wide-label"><span>Broker / underwriter note</span><textarea name="underwriterNote">Subject to clean sanctions screening, class confirmation, claims record, trading warranty and no material change before attachment.</textarea></label>
                 <button type="submit">Generate Quote</button>
               </form>
               <div class="broker-output insurance-quote-output" id="insuranceQuoteResult"></div>
@@ -4692,6 +4695,7 @@ Subject: Firm offer
               <div class="button-row">
                 <button type="button" class="ghost-button small" id="insuranceDownloadTxt">Download Quote TXT</button>
                 <button type="button" class="ghost-button small" id="insuranceDownloadPdf">Download Quote PDF</button>
+                <button type="button" class="ghost-button small" id="insuranceDownloadEmail">Download Email Draft</button>
               </div>
               <div class="broker-output" id="insuranceExportStatus"></div>
             </article>
@@ -4820,7 +4824,7 @@ Subject: Firm offer
 
     <script src="monetization-config.js?v=monetization-ready-3"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="script.js?v=marine-insurance-desk-1"></script>
+    <script src="script.js?v=insurance-quote-complete-1"></script>
     <script src="monetization.js?v=monetization-ready-3"></script>
   </body>
 </html>

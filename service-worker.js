@@ -1,4 +1,4 @@
-const FOCUSEA_CACHE = "focusea-marine-insurance-desk-1";
+const FOCUSEA_CACHE = "focusea-insurance-quote-complete-1";
 const FOCUSEA_ASSETS = [
   "./",
   "./index.html",
