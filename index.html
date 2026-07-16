@@ -26,7 +26,7 @@
     <link rel="icon" href="favicon.svg?v=focusea-badge2" type="image/svg+xml" />
     <link rel="manifest" href="manifest.webmanifest" />
     <script src="theme.js?v=theme-1"></script>
-    <link rel="stylesheet" href="styles.css?v=overflow-guard-1" />
+    <link rel="stylesheet" href="styles.css?v=flagship-workflow-1" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -92,6 +92,7 @@
 
         <nav class="nav-list" data-page-nav>
           <a href="#dashboard" class="active" data-page-link="dashboard">Dashboard</a>
+          <a href="#flagship" data-page-link="flagship">Flagship Workflow</a>
           <a href="#passport" data-page-link="passport">Deal Passport</a>
           <a href="#theater" data-page-link="theater">Workflow Control</a>
           <a href="#saasCore" data-page-link="saasCore">SaaS Core</a>
@@ -155,6 +156,7 @@
           <div class="hero-actions">
             <button type="button" class="ghost-button" data-command-presentation>Demo Flow</button>
             <a href="#passport" class="primary-button" data-page-link="passport">Open Deal Passport</a>
+            <a href="#flagship" class="ghost-button" data-page-link="flagship">Open Flagship Workflow</a>
             <a href="#broker" class="ghost-button" data-page-link="broker">Open Broker Desk</a>
             <a href="#accountPage" class="ghost-button" data-page-link="accountPage">Sign Up / Log In</a>
           </div>
@@ -458,6 +460,96 @@
               <div class="mini-heading"><span>8. Broker Daily Brief</span><strong>Today&apos;s 8 commercial actions</strong></div>
               <button type="button" class="ghost-button small" id="refreshFrontDailyBrief">Refresh Daily Brief</button>
               <div class="broker-output" id="frontDailyBriefResult"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="flagship-workflow-panel" id="flagshipWorkflow">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Focusea Flagship Workflow</p>
+              <h2>Paste one fixture mail; convert it into a deal room, risk gate, document pack, client portal and loadicator action.</h2>
+              <p>One screen ties the broker workflow together: offer parsing, voyage economics, document intelligence, time-bar alerts, source confidence and downloadable reports.</p>
+            </div>
+            <div class="status-pill">End-to-end Mode</div>
+          </div>
+
+          <div class="flagship-hero">
+            <div>
+              <span class="micro-label">Main product story</span>
+              <h3 id="flagshipHeadline">Mail in. Broker output out.</h3>
+              <p id="flagshipSummary">Run the workflow to turn a raw fixture message into commercial, legal, ops and client-ready actions.</p>
+              <div class="button-row">
+                <button type="button" id="runFlagshipWorkflow">Run Flagship Workflow</button>
+                <button type="button" class="ghost-button small" data-download-flagship="pdf">Download PDF Pack</button>
+                <button type="button" class="ghost-button small" data-download-flagship="json">Download JSON</button>
+                <a href="stability.html" class="ghost-button small">Open Loadicator</a>
+              </div>
+            </div>
+            <div class="flagship-stack">
+              <strong>Offer</strong>
+              <span>to</span>
+              <strong>Deal Room</strong>
+              <span>to</span>
+              <strong>Client Pack</strong>
+            </div>
+          </div>
+
+          <div class="flagship-grid">
+            <article class="wide-card">
+              <div class="mini-heading"><span>1. Fixture AI Autopilot</span><strong>Parse, estimate, score, counter</strong></div>
+              <form class="broker-form single-column" id="flagshipWorkflowForm">
+                <label><span>Paste fixture mail / WhatsApp offer</span><textarea name="fixtureText">Firm offer: 50k coal Indonesia to India laycan 10/15 Jul freight USD 18.50 pmt FIOST, demurrage USD 18,000/day, Supramax. 2.5 pct total commission. Subjects stem and receiver approval by 1700 LT. NOR WIBON/WIPON and time lost waiting berth to count as laytime.</textarea></label>
+                <div class="form-row">
+                  <label><span>Target TCE USD/day</span><input name="targetTce" type="number" value="22000" min="0" step="500" /></label>
+                  <label><span>Bunker USD/t</span><input name="bunkerPrice" type="number" value="686.5" min="0" step="0.5" /></label>
+                  <label><span>Daily hire USD</span><input name="dailyHire" type="number" value="14500" min="0" step="250" /></label>
+                  <label><span>Delay days</span><input name="delayDays" type="number" value="2" min="0" step="0.5" /></label>
+                </div>
+              </form>
+              <div class="broker-output" id="flagshipWorkflowResult"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>2. Document Upload / OCR Lane</span><strong>SOF, NOR, invoice, CP text</strong></div>
+              <form class="broker-form single-column" id="flagshipOcrForm">
+                <label><span>Upload document placeholder</span><input name="documentFile" type="file" accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg" /></label>
+                <label><span>Paste extracted text</span><textarea name="ocrText">SOF: NOR tendered 10 Jul 1000, berthed 10 Jul 1800, loading started 11 Jul 0600, rain stop 12 Jul 0300-0900, completed 14 Jul 2200. Invoice demurrage USD 20,000/day.</textarea></label>
+              </form>
+              <div class="broker-output" id="flagshipOcrResult"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>3. Deal Room Dossier</span><strong>Offer to claim file</strong></div>
+              <div class="flagship-dossier" id="flagshipDealRoom"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>4. Alert Center</span><strong>Deadlines and market changes</strong></div>
+              <div class="flagship-alerts" id="flagshipAlertCenter"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>5. Client Portal Preview</span><strong>Shareable customer view</strong></div>
+              <div class="flagship-client-portal" id="flagshipClientPortal"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>6. Data Source Admin</span><strong>Live vs simulated vs licensed</strong></div>
+              <div class="flagship-source-admin" id="flagshipSourceAdmin"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>7. Loadicator Bridge</span><strong>Stability action queue</strong></div>
+              <div class="flagship-loadicator-bridge" id="flagshipLoadicatorBridge">
+                <p>Send cargo quantity, parcel type and hold risk into the 3D stability / loadicator unit. Use it for trim, heel, GM, ballast and loading sequence checks.</p>
+                <a href="stability.html" class="ghost-button small">Open Stability Unit</a>
+              </div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>8. Backend Readiness</span><strong>Accounts, vault, reports, API</strong></div>
+              <div class="flagship-backend-map" id="flagshipBackendMap"></div>
             </article>
           </div>
         </section>

@@ -2295,6 +2295,18 @@ const frontBackendForm = document.querySelector("#frontBackendForm");
 const frontBackendResult = document.querySelector("#frontBackendResult");
 const refreshFrontDailyBrief = document.querySelector("#refreshFrontDailyBrief");
 const frontDailyBriefResult = document.querySelector("#frontDailyBriefResult");
+const flagshipWorkflowForm = document.querySelector("#flagshipWorkflowForm");
+const flagshipOcrForm = document.querySelector("#flagshipOcrForm");
+const flagshipWorkflowResult = document.querySelector("#flagshipWorkflowResult");
+const flagshipDealRoom = document.querySelector("#flagshipDealRoom");
+const flagshipOcrResult = document.querySelector("#flagshipOcrResult");
+const flagshipAlertCenter = document.querySelector("#flagshipAlertCenter");
+const flagshipClientPortal = document.querySelector("#flagshipClientPortal");
+const flagshipSourceAdmin = document.querySelector("#flagshipSourceAdmin");
+const flagshipBackendMap = document.querySelector("#flagshipBackendMap");
+const flagshipHeadline = document.querySelector("#flagshipHeadline");
+const flagshipSummary = document.querySelector("#flagshipSummary");
+const runFlagshipWorkflow = document.querySelector("#runFlagshipWorkflow");
 const redFlagForm = document.querySelector("#redFlagForm");
 const redFlagResult = document.querySelector("#redFlagResult");
 const recapBuilderForm = document.querySelector("#recapBuilderForm");
@@ -2755,6 +2767,7 @@ let lastFrontDocumentRoom = null;
 let lastFrontTimeBar = null;
 let lastFrontBackend = null;
 let lastFrontDailyBrief = null;
+let lastFlagshipWorkflow = null;
 let lastDecisionPassport = null;
 let selectedMarketIndexId = "bdi";
 let lastRedFlagReport = null;
@@ -3037,6 +3050,7 @@ function applyBunkerDefaultsToForms() {
 
 const pageGroups = {
   dashboard: ["#command", ".dashboard-strip", "#newsBulletin", "#trustAutopilotCenter", ".ops-board", "#commandDeck", "#smartOps"],
+  flagship: ["#flagshipWorkflow"],
   passport: ["#decisionPassportPanel"],
   theater: ["#commandTheaterPanel"],
   saasCore: ["#saasCorePanel"],
@@ -6413,6 +6427,216 @@ function renderFrontCarbonDesk() {
     <div class="confidence-row"><span>FuelEU Maritime and IMO DCS / CII</span><em class="source-badge verified">verified</em><a href="https://transport.ec.europa.eu/transport-modes/maritime/decarbonising-maritime-transport-fueleu-maritime_en" target="_blank" rel="noopener noreferrer">FuelEU source</a><a href="https://www.imo.org/en/OurWork/Environment/Pages/Data-Collection-System.aspx" target="_blank" rel="noopener noreferrer">IMO DCS source</a></div>
     <small>${escapeHtml(action)} Commercial screen only; final compliance depends on verified MRV/DCS data and charter party allocation.</small>
   `;
+}
+
+function buildFlagshipWorkflowPack() {
+  const workflowValues = flagshipWorkflowForm ? collectFormValues(flagshipWorkflowForm) : {};
+  const ocrValues = flagshipOcrForm ? collectFormValues(flagshipOcrForm) : {};
+  const fixtureText = String(workflowValues.fixtureText || "");
+  const ocrText = String(ocrValues.ocrText || "");
+  const parsed = parseOfferText(fixtureText);
+  const risk = scoreParsedOffer(parsed);
+  const clause = analyzeClauseText(`${fixtureText}\n${ocrText}`);
+  const targetTce = Number(workflowValues.targetTce) || 22000;
+  const bunkerPrice = Number(workflowValues.bunkerPrice) || liveFeedState.bunker || verifiedBunkerSnapshot.ports.singapore.vlsfo;
+  const dailyHire = Number(workflowValues.dailyHire) || autoDealDailyHire(parsed.cargoType);
+  const delayDays = Number(workflowValues.delayDays) || 0;
+  const distance = estimateAutoDealDistance(parsed, fixtureText);
+  const estimate = calculateVoyageEstimate({
+    cargoType: parsed.cargoType,
+    distance,
+    speed: autoDealSpeedFor(parsed.cargoType),
+    cargoQty: parsed.quantity || (parsed.unit === "TEU" ? 2400 : 50000),
+    freightRate: parsed.freight || getCargoProfile(parsed.cargoType).baseFreight,
+    seaCons: parsed.cargoType === "container" ? 42 : ["crudeOil", "lng", "chemicals"].includes(parsed.cargoType) ? 36 : 28,
+    portCons: parsed.cargoType === "lng" ? 9 : parsed.cargoType === "container" ? 7 : 4,
+    portDays: 5 + delayDays,
+    bunkerPrice,
+    portCosts: autoDealPortCost(parsed.cargoType),
+    canalCosts: /suez|panama|canal/i.test(fixtureText) ? 220000 : 0,
+    dailyHire,
+    commission: parsed.commission || 2.5
+  });
+  const documentStatement = ocrText ? parseSofStatement(ocrText, 72, parsed.demurrage || 18000) : null;
+  const invoiceMismatch = ocrText && parsed.demurrage && /20,?000|20000/i.test(ocrText) && Number(parsed.demurrage) !== 20000;
+  const decisionScore = clamp(Math.round(
+    risk.score * 0.44 +
+    clause.ownerRisk * 0.16 +
+    (estimate.tce < targetTce ? 18 : -5) +
+    delayDays * 4 +
+    liveFeedState.congestion * 0.1 +
+    (invoiceMismatch ? 10 : 0)
+  ), 0, 100);
+  const decision = decisionScore >= 74 ? "AVOID / senior review" : decisionScore >= 50 ? "WATCH / counter with guards" : "FIX with guards";
+  const dealId = `FX-${new Date().getFullYear()}-${decisionPassportTrace(`${fixtureText}${ocrText}`).slice(0, 6)}`;
+  const missing = parsed.missing.length ? parsed.missing : ["No critical missing fields detected in static screen"];
+  const alerts = [
+    { label: "Subject deadline", status: /subject/i.test(fixtureText) ? "Active" : "Missing", note: "Add calendar reminder and confirm exact time zone." },
+    { label: "Laycan canceling", status: parsed.laycan ? "Tracked" : "Missing", note: parsed.laycan || "Ask owner/charterer for clean laycan." },
+    { label: "Document contradiction", status: invoiceMismatch ? "High risk" : "Clear screen", note: invoiceMismatch ? "Recap demurrage differs from invoice text." : "No obvious rate mismatch found." },
+    { label: "Market trigger", status: liveFeedState.bunker > 680 ? "Watch bunker" : "Normal", note: `Singapore VLSFO screen ${money(liveFeedState.bunker || bunkerPrice, 2)}/t.` },
+    { label: "Loadicator action", status: parsed.quantity ? "Ready" : "Needs cargo qty", note: "Send cargo/quantity to stability unit before final stowage approval." }
+  ];
+  const sources = [
+    { name: "Fixture text", type: "user input", confidence: 100, status: "provided" },
+    { name: "Bunker screen", type: "verified static snapshot", confidence: 82, status: bunkerSourceNote() },
+    { name: "Baltic / freight indices", type: "licensed required", confidence: 70, status: "API-ready; values must come from licensed feed for production." },
+    { name: "Weather / port delay", type: "API-ready", confidence: 76, status: "NWS/weather and port data connector planned." },
+    { name: "Document OCR", type: ocrText ? "user pasted extraction" : "pending upload", confidence: ocrText ? 78 : 40, status: ocrText ? "SOF/NOR text detected" : "Upload or paste document text." }
+  ];
+  const backend = [
+    { module: "User accounts", state: "front-end ready", note: "Username/email/password UI exists; real auth needs backend." },
+    { module: "Deal Room database", state: "API-ready", note: "Persist offers, recap, SOF, invoice, claim and notes." },
+    { module: "Document Vault", state: "planned backend", note: "OCR, file storage and report history require server storage." },
+    { module: "Notifications", state: "rules ready", note: "Subject, laycan, time bar and market alarm rules generated here." },
+    { module: "Admin data console", state: "source-ready", note: "Live/simulated/licensed labels are exposed for every sensitive feed." }
+  ];
+  const reportLines = [
+    "FOCUSEA FLAGSHIP WORKFLOW PACK",
+    `Generated: ${new Date().toLocaleString()}`,
+    `Deal ID: ${dealId}`,
+    `Decision: ${decision}`,
+    `Risk score: ${decisionScore}/100`,
+    `Cargo: ${parsed.quantity ? parsed.quantity.toLocaleString("en-US") : "TBC"} ${parsed.unit} ${parsed.cargoLabel}`,
+    `Route: ${parsed.route || "TBC"}`,
+    `Laycan: ${parsed.laycan || "TBC"}`,
+    `TCE: ${money(estimate.tce)}/day`,
+    `Net P&L: ${money(estimate.netPnl)}`,
+    `Demurrage: ${parsed.demurrage ? money(parsed.demurrage) : "TBC"}/day`,
+    "",
+    "Missing / clarification list:",
+    ...missing.map((item) => `- ${item}`),
+    "",
+    "Alerts:",
+    ...alerts.map((item) => `- ${item.label}: ${item.status} | ${item.note}`),
+    "",
+    "Document lane:",
+    documentStatement ? `Used hours: ${documentStatement.usedHours.toFixed(1)} | Result: ${flagshipSofLabel(documentStatement)}` : "No SOF calculation yet.",
+    invoiceMismatch ? "Invoice mismatch: recap demurrage and invoice demurrage differ." : "No invoice mismatch in static screen.",
+    "",
+    "Client portal summary:",
+    `${decision}. Estimated TCE ${money(estimate.tce)}/day, net P&L ${money(estimate.netPnl)}, route ${parsed.route || "TBC"}.`
+  ];
+  return {
+    workflowValues,
+    ocrValues,
+    parsed,
+    risk,
+    clause,
+    estimate,
+    documentStatement,
+    invoiceMismatch,
+    decisionScore,
+    decision,
+    dealId,
+    missing,
+    alerts,
+    sources,
+    backend,
+    reportText: reportLines.join("\n")
+  };
+}
+
+function flagshipSofLabel(statement) {
+  if (!statement) return "SOF pending";
+  if (statement.status === "Demurrage") return `Demurrage ${money(statement.demurrageAmount)}`;
+  if (statement.status === "Dispatch") return `Dispatch ${money(statement.dispatchAmount)}`;
+  return "Even laytime";
+}
+
+function renderFlagshipWorkflow() {
+  if (!flagshipWorkflowResult) return;
+  const pack = buildFlagshipWorkflowPack();
+  lastFlagshipWorkflow = pack;
+  if (flagshipHeadline) flagshipHeadline.textContent = `${pack.dealId}: ${pack.decision}`;
+  if (flagshipSummary) {
+    flagshipSummary.textContent = `${pack.parsed.cargoLabel} ${pack.parsed.route || "route TBC"} | TCE ${money(pack.estimate.tce)}/day | risk ${pack.decisionScore}/100.`;
+  }
+  flagshipWorkflowResult.innerHTML = `
+    ${metricCards([
+      { label: "Decision", value: pack.decision },
+      { label: "Risk", value: `${pack.decisionScore}/100` },
+      { label: "Cargo", value: pack.parsed.cargoLabel },
+      { label: "Route", value: pack.parsed.route || "TBC" },
+      { label: "TCE", value: `${money(pack.estimate.tce)}/day` },
+      { label: "Net P&L", value: money(pack.estimate.netPnl) }
+    ])}
+    <div class="deal-file-grid">
+      <article class="action"><span>Counter advice</span><strong>${pack.estimate.tce < (Number(pack.workflowValues.targetTce) || 22000) ? "Raise freight / reduce exposure" : "Proceed with guards"}</strong><p>Protect NOR, weather, waiting time and document evidence.</p></article>
+      <article class="review"><span>Missing fields</span><strong>${pack.missing.length}</strong><p>${escapeHtml(pack.missing.join(", "))}</p></article>
+      <article class="review"><span>Clause side</span><strong>${escapeHtml(pack.clause.riskOwner)}</strong><p>Owner/charterer risk screen from fixture wording.</p></article>
+    </div>
+  `;
+  if (flagshipOcrResult) {
+    flagshipOcrResult.innerHTML = `
+      ${metricCards([
+        { label: "SOF status", value: pack.documentStatement ? "Parsed" : "Waiting" },
+        { label: "Used laytime", value: pack.documentStatement ? `${pack.documentStatement.usedHours.toFixed(1)} h` : "N/A" },
+        { label: "Claim", value: pack.documentStatement ? flagshipSofLabel(pack.documentStatement) : "N/A" },
+        { label: "Mismatch", value: pack.invoiceMismatch ? "Detected" : "Clear" }
+      ])}
+      <small>${pack.invoiceMismatch ? "Recap demurrage and invoice demurrage do not match. Review before sending claim." : "Paste SOF/NOR/invoice text to produce stronger document findings."}</small>
+    `;
+  }
+  if (flagshipDealRoom) {
+    const rows = [
+      ["Offer card", `${pack.parsed.quantity ? pack.parsed.quantity.toLocaleString("en-US") : "TBC"} ${pack.parsed.unit} ${pack.parsed.cargoLabel}`],
+      ["Recap draft", `${pack.parsed.freight ? `${money(pack.parsed.freight, 2)}/${pack.parsed.unit}` : "Freight TBC"} | dem ${pack.parsed.demurrage ? money(pack.parsed.demurrage) : "TBC"}/day`],
+      ["CP / clause", `${pack.clause.riskOwner} | ${pack.clause.riskLabel || "review wording"}`],
+      ["SOF / laytime", pack.documentStatement ? flagshipSofLabel(pack.documentStatement) : "SOF pending"],
+      ["Invoice / claim", pack.invoiceMismatch ? "Rate mismatch needs correction" : "Ready for draft claim"],
+      ["Client report", "PDF and portal summary available"]
+    ];
+    flagshipDealRoom.innerHTML = rows.map(([label, value]) => `<div><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`).join("");
+  }
+  if (flagshipAlertCenter) {
+    flagshipAlertCenter.innerHTML = pack.alerts.map((item) => `
+      <div class="${/high|missing|watch/i.test(item.status) ? "alert" : "ok"}">
+        <strong>${escapeHtml(item.label)}</strong>
+        <span>${escapeHtml(item.status)}</span>
+        <small>${escapeHtml(item.note)}</small>
+      </div>
+    `).join("");
+  }
+  if (flagshipClientPortal) {
+    flagshipClientPortal.innerHTML = `
+      <div class="client-portal-card">
+        <span>Client view</span>
+        <strong>${escapeHtml(pack.decision)}</strong>
+        <p>${escapeHtml(pack.parsed.route || "Route TBC")} | ETA and final P&L depend on verified port/weather data.</p>
+        <small>TCE ${money(pack.estimate.tce)}/day | Net P&L ${money(pack.estimate.netPnl)} | Confidence ${100 - Math.round(pack.decisionScore / 2)}%</small>
+      </div>
+    `;
+  }
+  if (flagshipSourceAdmin) {
+    flagshipSourceAdmin.innerHTML = pack.sources.map((item) => `
+      <div>
+        <strong>${escapeHtml(item.name)}</strong>
+        <em>${escapeHtml(item.type)}</em>
+        <span>${item.confidence}%</span>
+        <small>${escapeHtml(item.status)}</small>
+      </div>
+    `).join("");
+  }
+  if (flagshipBackendMap) {
+    flagshipBackendMap.innerHTML = pack.backend.map((item) => `
+      <div>
+        <strong>${escapeHtml(item.module)}</strong>
+        <em>${escapeHtml(item.state)}</em>
+        <small>${escapeHtml(item.note)}</small>
+      </div>
+    `).join("");
+  }
+}
+
+function handleFlagshipDownload(type) {
+  if (!lastFlagshipWorkflow) renderFlagshipWorkflow();
+  if (!lastFlagshipWorkflow) return;
+  if (type === "json") {
+    downloadJsonFile("focusea-flagship-workflow.json", lastFlagshipWorkflow);
+    return;
+  }
+  downloadPdfFile("focusea-flagship-workflow-pack.pdf", "Focusea Flagship Workflow Pack", lastFlagshipWorkflow.reportText);
 }
 
 function renderFrontFixtureAutopilot() {
@@ -18511,6 +18735,11 @@ bindBrokerForm(frontPortPhotoForm, renderFrontPortPhoto);
 bindBrokerForm(frontDocumentRoomForm, renderFrontDocumentRoom);
 bindBrokerForm(frontTimeBarForm, renderFrontTimeBar);
 bindBrokerForm(frontBackendForm, renderFrontBackendPlan);
+bindBrokerForm(flagshipWorkflowForm, renderFlagshipWorkflow);
+bindBrokerForm(flagshipOcrForm, renderFlagshipWorkflow);
+if (runFlagshipWorkflow) {
+  runFlagshipWorkflow.addEventListener("click", renderFlagshipWorkflow);
+}
 bindBrokerForm(redFlagForm, renderRedFlagSystem);
 bindBrokerForm(recapBuilderForm, renderRecapBuilder);
 bindBrokerForm(evidencePackForm, renderEvidencePack);
@@ -18811,6 +19040,10 @@ document.querySelectorAll("[data-download-edge]").forEach((button) => {
 
 document.querySelectorAll("[data-download-trust]").forEach((button) => {
   button.addEventListener("click", () => handleTrustDownload(button.dataset.downloadTrust));
+});
+
+document.querySelectorAll("[data-download-flagship]").forEach((button) => {
+  button.addEventListener("click", () => handleFlagshipDownload(button.dataset.downloadFlagship));
 });
 
 document.querySelectorAll("[data-download-commercial]").forEach((button) => {
@@ -19263,6 +19496,7 @@ renderAllEnterpriseCommand();
 renderMarketIndexes();
 renderDataTrustLayer();
 runAllTrustAutopilot();
+renderFlagshipWorkflow();
 renderBalticFeedPanel();
 renderSecurityShield();
 renderPythonHistory();
