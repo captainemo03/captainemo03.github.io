@@ -1,4 +1,4 @@
-const FOCUSEA_CACHE = "focusea-flagship-workflow-1";
+const FOCUSEA_CACHE = "focusea-glossary-center-1";
 const FOCUSEA_ASSETS = [
   "./",
   "./index.html",

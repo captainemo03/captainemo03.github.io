@@ -4344,6 +4344,78 @@ main {
   color: var(--text);
 }
 
+.glossary-panel {
+  grid-column: span 2;
+}
+
+.glossary-panel .wiki-form {
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 0.32fr) auto;
+}
+
+.glossary-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.glossary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.glossary-grid button {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid rgba(100, 97, 255, 0.24);
+  border-radius: 8px;
+  background: rgba(8, 14, 35, 0.5);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.glossary-grid button.active,
+.glossary-grid button:hover {
+  border-color: rgba(40, 240, 198, 0.5);
+  background: rgba(40, 240, 198, 0.1);
+}
+
+.glossary-grid span,
+.glossary-category,
+.glossary-detail-grid span {
+  color: #8dfbe8;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.glossary-grid small {
+  color: var(--muted);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.glossary-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.glossary-detail-grid div {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid rgba(100, 97, 255, 0.22);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
 .vessel-card span {
   display: block;
   color: var(--muted);
@@ -7208,6 +7280,24 @@ code,
   .tabs {
     display: flex;
     flex-wrap: nowrap;
+  }
+
+  .glossary-panel {
+    grid-column: auto;
+  }
+
+  .glossary-panel .wiki-form,
+  .glossary-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .glossary-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .glossary-actions > * {
+    width: 100%;
   }
 }
 

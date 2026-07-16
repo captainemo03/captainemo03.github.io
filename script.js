@@ -1859,6 +1859,225 @@ const wikiTerms = {
   }
 };
 
+Object.assign(wikiTerms, {
+  demurrage: {
+    title: "Demurrage",
+    category: "Laytime & Claims",
+    body: "Money payable when the vessel uses more laytime than allowed under the charter party.",
+    brokerUse: "Check the daily rate, time bar, SOF evidence and whether exceptions stop laytime.",
+    example: "Demurrage USD 18,000 per day pro rata.",
+    action: "Use the Demurrage Calculator or Document AI Room."
+  },
+  despatch: {
+    title: "Despatch / Dispatch",
+    category: "Laytime & Claims",
+    body: "Money payable to charterers when loading or discharging finishes before the allowed laytime is fully used.",
+    brokerUse: "Usually negotiated as half demurrage, but the recap wording must be checked.",
+    example: "Despatch half demurrage on saved laytime.",
+    action: "Use the Laytime Calculator."
+  },
+  laytime: {
+    title: "Laytime",
+    category: "Laytime & Claims",
+    body: "The contractually allowed time for loading or discharging cargo.",
+    brokerUse: "Define when it starts, what stops it, whether it is reversible and how holidays/weather count.",
+    example: "Laytime 72 hours SHINC, reversible.",
+    action: "Use SOF -> Laytime engine."
+  },
+  nor: {
+    title: "NOR / Notice of Readiness",
+    category: "Laytime & Claims",
+    body: "The notice by which the vessel declares she is ready to load or discharge.",
+    brokerUse: "NOR validity is often the difference between a strong and weak demurrage claim.",
+    example: "NOR to be tendered WIBON/WIPON, WCCON.",
+    action: "Use Document AI Room to spot NOR timing issues."
+  },
+  laycan: {
+    title: "Laycan",
+    category: "Chartering",
+    body: "The laydays/cancelling window during which the vessel must be ready for loading.",
+    brokerUse: "A narrow laycan raises schedule and cancellation risk.",
+    example: "Laycan 10/15 July.",
+    action: "Use Fixture Risk Radar and Time Bar Calendar."
+  },
+  "charter party": {
+    title: "Charter Party",
+    category: "Legal & Compliance",
+    body: "The contract between owner and charterer covering vessel employment, freight/hire, laytime, risks and obligations.",
+    brokerUse: "Compare recap wording against the CP before subjects are lifted.",
+    example: "GENCON 1994 with additional clauses.",
+    action: "Use CP Clause Analyzer and CP Diff Tool."
+  },
+  fixture: {
+    title: "Fixture Recap",
+    category: "Chartering",
+    body: "A concise commercial summary of the agreed deal terms before the full charter party is finalized.",
+    brokerUse: "Missing commission, demurrage, NOR or subjects wording can create disputes.",
+    example: "Vessel / cargo / load port / disport / freight / demurrage / commission / subjects.",
+    action: "Use Fixture Recap Builder."
+  },
+  "on subjects": {
+    title: "On Subjects",
+    category: "Chartering",
+    body: "A conditional fixture where one or more approvals or checks are still pending.",
+    brokerUse: "Track subject deadlines precisely; a missed subject can break the deal.",
+    example: "Sub stem, receiver approval, management approval by 1700 LT.",
+    action: "Use Broker Inbox and Alert Center."
+  },
+  "subjects lifted": {
+    title: "Subjects Lifted",
+    category: "Chartering",
+    body: "Confirmation that conditional subjects are removed and the fixture becomes firm.",
+    brokerUse: "After subjects are lifted, the recap and CP wording must be consistent.",
+    example: "All subjects lifted, clean fixed.",
+    action: "Use Broker Email Studio."
+  },
+  freight: {
+    title: "Freight",
+    category: "Market & Finance",
+    body: "The revenue payable for carrying cargo, usually per metric ton, lump sum or per TEU.",
+    brokerUse: "Freight must be tested against bunker, port cost, hire, commission and delay risk.",
+    example: "Freight USD 18.50 pmt FIOST.",
+    action: "Use Voyage Estimate Pro."
+  },
+  tce: {
+    title: "TCE / Time Charter Equivalent",
+    category: "Market & Finance",
+    body: "A voyage result converted into an equivalent daily earning after voyage costs.",
+    brokerUse: "Compare TCE against target hire and market alternatives.",
+    example: "TCE USD 24,500/day after bunker and port costs.",
+    action: "Use TCE Optimizer."
+  },
+  "worldscale": {
+    title: "Worldscale",
+    category: "Market & Finance",
+    body: "A tanker freight rate system quoted as a percentage of a flat rate.",
+    brokerUse: "Used mainly in tanker fixtures; WS100 means the published flat rate.",
+    example: "AG/China WS72.5.",
+    action: "Use Tanker voyage estimate assumptions."
+  },
+  bunker: {
+    title: "Bunker",
+    category: "Operations",
+    body: "Marine fuel consumed or supplied to the vessel.",
+    brokerUse: "Bunker price and consumption can decide whether a fixture is profitable.",
+    example: "VLSFO Singapore USD 686.50/t.",
+    action: "Use Bunker ROB Planner and Voyage Estimate."
+  },
+  "rob": {
+    title: "ROB / Remaining On Board",
+    category: "Operations",
+    body: "Fuel, water or stores remaining on board at a given time.",
+    brokerUse: "Check departure and arrival ROB to avoid under-bunkering or idle cost.",
+    example: "Arrival ROB VLSFO 180 mt.",
+    action: "Use Bunker ROB Planner."
+  },
+  "sof": {
+    title: "SOF / Statement of Facts",
+    category: "Laytime & Claims",
+    body: "Chronological record of port events such as NOR, berthing, loading, rain stops and completion.",
+    brokerUse: "Core evidence for laytime, demurrage and dispatch calculations.",
+    example: "NOR tendered 10 Jul 1000; completed 14 Jul 2200.",
+    action: "Use SOF Analyzer."
+  },
+  "wibon": {
+    title: "WIBON / WIPON",
+    category: "Laytime & Claims",
+    body: "Whether in berth or not / whether in port or not. Wording used to allow NOR before actual berthing or port entry in some cases.",
+    brokerUse: "Can shift waiting time risk between owner and charterer.",
+    example: "NOR WIBON/WIPON/WCCON.",
+    action: "Use Clause Red Flag System."
+  },
+  "off hire": {
+    title: "Off-Hire",
+    category: "Legal & Compliance",
+    body: "A period when hire may stop because the vessel is not fully available to charterers.",
+    brokerUse: "Often disputed in time charter and operational delays.",
+    example: "Off-hire from engine breakdown until vessel ready again.",
+    action: "Use Claim & Dispute Center."
+  },
+  "ballast": {
+    title: "Ballast",
+    category: "Cargo & Stability",
+    body: "Sea water carried in tanks to control draft, trim, stability and stress.",
+    brokerUse: "Ballast time, ballast leg and tank condition affect voyage estimate and load plan.",
+    example: "Take 250 mt aft peak ballast to correct trim.",
+    action: "Use Loadicator / Stability Unit."
+  },
+  "trim": {
+    title: "Trim",
+    category: "Cargo & Stability",
+    body: "Difference between aft draft and forward draft.",
+    brokerUse: "Bad trim can affect propeller immersion, speed, safety and port restrictions.",
+    example: "Trim 0.45 m by stern.",
+    action: "Use Loadicator trim panel."
+  },
+  "heel": {
+    title: "Heel",
+    category: "Cargo & Stability",
+    body: "Transverse inclination of the vessel to port or starboard.",
+    brokerUse: "Excess heel can indicate uneven cargo or ballast distribution.",
+    example: "Starboard heel 1.2 degrees.",
+    action: "Use Loadicator port/starboard balance."
+  },
+  "gm": {
+    title: "GM / Metacentric Height",
+    category: "Cargo & Stability",
+    body: "A key initial stability measure. Low GM may indicate tender or unsafe stability.",
+    brokerUse: "Cargo KG, free surface and ballast conditions influence corrected GM.",
+    example: "Corrected GM 0.82 m.",
+    action: "Use Stability Criteria panel."
+  },
+  "gz curve": {
+    title: "GZ Curve",
+    category: "Cargo & Stability",
+    body: "Curve showing righting lever over angles of heel.",
+    brokerUse: "Shows reserve stability beyond simple GM.",
+    example: "Max GZ at 34 degrees; downflooding margin checked.",
+    action: "Use Loadicator GZ criteria."
+  },
+  "shear force": {
+    title: "Shear Force",
+    category: "Cargo & Stability",
+    body: "Longitudinal force caused by uneven weight and buoyancy distribution along the hull.",
+    brokerUse: "Heavy cargo concentrated in one hold can raise shear force risk.",
+    example: "H3 iron ore parcel increases midship shear.",
+    action: "Use SF/BM graph."
+  },
+  "bending moment": {
+    title: "Bending Moment",
+    category: "Cargo & Stability",
+    body: "Longitudinal bending stress on the hull caused by cargo, ballast and buoyancy distribution.",
+    brokerUse: "A professional load plan must stay within bending moment limits.",
+    example: "Hogging/sagging limit close to 82%.",
+    action: "Use Loadicator SF/BM graph."
+  },
+  "imdg": {
+    title: "IMDG",
+    category: "Legal & Compliance",
+    body: "International Maritime Dangerous Goods Code for dangerous cargo by sea.",
+    brokerUse: "Check cargo class, segregation, documentation and port acceptance.",
+    example: "IMDG Class 3 flammable liquid.",
+    action: "Use Cargo Compatibility and Compliance Terminal."
+  },
+  "ets": {
+    title: "EU ETS Shipping",
+    category: "Market & Finance",
+    body: "EU emissions trading cost applied to in-scope shipping emissions.",
+    brokerUse: "Carbon cost allocation must be considered in voyage economics and CP wording.",
+    example: "EU scope CO2 multiplied by surrender phase and EUA price.",
+    action: "Use Carbon Desk."
+  },
+  "sanctions": {
+    title: "Sanctions Screening",
+    category: "Legal & Compliance",
+    body: "Compliance review of parties, vessel, cargo origin, destination and payment risk.",
+    brokerUse: "High-risk counterparties or cargo origins can stop a fixture.",
+    example: "Check OFAC/EU/UN exposure before fixing.",
+    action: "Use Compliance Terminal."
+  }
+});
+
 const cargoProfiles = {
   grain: {
     label: "Tahıl / Grain",
@@ -2156,6 +2375,9 @@ const finderResult = document.querySelector("#finderResult");
 const wikiForm = document.querySelector("#wikiForm");
 const wikiSearch = document.querySelector("#wikiSearch");
 const wikiResult = document.querySelector("#wikiResult");
+const wikiCategory = document.querySelector("#wikiCategory");
+const glossaryGrid = document.querySelector("#glossaryGrid");
+const downloadGlossaryCsv = document.querySelector("#downloadGlossaryCsv");
 const lessonDetail = document.querySelector("#lessonDetail");
 const downloadCv = document.querySelector("#downloadCv");
 const newsGrid = document.querySelector("#newsGrid");
@@ -19300,7 +19522,7 @@ finderForm.addEventListener("submit", (event) => {
   `;
 });
 
-wikiForm.addEventListener("submit", (event) => {
+if (false && wikiForm) wikiForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const query = new FormData(wikiForm).get("wikiSearch").trim().toLowerCase();
   const key = Object.keys(wikiTerms).find((term) => query.includes(term));
@@ -19313,6 +19535,112 @@ wikiForm.addEventListener("submit", (event) => {
 
   wikiResult.innerHTML = `<strong>${entry.title}</strong><p>${entry.body}</p>`;
 });
+
+function glossaryEntries() {
+  return Object.entries(wikiTerms).map(([key, entry]) => ({
+    key,
+    category: entry.category || "Chartering",
+    title: entry.title || key,
+    body: entry.body || "",
+    brokerUse: entry.brokerUse || "Use this term when reviewing fixture wording and operational exposure.",
+    example: entry.example || "Example not added yet.",
+    action: entry.action || "Search related Focusea tools."
+  })).sort((a, b) => a.title.localeCompare(b.title));
+}
+
+function glossaryMatch(entry, query, category) {
+  const categoryMatch = !category || category === "all" || entry.category === category;
+  if (!categoryMatch) return false;
+  if (!query) return true;
+  const haystack = `${entry.key} ${entry.title} ${entry.body} ${entry.brokerUse} ${entry.example}`.toLowerCase();
+  return haystack.includes(query);
+}
+
+function renderGlossary(selectedKey = "") {
+  if (!wikiResult) return;
+  const query = (wikiSearch?.value || selectedKey || "").trim().toLowerCase();
+  const category = wikiCategory?.value || "all";
+  const entries = glossaryEntries();
+  const matches = entries.filter((entry) => glossaryMatch(entry, query, category));
+  const selected = entries.find((entry) => entry.key === selectedKey)
+    || matches.find((entry) => entry.key === query || entry.title.toLowerCase() === query)
+    || matches[0];
+
+  if (!selected) {
+    wikiResult.innerHTML = `
+      <strong>No term found</strong>
+      <p>Try demurrage, NOR, laycan, SOF, bunker, GM, GZ curve, shear force, sanctions or TCE.</p>
+    `;
+    if (glossaryGrid) glossaryGrid.innerHTML = "";
+    return;
+  }
+
+  wikiResult.innerHTML = `
+    <span class="glossary-category">${escapeHtml(selected.category)}</span>
+    <strong>${escapeHtml(selected.title)}</strong>
+    <p>${escapeHtml(selected.body)}</p>
+    <div class="glossary-detail-grid">
+      <div><span>Broker use</span><p>${escapeHtml(selected.brokerUse)}</p></div>
+      <div><span>Example wording</span><p>${escapeHtml(selected.example)}</p></div>
+      <div><span>Focusea action</span><p>${escapeHtml(selected.action)}</p></div>
+    </div>
+  `;
+
+  if (glossaryGrid) {
+    glossaryGrid.innerHTML = matches.slice(0, 18).map((entry) => `
+      <button type="button" data-glossary-card="${escapeHtml(entry.key)}" class="${entry.key === selected.key ? "active" : ""}">
+        <span>${escapeHtml(entry.category)}</span>
+        <strong>${escapeHtml(entry.title)}</strong>
+        <small>${escapeHtml(entry.body)}</small>
+      </button>
+    `).join("");
+  }
+}
+
+function glossaryCsvText() {
+  const header = ["Term", "Category", "Definition", "Broker use", "Example", "Focusea action"];
+  const rows = glossaryEntries().map((entry) => [
+    entry.title,
+    entry.category,
+    entry.body,
+    entry.brokerUse,
+    entry.example,
+    entry.action
+  ]);
+  return [header, ...rows].map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
+}
+
+if (wikiForm) {
+  wikiForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    renderGlossary();
+  });
+  wikiForm.addEventListener("input", () => renderGlossary());
+  wikiForm.addEventListener("change", () => renderGlossary());
+}
+
+document.querySelectorAll("[data-glossary-pick]").forEach((button) => {
+  button.addEventListener("click", () => {
+    if (wikiSearch) wikiSearch.value = button.dataset.glossaryPick || "";
+    if (wikiCategory) wikiCategory.value = "all";
+    renderGlossary(button.dataset.glossaryPick || "");
+  });
+});
+
+if (glossaryGrid) {
+  glossaryGrid.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-glossary-card]");
+    if (!button) return;
+    if (wikiSearch) wikiSearch.value = button.dataset.glossaryCard || "";
+    renderGlossary(button.dataset.glossaryCard || "");
+  });
+}
+
+if (downloadGlossaryCsv) {
+  downloadGlossaryCsv.addEventListener("click", () => {
+    downloadTextFile("focusea-maritime-dictionary.csv", glossaryCsvText());
+  });
+}
 
 if (smartSearchForm) {
   smartSearchForm.addEventListener("submit", (event) => {
@@ -19446,6 +19774,7 @@ populatePortSelects();
 setPort("istanbul");
 renderGlobalPortAtlas();
 renderCalculator("eta");
+renderGlossary();
 renderFixtureRecap();
 renderBrokerVoyageEstimate();
 renderLaytimeStatement();

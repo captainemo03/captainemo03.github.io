@@ -26,7 +26,7 @@
     <link rel="icon" href="favicon.svg?v=focusea-badge2" type="image/svg+xml" />
     <link rel="manifest" href="manifest.webmanifest" />
     <script src="theme.js?v=theme-1"></script>
-    <link rel="stylesheet" href="styles.css?v=flagship-workflow-1" />
+    <link rel="stylesheet" href="styles.css?v=glossary-center-1" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -4196,13 +4196,30 @@ Subject: Firm offer
             <div class="vessel-card" id="finderResult">IMO numarası gir ve gemi kartını oluştur.</div>
           </article>
 
-          <article class="wiki-panel">
-            <p class="eyebrow">Maritime Wiki</p>
-            <h2>Denizcilik Wiki</h2>
+          <article class="wiki-panel glossary-panel">
+            <p class="eyebrow">Maritime Dictionary</p>
+            <h2>Broker & Chartering Glossary</h2>
             <form class="wiki-form" id="wikiForm">
-              <input id="wikiSearch" name="wikiSearch" placeholder="Demurrage, Laytime, INCOTERMS..." value="Demurrage" />
-              <button type="submit">Ara</button>
+              <input id="wikiSearch" name="wikiSearch" placeholder="Search: demurrage, NOR, laycan, ballast, GZ..." value="Demurrage" />
+              <select id="wikiCategory" name="wikiCategory" aria-label="Dictionary category">
+                <option value="all">All categories</option>
+                <option value="Chartering">Chartering</option>
+                <option value="Laytime & Claims">Laytime & Claims</option>
+                <option value="Operations">Operations</option>
+                <option value="Cargo & Stability">Cargo & Stability</option>
+                <option value="Market & Finance">Market & Finance</option>
+                <option value="Legal & Compliance">Legal & Compliance</option>
+              </select>
+              <button type="submit">Search</button>
             </form>
+            <div class="glossary-actions">
+              <button type="button" class="ghost-button small" data-glossary-pick="demurrage">Demurrage</button>
+              <button type="button" class="ghost-button small" data-glossary-pick="nor">NOR</button>
+              <button type="button" class="ghost-button small" data-glossary-pick="tce">TCE</button>
+              <button type="button" class="ghost-button small" data-glossary-pick="gz curve">GZ Curve</button>
+              <button type="button" class="ghost-button small" id="downloadGlossaryCsv">Download CSV</button>
+            </div>
+            <div class="glossary-grid" id="glossaryGrid" aria-label="Maritime dictionary terms"></div>
             <div class="wiki-result" id="wikiResult">Bir terim ara ve kısa açıklamayı gör.</div>
           </article>
         </section>
@@ -4510,7 +4527,7 @@ Subject: Firm offer
     </dialog>
 
     <script src="monetization-config.js?v=monetization-ready-3"></script>
-    <script src="script.js?v=account-center-1"></script>
+    <script src="script.js?v=glossary-center-1"></script>
     <script src="monetization.js?v=monetization-ready-3"></script>
   </body>
 </html>
