@@ -1,4 +1,4 @@
-const FOCUSEA_CACHE = "focusea-deal-surgeon-1";
+const FOCUSEA_CACHE = "focusea-logo-refresh-1";
 const FOCUSEA_ASSETS = [
   "./",
   "./index.html",
@@ -22,6 +22,7 @@ const FOCUSEA_ASSETS = [
   "./stability.js",
   "./insurance.js",
   "./deal-surgeon.js",
+  "./favicon.svg",
   "./stability-loadicator-basic.js",
   "./stability-3d.js",
   "./assets/brand/focusea-mark.svg",
