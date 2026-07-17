@@ -24,6 +24,7 @@ http://127.0.0.1:8000
 ## Endpoints
 
 - `GET /health`
+- `GET /api/provider-status`
 - `POST /api/broker/parse-offer`
 - `POST /api/laytime/sof`
 - `POST /api/voyage/estimate`
@@ -46,8 +47,24 @@ http://127.0.0.1:8000
 - `POST /api/stability/evaluate`
 - `POST /api/workspace/save`
 - `GET /api/workspace`
+- `POST /api/audit`
 - `POST /api/reports/{report_type}`
 - `POST /api/reports/{report_type}/pdf`
+
+## Production gates
+
+Use environment variables to make the demo production-safe:
+
+```text
+FOCUSEA_ALLOWED_ORIGINS=https://captainemo03.github.io,https://your-domain.example
+FOCUSEA_AIS_ENDPOINT=https://licensed-ais-provider.example/feed
+FOCUSEA_BALTIC_ENDPOINT=https://licensed-market-provider.example/indexes
+FOCUSEA_BUNKER_ENDPOINT=https://verified-bunker-provider.example/prices
+FOCUSEA_OCR_WORKER=https://your-worker.example/ocr
+```
+
+Provider status stays explicit: AIS and Baltic-style indexes are `licensed-required` until a real licensed endpoint is configured.
+Audit records include source, confidence, actor, reference and the decision-support disclaimer.
 
 ## Notes
 

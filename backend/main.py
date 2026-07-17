@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 import json
+import os
 from pathlib import Path
 from typing import Any
 
@@ -41,9 +42,15 @@ app = FastAPI(
     description="Broker, chartering, laytime, report and loadicator backend for Focusea.",
 )
 
+ALLOWED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv("FOCUSEA_ALLOWED_ORIGINS", "http://127.0.0.1:8000,http://localhost:8000,https://captainemo03.github.io").split(",")
+    if origin.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -98,6 +105,16 @@ class WorkspaceSaveRequest(BaseModel):
 class ReportRequest(BaseModel):
     title: str = "Focusea Report"
     data: dict[str, Any] = Field(default_factory=dict)
+
+
+class AuditRequest(BaseModel):
+    event: str = "decision"
+    actor: str = "demo-user"
+    scope: str = "fixture"
+    reference: str = "FX-DEMO"
+    source: str = "user input"
+    confidence: float = 70
+    details: dict[str, Any] = Field(default_factory=dict)
 
 
 class CounterpartyRequest(BaseModel):
@@ -191,11 +208,17 @@ class AiKnowledgeGraphRequest(BaseModel):
 
 def load_store() -> dict[str, Any]:
     if not STORE_PATH.exists():
-        return {"fixtures": [], "crm": [], "documents": [], "reports": []}
+        return {"fixtures": [], "crm": [], "documents": [], "reports": [], "audit": []}
     try:
-        return json.loads(STORE_PATH.read_text(encoding="utf-8"))
+        store = json.loads(STORE_PATH.read_text(encoding="utf-8"))
+        store.setdefault("fixtures", [])
+        store.setdefault("crm", [])
+        store.setdefault("documents", [])
+        store.setdefault("reports", [])
+        store.setdefault("audit", [])
+        return store
     except json.JSONDecodeError:
-        return {"fixtures": [], "crm": [], "documents": [], "reports": []}
+        return {"fixtures": [], "crm": [], "documents": [], "reports": [], "audit": []}
 
 
 def save_store(store: dict[str, Any]) -> None:
@@ -231,6 +254,47 @@ def health() -> dict[str, Any]:
             "ai-knowledge-graph",
             "stability",
             "pdf",
+            "audit-trail",
+            "provider-status",
+        ],
+        "allowed_origins": ALLOWED_ORIGINS,
+    }
+
+
+@app.get("/api/provider-status")
+def api_provider_status() -> dict[str, Any]:
+    return {
+        "source": "python-fastapi",
+        "generated_at": datetime.now().isoformat(timespec="seconds"),
+        "providers": [
+            {
+                "name": "AIS live traffic",
+                "status": "licensed-required",
+                "env": "FOCUSEA_AIS_ENDPOINT",
+                "connected": bool(os.getenv("FOCUSEA_AIS_ENDPOINT")),
+                "note": "Use a licensed AIS provider before showing global traffic as live.",
+            },
+            {
+                "name": "Baltic-style market indexes",
+                "status": "licensed-required",
+                "env": "FOCUSEA_BALTIC_ENDPOINT",
+                "connected": bool(os.getenv("FOCUSEA_BALTIC_ENDPOINT")),
+                "note": "Do not label BDI/BDTI/BCTI as live without licensed data.",
+            },
+            {
+                "name": "Bunker prices",
+                "status": "api-ready",
+                "env": "FOCUSEA_BUNKER_ENDPOINT",
+                "connected": bool(os.getenv("FOCUSEA_BUNKER_ENDPOINT")),
+                "note": "Verified snapshot or paid feed should include source and timestamp.",
+            },
+            {
+                "name": "OCR / document extraction",
+                "status": "backend-ready",
+                "env": "FOCUSEA_OCR_WORKER",
+                "connected": bool(os.getenv("FOCUSEA_OCR_WORKER")),
+                "note": "Production OCR needs a worker and malware scanning before parsing.",
+            },
         ],
     }
 
@@ -354,6 +418,27 @@ def api_workspace_save(request: WorkspaceSaveRequest) -> dict[str, Any]:
 @app.get("/api/workspace")
 def api_workspace() -> dict[str, Any]:
     return load_store()
+
+
+@app.post("/api/audit")
+def api_audit(request: AuditRequest) -> dict[str, Any]:
+    store = load_store()
+    event = {
+        "id": f"AUD-{int(datetime.now().timestamp())}",
+        "created_at": datetime.now().isoformat(timespec="seconds"),
+        "event": request.event,
+        "actor": request.actor,
+        "scope": request.scope,
+        "reference": request.reference,
+        "source": request.source,
+        "confidence": request.confidence,
+        "details": request.details,
+        "disclaimer": "Decision support only; professional review required before commercial, legal, insurance or operational action.",
+    }
+    store["audit"].insert(0, event)
+    store["audit"] = store["audit"][:500]
+    save_store(store)
+    return {"ok": True, "event": event, "count": len(store["audit"])}
 
 
 @app.post("/api/reports/{report_type}")
