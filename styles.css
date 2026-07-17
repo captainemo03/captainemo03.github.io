@@ -5446,6 +5446,71 @@ main {
   font-weight: 800;
 }
 
+.academic-intel-lab {
+  margin-top: 18px;
+  padding: 16px;
+  border: 1px solid rgba(40, 240, 198, 0.18);
+  border-radius: 10px;
+  background:
+    linear-gradient(135deg, rgba(40, 240, 198, 0.08), transparent 36%),
+    rgba(255, 255, 255, 0.04);
+}
+
+.academic-intel-form {
+  margin-bottom: 14px;
+}
+
+.academic-intel-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.academic-intel-grid article {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid rgba(138, 134, 255, 0.18);
+  border-radius: 8px;
+  background: rgba(4, 12, 28, 0.42);
+}
+
+.academic-output {
+  display: grid;
+  gap: 8px;
+  color: #d8edf1;
+  line-height: 1.55;
+}
+
+.academic-output-card {
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid rgba(40, 240, 198, 0.16);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.academic-output-card strong {
+  color: var(--text);
+}
+
+.academic-output-card span {
+  color: #6fffe3;
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.academic-output-card p,
+.academic-output-card ul {
+  margin: 0;
+}
+
+.academic-output-card ul {
+  padding-left: 18px;
+}
+
 .lesson-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }

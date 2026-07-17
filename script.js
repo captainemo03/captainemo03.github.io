@@ -2572,6 +2572,15 @@ const insuranceDownloadTxt = document.querySelector("#insuranceDownloadTxt");
 const insuranceDownloadPdf = document.querySelector("#insuranceDownloadPdf");
 const insuranceDownloadEmail = document.querySelector("#insuranceDownloadEmail");
 const insuranceExportStatus = document.querySelector("#insuranceExportStatus");
+const academicIntelForm = document.querySelector("#academicIntelForm");
+const academicCaseStudyResult = document.querySelector("#academicCaseStudyResult");
+const academicReadingResult = document.querySelector("#academicReadingResult");
+const academicCitationResult = document.querySelector("#academicCitationResult");
+const academicThesisResult = document.querySelector("#academicThesisResult");
+const academicMappingResult = document.querySelector("#academicMappingResult");
+const academicExportStatus = document.querySelector("#academicExportStatus");
+const downloadAcademicPack = document.querySelector("#downloadAcademicPack");
+const copyAcademicCitations = document.querySelector("#copyAcademicCitations");
 const redFlagForm = document.querySelector("#redFlagForm");
 const redFlagResult = document.querySelector("#redFlagResult");
 const recapBuilderForm = document.querySelector("#recapBuilderForm");
@@ -20254,6 +20263,26 @@ if (growthDownloadReport) {
   });
 }
 bindBrokerForm(insuranceQuoteForm, renderInsuranceDesk);
+bindBrokerForm(academicIntelForm, renderAcademicIntel);
+if (downloadAcademicPack) {
+  downloadAcademicPack.addEventListener("click", () => {
+    if (!lastAcademicPack) renderAcademicIntel();
+    downloadTextFile("focusea-academic-study-pack.txt", lastAcademicPack || "No academic pack generated.");
+    if (academicExportStatus) academicExportStatus.textContent = "Academic study pack downloaded.";
+  });
+}
+if (copyAcademicCitations) {
+  copyAcademicCitations.addEventListener("click", async () => {
+    if (!lastAcademicCitations) renderAcademicIntel();
+    try {
+      await navigator.clipboard.writeText(lastAcademicCitations);
+      if (academicExportStatus) academicExportStatus.textContent = "Citations copied.";
+    } catch {
+      downloadTextFile("focusea-academic-citations.txt", lastAcademicCitations || "No citations generated.");
+      if (academicExportStatus) academicExportStatus.textContent = "Clipboard blocked, citations downloaded.";
+    }
+  });
+}
 if (insuranceDownloadTxt) {
   insuranceDownloadTxt.addEventListener("click", () => {
     if (!lastInsuranceQuote) renderInsuranceDesk();
@@ -20851,6 +20880,171 @@ if (false && wikiForm) wikiForm.addEventListener("submit", (event) => {
   wikiResult.innerHTML = `<strong>${entry.title}</strong><p>${entry.body}</p>`;
 });
 
+const academicTopics = {
+  stability: {
+    title: "Ship stability / loadicator",
+    why: "Connects GM, KG, free surface, cargo distribution, shear force and bending moment to real operational safety.",
+    sources: ["IMO Ship Design & Stability", "IMO Damage Stability", "ClassNK Technical Rules", "ITTC Recommended Procedures"],
+    tools: ["Load-Stability Lab", "Stability criteria panel", "Cargo planning", "Academic Library"],
+    thesis: "How real-time cargo distribution and ballast decisions affect intact stability, trim and operational risk."
+  },
+  chartering: {
+    title: "Chartering / CP clauses",
+    why: "Shows how wording, freight, demurrage, laycan, subjects and NOR clauses change commercial exposure.",
+    sources: ["BIMCO Contractual Affairs", "BIMCO Clauses", "WMU Journal of Maritime Affairs", "Maritime Economics & Logistics"],
+    tools: ["Deal Surgeon", "Deal IQ", "CP Clause Heatmap", "Broker Desk"],
+    thesis: "How standard charter party clauses allocate waiting-time and demurrage risk between owner and charterer."
+  },
+  claims: {
+    title: "Claims / demurrage dispute",
+    why: "Turns SOF, NOR, rain periods, time bars and evidence packs into a structured claim argument.",
+    sources: ["MAIB Accident Reports", "NTSB Marine Investigations", "BIMCO Clauses", "International Group of P&I Clubs"],
+    tools: ["Claim Center", "SOF Analyzer", "Deal Surgeon", "Document AI Room"],
+    thesis: "Evidence quality and charter party wording as predictors of demurrage dispute strength."
+  },
+  insurance: {
+    title: "Marine insurance / P&I",
+    why: "Links cargo, vessel, voyage, claims history, pollution, liability and war-risk exposure to underwriting decisions.",
+    sources: ["International Group of P&I Clubs", "MAIB Accident Reports", "NTSB Marine Investigations", "Equasis"],
+    tools: ["Marine Insurance Desk", "Sanctions Risk Radar", "Claim Risk Panel", "Vessel Suitability"],
+    thesis: "Operational incident data as a practical input for marine insurance premium and deductible indications."
+  },
+  carbon: {
+    title: "EU ETS / MRV / decarbonisation",
+    why: "Makes emissions, MRV reporting, ETS cost and route economics part of the voyage estimate.",
+    sources: ["EMSA THETIS MRV", "EU MRV Maritime Emissions", "2023 IMO GHG Strategy", "UNCTAD Review of Maritime Transport"],
+    tools: ["EU ETS / Carbon Desk", "Voyage Estimate", "Market Terminal", "Data Trust Center"],
+    thesis: "The commercial impact of EU MRV and ETS costs on voyage charter pricing and route decisions."
+  },
+  ports: {
+    title: "Port intelligence / operations",
+    why: "Connects port constraints, weather, pilotage, congestion, PSC and agency notes to fixture risk.",
+    sources: ["NGA World Port Index", "NOAA Marine Forecasts", "Paris MoU Inspection Search", "UNCTAD Review of Maritime Transport"],
+    tools: ["Port Intelligence", "Port Cost Estimator", "Port Entry Readiness", "Live Sea Traffic"],
+    thesis: "Port delay and restriction indicators as early warning signals in voyage fixture evaluation."
+  }
+};
+
+const academicCases = {
+  "container-grounding": {
+    title: "Container grounding / passage planning",
+    issue: "Passage plan weakness, bridge team assumptions and route monitoring failures can become commercial, legal and insurance exposure.",
+    lesson: "A defective operational plan can become a chartering, P&I and due diligence problem, not only a navigation problem.",
+    mapping: ["Deal Surgeon", "Document AI Room", "Vessel Suitability", "Marine Insurance Desk"]
+  },
+  "bulk-liquefaction": {
+    title: "Bulk cargo liquefaction",
+    issue: "Moisture-sensitive cargo may shift or lose strength if documentation, sampling and loading discipline are weak.",
+    lesson: "Cargo declaration, IMSBC-style checks, rain evidence and hold planning must be reviewed before fixing.",
+    mapping: ["Cargo Intelligence", "Load-Stability Lab", "Port Entry Readiness", "Claim Center"]
+  },
+  "engine-fire": {
+    title: "Engine room fire and claim response",
+    issue: "Machinery casualty affects deviation, delay, general average, insurance response and client communication.",
+    lesson: "Incident evidence, class status, repair ETA and cover position should be tied to the client brief quickly.",
+    mapping: ["Marine Insurance Desk", "Client Portal", "Black Box", "Claim Risk Panel"]
+  },
+  "port-collision": {
+    title: "Port collision / pilotage risk",
+    issue: "Pilotage, tug use, weather and berth approach can create port damage, delay and liability claims.",
+    lesson: "Port readiness should include pilot/tug plan, berth window, weather margin and liability cover.",
+    mapping: ["Port Intelligence", "Port Cost Estimator", "Insurance Desk", "Deal Surgeon"]
+  },
+  "heavy-weather": {
+    title: "Heavy weather cargo damage",
+    issue: "Cargo damage can start with routing, lashing, seaworthiness, stowage evidence and weather records.",
+    lesson: "Weather evidence and cargo-specific stowage records should be collected before the dispute begins.",
+    mapping: ["Weather Risk", "Cargo Trouble Forecast", "Claim Evidence Checklist", "Document AI Room"]
+  }
+};
+
+let lastAcademicPack = "";
+let lastAcademicCitations = "";
+
+function academicCard(label, title, body, items = []) {
+  const list = items.length ? `<ul>${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : "";
+  return `<div class="academic-output-card"><span>${escapeHtml(label)}</span><strong>${escapeHtml(title)}</strong><p>${escapeHtml(body)}</p>${list}</div>`;
+}
+
+function academicCitationText(sources, style) {
+  const year = new Date().getFullYear();
+  return sources.map((source, index) => {
+    if (style === "IEEE") return `[${index + 1}] ${source}. Accessed ${year}.`;
+    if (style === "Harvard") return `${source} (${year}) Maritime reference source. Accessed ${year}.`;
+    if (style === "Plain links") return `- ${source}`;
+    return `${source}. (${year}). Maritime reference source.`;
+  }).join("\n");
+}
+
+function renderAcademicIntel() {
+  if (!academicIntelForm) return;
+  const data = Object.fromEntries(new FormData(academicIntelForm).entries());
+  const topic = academicTopics[data.topic] || academicTopics.stability;
+  const studyCase = academicCases[data.caseStudy] || academicCases["container-grounding"];
+  const citationStyle = data.citation || "APA";
+  const packType = data.style || "student";
+  const sourceList = [...new Set([...topic.sources, "MAIB Accident Reports", "NTSB Marine Investigations"])];
+  const tools = [...new Set([...topic.tools, ...studyCase.mapping])];
+  const researchQuestions = [
+    `How does ${topic.title.toLowerCase()} affect risk allocation before a maritime deal is fixed?`,
+    `Which evidence would reduce dispute risk in a ${studyCase.title.toLowerCase()} scenario?`,
+    `Which Focusea module should be used first when the risk is detected?`
+  ];
+  const thesisOutline = [
+    "1. Problem background and industry context",
+    "2. Regulatory / academic source review",
+    "3. Case study risk chain",
+    "4. Focusea tool mapping and decision workflow",
+    "5. Limitations, evidence quality and professional review"
+  ];
+  const citations = academicCitationText(sourceList, citationStyle);
+  lastAcademicCitations = citations;
+  lastAcademicPack = [
+    "FOCUSEA ACADEMIC STUDY PACK",
+    `Generated: ${new Date().toLocaleString()}`,
+    `Topic: ${topic.title}`,
+    `Case: ${studyCase.title}`,
+    `Output style: ${packType}`,
+    "",
+    "Why it matters",
+    topic.why,
+    "",
+    "Case lesson",
+    studyCase.lesson,
+    "",
+    "Research questions",
+    ...researchQuestions.map((question) => `- ${question}`),
+    "",
+    "Thesis / presentation outline",
+    ...thesisOutline,
+    "",
+    "Focusea tool mapping",
+    ...tools.map((tool) => `- ${tool}`),
+    "",
+    "Citations",
+    citations
+  ].join("\n");
+
+  if (academicCaseStudyResult) {
+    academicCaseStudyResult.innerHTML = academicCard("case study", studyCase.title, studyCase.issue, [
+      studyCase.lesson,
+      "Use MAIB/NTSB style accident reports for real-world evidence and root-cause logic."
+    ]);
+  }
+  if (academicReadingResult) {
+    academicReadingResult.innerHTML = academicCard("reading mode", topic.title, topic.why, topic.sources);
+  }
+  if (academicCitationResult) {
+    academicCitationResult.innerHTML = academicCard(citationStyle, "Report-ready citations", "Use these in reports, presentations or thesis notes.", citations.split("\n"));
+  }
+  if (academicThesisResult) {
+    academicThesisResult.innerHTML = academicCard(packType, topic.thesis, "Suggested structure and research questions for academic work.", [...researchQuestions, ...thesisOutline]);
+  }
+  if (academicMappingResult) {
+    academicMappingResult.innerHTML = academicCard("incident-to-tool", "Focusea prevention / response map", "This case should not stay as theory; map it directly to operational tools.", tools);
+  }
+}
+
 function glossaryEntries() {
   return Object.entries(wikiTerms).map(([key, entry]) => ({
     key,
@@ -21090,6 +21284,7 @@ setPort("istanbul");
 renderGlobalPortAtlas();
 renderCalculator("eta");
 renderGlossary();
+renderAcademicIntel();
 renderFixtureRecap();
 renderBrokerVoyageEstimate();
 renderLaytimeStatement();
