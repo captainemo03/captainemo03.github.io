@@ -3328,6 +3328,7 @@ function applyBunkerDefaultsToForms() {
 const pageGroups = {
   dashboard: ["#command", ".dashboard-strip", "#productNavigator", "#newsBulletin", "#trustAutopilotCenter", ".ops-board", "#commandDeck", "#smartOps"],
   workbench: ["#focuseaWorkbench"],
+  controlTower: ["#controlTowerPanel"],
   seaTraffic: ["#seaTrafficPanel"],
   flagship: ["#flagshipWorkflow"],
   passport: ["#decisionPassportPanel"],
@@ -8848,6 +8849,145 @@ function saveWorkbenchDeal() {
 function downloadWorkbenchReport() {
   if (!lastWorkbenchPack) renderWorkbench();
   downloadPdfFile("focusea-workbench-action-pack.pdf", "Focusea Workbench Action Pack", lastWorkbenchPack?.reportText || "No Workbench report generated.");
+}
+
+let lastControlTowerBrief = "";
+
+function controlTowerWorkbenchHistory() {
+  return safeLocalGet(workbenchHistoryKey, []);
+}
+
+function controlTowerHealthScore() {
+  const workbenchHistory = controlTowerWorkbenchHistory();
+  const latest = lastWorkbenchPack || (workbenchHistory[0]?.reportText ? null : null);
+  const highInbox = terminalInboxItems.filter((item) => item.priority === "High").length;
+  const subjectInbox = terminalInboxItems.filter((item) => /subject/i.test(item.status)).length;
+  const latestRisk = lastWorkbenchPack?.risk?.score ?? workbenchHistory[0]?.risk ?? 46;
+  const commercial = clamp(100 - Math.max(0, latestRisk - 18), 0, 100);
+  const legal = clamp(86 - subjectInbox * 9 - (latestRisk > 60 ? 12 : 0), 0, 100);
+  const ops = clamp(82 - highInbox * 7, 0, 100);
+  const claim = clamp(78 - subjectInbox * 6 - (latestRisk > 65 ? 10 : 0), 0, 100);
+  const compliance = clamp(88 - (latestRisk > 70 ? 18 : 0), 0, 100);
+  const data = clamp(72 + Math.min(workbenchHistory.length, 5) * 4, 0, 100);
+  const total = Math.round((commercial + legal + ops + claim + compliance + data) / 6);
+  const verdict = total >= 78 ? "Healthy" : total >= 58 ? "Watch" : "Critical";
+  return { latest, highInbox, subjectInbox, latestRisk, commercial, legal, ops, claim, compliance, data, total, verdict };
+}
+
+function controlTowerAlarms(health) {
+  const today = new Date();
+  const dateLabel = (offsetDays) => {
+    const date = new Date(today);
+    date.setDate(date.getDate() + offsetDays);
+    return date.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+  };
+  return [
+    { level: health.subjectInbox ? "High" : "Medium", title: "Subjects deadline", date: dateLabel(1), note: health.subjectInbox ? `${health.subjectInbox} inbox item(s) still on subjects.` : "No subject deadline in current inbox." },
+    { level: health.latestRisk >= 60 ? "High" : "Medium", title: "Deal risk review", date: dateLabel(0), note: `Latest deal risk model: ${health.latestRisk}/100.` },
+    { level: health.highInbox ? "High" : "Low", title: "High-priority inbox", date: dateLabel(0), note: `${health.highInbox} high-priority broker item(s).` },
+    { level: "Medium", title: "Demurrage time bar", date: dateLabel(7), note: "Attach NOR, SOF, rain log, completion and invoice evidence before claim window closes." }
+  ];
+}
+
+function controlTowerBriefText(health, alarms) {
+  const workbenchHistory = controlTowerWorkbenchHistory();
+  const adEnabled = window.FOCUSEA_MONETIZATION?.enabled === true;
+  return [
+    "FOCUSEA CONTROL TOWER DAILY BRIEF",
+    `Generated: ${new Date().toLocaleString()}`,
+    `Overall health: ${health.verdict} (${health.total}/100)`,
+    `Open inbox items: ${terminalInboxItems.length}`,
+    `High priority inbox: ${health.highInbox}`,
+    `Saved Workbench packs: ${workbenchHistory.length}`,
+    `AdSense: ${adEnabled ? "enabled" : "inactive"}`,
+    "",
+    "Health dimensions:",
+    `- Commercial: ${health.commercial}/100`,
+    `- Legal: ${health.legal}/100`,
+    `- Operations: ${health.ops}/100`,
+    `- Claim: ${health.claim}/100`,
+    `- Compliance: ${health.compliance}/100`,
+    `- Data confidence: ${health.data}/100`,
+    "",
+    "Alarms:",
+    ...alarms.map((item) => `- [${item.level}] ${item.title} / ${item.date}: ${item.note}`),
+    "",
+    "Next actions:",
+    "- Run Workbench on the newest offer before sending recap.",
+    "- Save risky fixtures into Deal Room history.",
+    "- Keep client brief separate from internal legal/claim notes.",
+    "- Treat market/index values with live/simulated/licensed-required source labels."
+  ].join("\n");
+}
+
+function renderControlTower() {
+  const summary = document.querySelector("#controlTowerSummary");
+  const healthTarget = document.querySelector("#controlTowerHealth");
+  const alarmsTarget = document.querySelector("#controlTowerAlarms");
+  const marketTarget = document.querySelector("#controlTowerMarketImpact");
+  const clientTarget = document.querySelector("#controlTowerClientMode");
+  const ownerTarget = document.querySelector("#controlTowerOwnerConsole");
+  if (!summary || !healthTarget || !alarmsTarget || !marketTarget || !clientTarget || !ownerTarget) return;
+  const health = controlTowerHealthScore();
+  const alarms = controlTowerAlarms(health);
+  const workbenchHistory = controlTowerWorkbenchHistory();
+  lastControlTowerBrief = controlTowerBriefText(health, alarms);
+  summary.innerHTML = `
+    <div class="mini-heading"><span>Overall deal health</span><strong>${escapeHtml(health.verdict)} / ${health.total}</strong></div>
+    ${metricCards([
+      { label: "Open inbox", value: terminalInboxItems.length },
+      { label: "High priority", value: health.highInbox },
+      { label: "Saved packs", value: workbenchHistory.length },
+      { label: "AdSense", value: window.FOCUSEA_MONETIZATION?.enabled ? "enabled" : "inactive" }
+    ])}
+    <div class="control-tower-ring" style="--score:${health.total}"><span>${health.total}</span><small>${escapeHtml(health.verdict)}</small></div>
+  `;
+  healthTarget.innerHTML = `
+    <div class="mini-heading"><span>Deal Health Score</span><strong>six-dimension view</strong></div>
+    <div class="health-score-list">
+      ${[
+        ["Commercial", health.commercial],
+        ["Legal", health.legal],
+        ["Operations", health.ops],
+        ["Claim", health.claim],
+        ["Compliance", health.compliance],
+        ["Data confidence", health.data]
+      ].map(([label, score]) => `<div><strong>${escapeHtml(label)}</strong><span>${score}/100</span><em style="width:${score}%"></em></div>`).join("")}
+    </div>
+  `;
+  alarmsTarget.innerHTML = `
+    <div class="mini-heading"><span>Time Bar Alarm Center</span><strong>deadline watch</strong></div>
+    <div class="alarm-list">
+      ${alarms.map((item) => `<div class="${item.level.toLowerCase()}"><strong>${escapeHtml(item.title)}</strong><span>${escapeHtml(item.date)}</span><small>${escapeHtml(item.note)}</small></div>`).join("")}
+    </div>
+  `;
+  marketTarget.innerHTML = `
+    <div class="mini-heading"><span>Market Impact Linker</span><strong>signals tied to deals</strong></div>
+    <ul class="compact-list">
+      <li>Bunker and Baltic cards stay labelled as live, simulated or licensed required.</li>
+      <li>News and port delay signals should be attached to Workbench deal packs before fixing.</li>
+      <li>High-risk inbox routes need fresh port and weather checks before subjects are lifted.</li>
+    </ul>
+  `;
+  clientTarget.innerHTML = `
+    <div class="mini-heading"><span>Client Share Mode</span><strong>internal vs customer view</strong></div>
+    <p>${escapeHtml(lastWorkbenchPack?.clientBrief || "Run Workbench to create a client-safe summary. Internal legal, claim and compliance notes remain separate.")}</p>
+  `;
+  ownerTarget.innerHTML = `
+    <div class="mini-heading"><span>Owner Console</span><strong>site and product readiness</strong></div>
+    ${metricCards([
+      { label: "Security", value: "CSP active" },
+      { label: "Ads", value: window.FOCUSEA_MONETIZATION?.enabled ? "live" : "off" },
+      { label: "Reports", value: workbenchHistory.length },
+      { label: "SEO pages", value: "5+" }
+    ])}
+    <small>Owner console values are browser-side readiness signals. Backend analytics can replace them later.</small>
+  `;
+}
+
+function downloadControlTowerBrief() {
+  if (!lastControlTowerBrief) renderControlTower();
+  downloadPdfFile("focusea-control-tower-daily-brief.pdf", "Focusea Control Tower Daily Brief", lastControlTowerBrief || "No Control Tower brief generated.");
 }
 
 function renderParsedOfferOutput(element, parsed, title = "Parsed offer") {
@@ -20415,6 +20555,8 @@ bindBrokerForm(document.querySelector("#workbenchForm"), renderWorkbench);
 document.querySelector("#workbenchSaveDeal")?.addEventListener("click", saveWorkbenchDeal);
 document.querySelector("#workbenchDownloadReport")?.addEventListener("click", downloadWorkbenchReport);
 window.addEventListener("focusea:ads-status", renderWorkbenchAdsStatus);
+document.querySelector("#refreshControlTower")?.addEventListener("click", renderControlTower);
+document.querySelector("#downloadControlTowerBrief")?.addEventListener("click", downloadControlTowerBrief);
 if (growthPushDeal) {
   growthPushDeal.addEventListener("click", saveGrowthDeal);
 }
@@ -21511,6 +21653,7 @@ initializeProductNavigator();
 renderSeaTraffic();
 setSeaProviderStatus("Demo AIS shown. Real global live traffic requires a licensed AIS provider/API.", "simulated");
 renderWorkbench();
+renderControlTower();
 renderGrowthSuite();
 renderInsuranceDesk();
 renderBalticFeedPanel();

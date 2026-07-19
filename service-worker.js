@@ -1,4 +1,4 @@
-const FOCUSEA_CACHE = "focusea-workbench-os-1";
+const FOCUSEA_CACHE = "focusea-control-tower-1";
 const FOCUSEA_ASSETS = [
   "./",
   "./index.html",

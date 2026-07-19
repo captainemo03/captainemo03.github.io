@@ -27,7 +27,7 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <script src="theme.js?v=theme-1"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="styles.css?v=workbench-os-1" />
+    <link rel="stylesheet" href="styles.css?v=control-tower-1" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -94,6 +94,7 @@
         <nav class="nav-list" data-page-nav>
           <a href="#dashboard" class="active" data-page-link="dashboard">Dashboard</a>
           <a href="#workbench" data-page-link="workbench">Focusea Workbench</a>
+          <a href="#controlTower" data-page-link="controlTower">Control Tower</a>
           <a href="#seaTraffic" data-page-link="seaTraffic">Live Sea Traffic</a>
           <a href="#flagship" data-page-link="flagship">Flagship Workflow</a>
           <a href="#passport" data-page-link="passport">Deal Passport</a>
@@ -164,6 +165,7 @@
             <button type="button" class="ghost-button" data-command-presentation>Demo Flow</button>
             <a href="#passport" class="primary-button" data-page-link="passport">Open Deal Passport</a>
             <a href="#workbench" class="ghost-button" data-page-link="workbench">Open Workbench</a>
+            <a href="#controlTower" class="ghost-button" data-page-link="controlTower">Open Control Tower</a>
             <a href="#flagship" class="ghost-button" data-page-link="flagship">Open Flagship Workflow</a>
             <a href="#broker" class="ghost-button" data-page-link="broker">Open Broker Desk</a>
             <a href="#accountPage" class="ghost-button" data-page-link="accountPage">Sign Up / Log In</a>
@@ -373,6 +375,37 @@
             <article class="workbench-output-card" id="workbenchReportHistory"></article>
             <article class="workbench-output-card" id="workbenchAdStatus"></article>
             <article class="workbench-output-card" id="workbenchTrust"></article>
+          </div>
+        </section>
+
+        <section class="control-tower-panel" id="controlTowerPanel" aria-label="Focusea Control Tower">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Focusea Control Tower</p>
+              <h2>See today&apos;s open risks before a broker mistake becomes expensive.</h2>
+              <p>
+                Deal health, subject deadlines, time bar alarms, monetization status, data confidence
+                and next actions are compressed into one daily command view.
+              </p>
+            </div>
+            <div class="status-pill">Daily command</div>
+          </div>
+
+          <div class="control-tower-grid">
+            <article class="control-tower-hero-card" id="controlTowerSummary"></article>
+            <article id="controlTowerHealth"></article>
+            <article id="controlTowerAlarms"></article>
+            <article id="controlTowerMarketImpact"></article>
+            <article id="controlTowerClientMode"></article>
+            <article id="controlTowerOwnerConsole"></article>
+            <article class="wide-card">
+              <div class="mini-heading"><span>Daily Brief Export</span><strong>PDF / TXT ready</strong></div>
+              <p class="muted-copy">Export the current control tower view for a broker morning brief or class presentation.</p>
+              <div class="button-row">
+                <button type="button" id="refreshControlTower">Refresh Control Tower</button>
+                <button type="button" class="ghost-button small" id="downloadControlTowerBrief">Download Brief</button>
+              </div>
+            </article>
           </div>
         </section>
 
@@ -5017,7 +5050,7 @@ Subject: Firm offer
 
     <script src="monetization-config.js?v=monetization-live-1"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="script.js?v=workbench-os-1"></script>
-    <script src="monetization.js?v=workbench-os-1"></script>
+    <script src="script.js?v=control-tower-1"></script>
+    <script src="monetization.js?v=control-tower-1"></script>
   </body>
 </html>
