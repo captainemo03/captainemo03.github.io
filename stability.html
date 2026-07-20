@@ -7,7 +7,7 @@
     <title>Focusea Cargo & Stability Lab</title>
     <link rel="icon" href="favicon.svg?v=focusea-badge3" type="image/svg+xml" />
     <script src="theme.js?v=theme-1"></script>
-    <link rel="stylesheet" href="stability.css?v=loadicator-pro-1" />
+    <link rel="stylesheet" href="stability.css?v=crane-ops-1" />
   </head>
   <body>
     <header class="lab-header">
@@ -612,9 +612,39 @@
               <div class="sequence-list" id="loadingSequenceList"></div>
             </section>
 
-            <section class="cargo-plan-card ballast-map-card">
+            <section class="cargo-plan-card crane-plan-card">
               <div class="mini-heading">
                 <span>13</span>
+                <div>
+                  <h4>Cargo handling & crane plan</h4>
+                  <p>Choose the crane type, outreach and lift method; the live plan checks SWL, cycle time, hold access and operation risk.</p>
+                </div>
+              </div>
+              <form class="crane-plan-form" id="cranePlanForm">
+                <label>
+                  <span>Crane type</span>
+                  <select name="craneType">
+                    <option value="auto" selected>Auto recommend</option>
+                    <option value="shipCrane">Ship crane / geared vessel</option>
+                    <option value="mobileHarbor">Mobile harbour crane</option>
+                    <option value="shipLoader">Bulk ship loader</option>
+                    <option value="gantryContainer">STS gantry crane</option>
+                    <option value="floatingHeavyLift">Floating heavy-lift crane</option>
+                    <option value="hoseManifold">Tanker hose / manifold</option>
+                    <option value="lngArm">LNG loading arm</option>
+                  </select>
+                </label>
+                <label><span>Outreach to hold m</span><input name="outreach" type="number" value="32" step="1" /></label>
+                <label><span>Lift / parcel unit mt</span><input name="liftUnit" type="number" value="28" step="1" /></label>
+                <label><span>Hooks / grabs / spreaders</span><input name="gearCount" type="number" value="1" min="1" max="6" step="1" /></label>
+                <label><span>Port productivity factor %</span><input name="productivity" type="range" min="45" max="115" value="82" step="1" /></label>
+              </form>
+              <div class="crane-plan-output" id="cranePlanOutput">Crane plan waiting for cargo model.</div>
+            </section>
+
+            <section class="cargo-plan-card ballast-map-card">
+              <div class="mini-heading">
+                <span>14</span>
                 <div>
                   <h4>Ballast tank haritasi</h4>
                   <p>Fore/aft, double bottom ve wing tank doluluklarini tek planda izle.</p>
@@ -625,7 +655,7 @@
 
             <section class="cargo-plan-card compatibility-matrix-card">
               <div class="mini-heading">
-                <span>14</span>
+                <span>15</span>
                 <div>
                   <h4>Cargo compatibility matrix</h4>
                   <p>Cargo type, vessel type, documentation and operational risk compatibility.</p>
@@ -636,7 +666,7 @@
 
             <section class="cargo-plan-card scenario-mode-card">
               <div class="mini-heading">
-                <span>15</span>
+                <span>16</span>
                 <div>
                   <h4>Scenario mode</h4>
                   <p>Egitim ve demo icin hazir operasyon senaryolari.</p>
@@ -655,7 +685,7 @@
 
             <section class="cargo-plan-card copilot-card">
               <div class="mini-heading">
-                <span>16</span>
+                <span>17</span>
                 <div>
                   <h4>AI Copilot Panel</h4>
                   <p>Plan riskini acikla, trim azalt, rapor veya broker notu hazirla.</p>
@@ -673,7 +703,7 @@
 
             <section class="cargo-plan-card report-history-card">
               <div class="mini-heading">
-                <span>17</span>
+                <span>18</span>
                 <div>
                   <h4>Load Plan Report History</h4>
                   <p>PDF indirildikce rapor kaydi, risk sonucu ve tekrar indirme.</p>
@@ -978,7 +1008,7 @@
     </main>
 
     <script src="stability.js?v=stability-english-1"></script>
-    <script src="stability-loadicator-basic.js?v=loadicator-pro-1"></script>
-    <script type="module" src="stability-3d.js?v=loadicator-pro-1"></script>
+    <script src="stability-loadicator-basic.js?v=crane-ops-1"></script>
+    <script type="module" src="stability-3d.js?v=crane-ops-1"></script>
   </body>
 </html>

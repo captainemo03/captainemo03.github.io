@@ -44,6 +44,8 @@
   const refreshAutoBalanceButton = document.querySelector("#refreshAutoBalance");
   const riskReasonList = document.querySelector("#riskReasonList");
   const loadingSequenceList = document.querySelector("#loadingSequenceList");
+  const cranePlanForm = document.querySelector("#cranePlanForm");
+  const cranePlanOutput = document.querySelector("#cranePlanOutput");
   const ballastTankMap = document.querySelector("#ballastTankMap");
   const cargoCompatibilityMatrix = document.querySelector("#cargoCompatibilityMatrix");
   const scenarioModeButtons = Array.from(document.querySelectorAll("[data-scenario]"));
@@ -414,6 +416,7 @@
   let latestAutoBalanceAction = null;
   let latestRiskReasons = [];
   let latestReportLines = [];
+  let latestCranePlan = null;
   let reportHistory = loadReportHistory();
 
   const cargoCompatibilityProfiles = {
@@ -488,6 +491,65 @@
       imdg: "Check package/cargo specific class",
       segregation: "Lashing, lifting, center of gravity and deck load",
       score: 72
+    }
+  };
+
+  const craneProfiles = {
+    shipCrane: {
+      label: "Ship crane / geared vessel",
+      swl: 36,
+      outreach: 28,
+      cycle: 5.2,
+      product: ["coal", "grain", "ironOre", "projectCargo"],
+      note: "Works for geared bulk/MPV parcels, but outreach and SWL margin are tight for heavy pieces."
+    },
+    mobileHarbor: {
+      label: "Mobile harbour crane",
+      swl: 100,
+      outreach: 45,
+      cycle: 4.4,
+      product: ["coal", "grain", "ironOre", "containers", "projectCargo"],
+      note: "Flexible multipurpose port crane for grabs, hooks and spreaders."
+    },
+    shipLoader: {
+      label: "Bulk ship loader",
+      swl: 220,
+      outreach: 48,
+      cycle: 2.8,
+      product: ["coal", "grain", "ironOre"],
+      note: "Best for continuous bulk loading; requires terminal conveyor/loader availability."
+    },
+    gantryContainer: {
+      label: "STS gantry crane",
+      swl: 65,
+      outreach: 62,
+      cycle: 2.2,
+      product: ["containers"],
+      note: "Container spreader operation with high productivity and bay-row-tier control."
+    },
+    floatingHeavyLift: {
+      label: "Floating heavy-lift crane",
+      swl: 900,
+      outreach: 55,
+      cycle: 11.5,
+      product: ["projectCargo", "ironOre"],
+      note: "Use for heavy or awkward point loads; weather window and rigging plan are critical."
+    },
+    hoseManifold: {
+      label: "Tanker hose / manifold",
+      swl: 0,
+      outreach: 35,
+      cycle: 1.4,
+      product: ["crudeOil", "chemicals"],
+      note: "Pump/hose transfer; rate depends on manifold, shore pumps, back pressure and stripping."
+    },
+    lngArm: {
+      label: "LNG loading arm",
+      swl: 0,
+      outreach: 38,
+      cycle: 1.8,
+      product: ["lng"],
+      note: "Cryogenic arm operation; cooldown, ESD checks and vapor return dominate sequence."
     }
   };
 
@@ -598,6 +660,26 @@
   function planNumber(name) {
     if (!ballastPlanForm) return 0;
     return Number(new FormData(ballastPlanForm).get(name)) || 0;
+  }
+
+  function craneValue(name) {
+    if (!cranePlanForm) return "";
+    return new FormData(cranePlanForm).get(name);
+  }
+
+  function craneNumber(name, fallback = 0) {
+    const value = Number(craneValue(name));
+    return Number.isFinite(value) && value > 0 ? value : fallback;
+  }
+
+  function chooseCraneForCargo(cargoKey, parcelWeight) {
+    if (["crudeOil", "chemicals"].includes(cargoKey)) return "hoseManifold";
+    if (cargoKey === "lng") return "lngArm";
+    if (cargoKey === "containers") return "gantryContainer";
+    if (cargoKey === "projectCargo" && parcelWeight > 90) return "floatingHeavyLift";
+    if (cargoKey === "ironOre" && parcelWeight > 1200) return "shipLoader";
+    if (["coal", "grain", "ironOre"].includes(cargoKey)) return "shipLoader";
+    return "mobileHarbor";
   }
 
   function holdDefFor(value) {
@@ -939,6 +1021,78 @@
       advice,
       overallLevel,
       ballast
+    };
+  }
+
+  function calculateCranePlan(model, plan) {
+    const parcel = selectedParcel() || cargoPlan[0] || null;
+    const cargoKey = parcel?.cargoKey || model.cargo.key;
+    const parcelWeight = parcel?.weight || model.cargoWeight || 0;
+    const requested = String(craneValue("craneType") || "auto");
+    const selectedKey = requested === "auto" ? chooseCraneForCargo(cargoKey, parcelWeight) : requested;
+    const crane = craneProfiles[selectedKey] || craneProfiles.mobileHarbor;
+    const outreach = craneNumber("outreach", Math.abs(holdDefFor(parcel?.hold || selectedHoldValue()).x) * 0.28 + 22);
+    const liftUnit = craneNumber("liftUnit", cargoKey === "containers" ? 28 : cargoKey === "projectCargo" ? Math.min(parcelWeight, 180) : 35);
+    const gearCount = Math.max(1, Math.min(6, craneNumber("gearCount", 1)));
+    const productivity = Math.max(45, Math.min(115, craneNumber("productivity", 82))) / 100;
+    const isFluid = ["crudeOil", "chemicals", "lng"].includes(cargoKey);
+    const profileMatch = crane.product.includes(cargoKey);
+    const swlMargin = isFluid ? 999 : crane.swl - liftUnit;
+    const outreachMargin = crane.outreach - outreach;
+    const lifts = isFluid ? Math.ceil(parcelWeight / 900) : Math.ceil(parcelWeight / Math.max(liftUnit * gearCount, 1));
+    const cycleMinutes = crane.cycle * (outreach > crane.outreach ? 1.32 : outreach > crane.outreach * 0.82 ? 1.12 : 1);
+    const operationHours = isFluid
+      ? parcelWeight / Math.max((cargoKey === "lng" ? 1150 : 900) * productivity, 1)
+      : (lifts * cycleMinutes) / 60 / productivity;
+    const selectedHold = holdDefFor(parcel?.hold || selectedHoldValue());
+    const holdEval = plan?.holdEvaluations?.find((item) => item.hold.value === selectedHold.value);
+    const holdCongestion = Math.max(holdEval?.loadPct || 0, holdEval?.volumePct || 0);
+    const warnings = [];
+
+    if (!profileMatch) warnings.push("Crane/method is not normally matched with this cargo.");
+    if (!isFluid && swlMargin < 0) warnings.push(`Lift unit exceeds SWL by ${fmt(Math.abs(swlMargin), 1)} mt.`);
+    if (outreachMargin < 0) warnings.push(`Required outreach exceeds crane envelope by ${fmt(Math.abs(outreachMargin), 1)} m.`);
+    if (holdCongestion > 90) warnings.push(`${selectedHold.name} is congested; expect slower positioning and trimming.`);
+    if (cargoKey === "projectCargo") warnings.push("Rigging plan, lifting points, lashing and deck/hold point-load approval required.");
+    if (cargoKey === "grain") warnings.push("After loading, grain trimming and shifting prevention must be confirmed.");
+    if (cargoKey === "coal") warnings.push("Ventilation, temperature monitoring and rain interruption plan required.");
+    if (["crudeOil", "chemicals", "lng"].includes(cargoKey)) warnings.push("Sequence depends on manifold/arm checks, ESD, stripping and terminal rate.");
+
+    const level = warnings.some((text) => text.includes("exceeds")) || !profileMatch
+      ? "danger"
+      : warnings.length || operationHours > 18
+        ? "watch"
+        : "ok";
+    const score = Math.max(22, Math.min(98,
+      96
+      - (profileMatch ? 0 : 32)
+      - (!isFluid && swlMargin < 0 ? 28 : !isFluid && swlMargin < 8 ? 10 : 0)
+      - (outreachMargin < 0 ? 22 : outreachMargin < 5 ? 8 : 0)
+      - (holdCongestion > 100 ? 18 : holdCongestion > 90 ? 9 : 0)
+      - (operationHours > 18 ? 8 : 0)
+    ));
+
+    return {
+      selectedKey,
+      requested,
+      crane,
+      parcel,
+      cargoKey,
+      parcelWeight,
+      selectedHold,
+      outreach,
+      liftUnit,
+      gearCount,
+      productivity,
+      isFluid,
+      profileMatch,
+      swlMargin,
+      outreachMargin,
+      lifts,
+      operationHours,
+      warnings: warnings.length ? warnings : ["Handling plan is inside the training envelope."],
+      level,
+      score
     };
   }
 
@@ -2073,6 +2227,34 @@
     `).join("");
   }
 
+  function renderCranePlan(model, plan) {
+    if (!cranePlanOutput) return;
+    latestCranePlan = calculateCranePlan(model, plan);
+    const cranePlan = latestCranePlan;
+    const methodLabel = cranePlan.isFluid ? "transfer parcels" : "lifts";
+    const swlText = cranePlan.isFluid ? "N/A transfer" : `${fmt(cranePlan.crane.swl, 0)} mt SWL / margin ${fmt(cranePlan.swlMargin, 1)} mt`;
+    const warnings = cranePlan.warnings.map((warning) => `<small>${warning}</small>`).join("");
+    cranePlanOutput.innerHTML = `
+      <article class="crane-result-card ${cranePlan.level}">
+        <header>
+          <div>
+            <strong>${cranePlan.crane.label}</strong>
+            <span>${cranePlan.parcel ? `${cranePlan.parcel.id} ${cranePlan.parcel.label}` : model.cargo.label} / ${cranePlan.selectedHold.name}</span>
+          </div>
+          <em>${cranePlan.level.toUpperCase()} / ${fmt(cranePlan.score, 0)}%</em>
+        </header>
+        <div class="crane-metric-grid">
+          <div><span>SWL check</span><strong>${swlText}</strong></div>
+          <div><span>Outreach</span><strong>${fmt(cranePlan.outreach, 1)} m / margin ${fmt(cranePlan.outreachMargin, 1)} m</strong></div>
+          <div><span>Operation</span><strong>${fmt(cranePlan.lifts, 0)} ${methodLabel} / ${fmt(cranePlan.operationHours, 1)} h</strong></div>
+          <div><span>Method</span><strong>${cranePlan.requested === "auto" ? "Auto recommended" : "Manual selected"}</strong></div>
+        </div>
+        <span>${cranePlan.crane.note}</span>
+        ${warnings}
+      </article>
+    `;
+  }
+
   function renderBallastTankMap(plan) {
     if (!ballastTankMap) return;
     const tanks = ballastLoads();
@@ -2120,6 +2302,7 @@
     renderRiskReasons(buildRiskReasons(model, plan));
     renderAutoBalance(buildAutoBalanceAction(model, plan), plan);
     renderLoadingSequence(plan);
+    renderCranePlan(model, plan);
     renderBallastTankMap(plan);
     renderCompatibilityMatrix(model);
     renderReportHistory();
@@ -2244,6 +2427,18 @@
     plan.criteria.forEach((item) => {
       lines.push(`${item.level.toUpperCase()} | ${item.label}: ${item.value} | ${item.note}`);
     });
+
+    const cranePlan = latestCranePlan || calculateCranePlan(calculateModel(), plan);
+    lines.push(
+      "",
+      "CARGO HANDLING / CRANE PLAN",
+      `Method: ${cranePlan.crane.label}`,
+      `Selected parcel: ${cranePlan.parcel ? `${cranePlan.parcel.id} ${cranePlan.parcel.label}` : "single cargo model"}`,
+      `Hold/access: ${cranePlan.selectedHold.name} / outreach ${fmt(cranePlan.outreach, 1)} m`,
+      `SWL: ${cranePlan.isFluid ? "N/A transfer" : `${fmt(cranePlan.crane.swl, 0)} mt`} / lift unit ${fmt(cranePlan.liftUnit, 1)} mt / gear count ${fmt(cranePlan.gearCount, 0)}`,
+      `Operation estimate: ${fmt(cranePlan.lifts, 0)} ${cranePlan.isFluid ? "transfer parcels" : "lifts"} / ${fmt(cranePlan.operationHours, 1)} hours / risk ${cranePlan.level.toUpperCase()} ${fmt(cranePlan.score, 0)}%`
+    );
+    cranePlan.warnings.forEach((warning) => lines.push(`- ${warning}`));
 
     lines.push("", "RECOMMENDATIONS");
     plan.advice.forEach((item) => {
@@ -2559,6 +2754,7 @@
       latestProfessionalPlan,
       latestAutoBalanceAction,
       latestRiskReasons,
+      latestCranePlan,
       reportHistory,
       shipStowageLayer,
       activeShipView,
@@ -2596,6 +2792,11 @@
 
   if (ballastPlanForm) {
     ballastPlanForm.addEventListener("input", sync);
+  }
+
+  if (cranePlanForm) {
+    cranePlanForm.addEventListener("input", sync);
+    cranePlanForm.addEventListener("change", sync);
   }
 
   form.elements.vesselType.addEventListener("change", () => {

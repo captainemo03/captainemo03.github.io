@@ -3147,6 +3147,7 @@ a {
 .auto-balance-card,
 .risk-reason-card,
 .loading-sequence-card,
+.crane-plan-card,
 .ballast-map-card,
 .compatibility-matrix-card,
 .scenario-mode-card,
@@ -3158,6 +3159,7 @@ a {
 .decision-stack,
 .risk-reason-list,
 .sequence-list,
+.crane-plan-output,
 .ballast-map,
 .compatibility-matrix,
 .report-history-list {
@@ -3212,6 +3214,7 @@ a {
 .auto-balance-action,
 .risk-reason,
 .sequence-step,
+.crane-result-card,
 .compatibility-matrix article,
 .scenario-output,
 .copilot-output,
@@ -3225,12 +3228,108 @@ a {
 
 .auto-balance-action,
 .sequence-step,
+.crane-result-card,
 .scenario-output,
 .copilot-output,
 .empty-mini {
   display: grid;
   gap: 5px;
   padding: 11px;
+}
+
+.crane-plan-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.crane-plan-form label {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.crane-plan-form select,
+.crane-plan-form input {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid rgba(138, 134, 255, 0.28);
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: var(--text);
+  background: rgba(5, 6, 22, 0.76);
+}
+
+.crane-plan-form input[type="range"] {
+  padding: 0;
+  accent-color: var(--cyan);
+}
+
+.crane-result-card {
+  border-left: 3px solid var(--cyan);
+}
+
+.crane-result-card.watch {
+  border-left-color: var(--gold);
+}
+
+.crane-result-card.danger {
+  border-left-color: var(--danger);
+}
+
+.crane-result-card header {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: start;
+}
+
+.crane-result-card strong {
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.crane-result-card span,
+.crane-result-card small {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 820;
+  line-height: 1.4;
+}
+
+.crane-result-card em {
+  color: var(--cyan);
+  font-style: normal;
+  font-size: 0.72rem;
+  font-weight: 950;
+  text-align: right;
+}
+
+.crane-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.crane-metric-grid div {
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid rgba(138, 134, 255, 0.16);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.crane-metric-grid span,
+.crane-metric-grid strong {
+  display: block;
+}
+
+.crane-metric-grid strong {
+  margin-top: 4px;
 }
 
 .auto-balance-action {
@@ -4038,6 +4137,7 @@ a {
   .auto-balance-card,
   .risk-reason-card,
   .loading-sequence-card,
+  .crane-plan-card,
   .ballast-map-card,
   .compatibility-matrix-card,
   .scenario-mode-card,
@@ -4067,6 +4167,7 @@ a {
   .engineering-metrics,
   .hold-drop-grid,
   .loadicator-metrics,
+  .crane-metric-grid,
   .loadicator-summary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -4291,6 +4392,8 @@ a {
   .plan-analysis-grid,
   .pro-decision-grid,
   .compatibility-matrix,
+  .crane-plan-form,
+  .crane-metric-grid,
   .scenario-grid,
   .copilot-quick-actions,
   .tank-map-shell,
