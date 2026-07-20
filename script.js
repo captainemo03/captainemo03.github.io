@@ -1,4 +1,4 @@
-const FOCUSEA_CLIENT_ASSET_VERSION = "20260720-logo2-hard-refresh";
+const FOCUSEA_CLIENT_ASSET_VERSION = "20260720-concept2-final";
 
 async function clearLegacyFocuseaCaches() {
   try {

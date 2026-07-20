@@ -1,4 +1,4 @@
-const FOCUSEA_CACHE = "focusea-logo2-hard-refresh-2";
+const FOCUSEA_CACHE = "focusea-concept2-final-cache-1";
 const FOCUSEA_ASSETS = [
   "./",
   "./index.html",
@@ -27,10 +27,10 @@ const FOCUSEA_ASSETS = [
   "./stability.js",
   "./insurance.js",
   "./deal-surgeon.js",
-  "./favicon-logo2.svg",
+  "./favicon-concept2.svg",
   "./stability-loadicator-basic.js",
   "./stability-3d.js",
-  "./assets/brand/focusea-radar-route-v2.svg",
+  "./assets/brand/focusea-concept2-final.svg",
   "./assets/hero/focusea-command-hero.png"
 ];
 

@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">Focusea Concept 2 logo</title>
+  <desc id="desc">A cyan maritime technology logo with an F-shaped route mark, radar rings, a route dot and a focused navigation sweep.</desc>
+  <defs>
+    <linearGradient id="bg" x1="26" y1="18" x2="229" y2="237" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#06293e"/>
+      <stop offset=".5" stop-color="#041522"/>
+      <stop offset="1" stop-color="#040817"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="71" y1="63" x2="184" y2="184" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#b9fff8"/>
+      <stop offset=".46" stop-color="#57efe6"/>
+      <stop offset="1" stop-color="#24bdd5"/>
+    </linearGradient>
+    <linearGradient id="route" x1="70" y1="188" x2="188" y2="138" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#67fff0"/>
+      <stop offset=".5" stop-color="#35dfff"/>
+      <stop offset="1" stop-color="#6a70ff"/>
+    </linearGradient>
+    <linearGradient id="sweep" x1="128" y1="128" x2="198" y2="110" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7ffff4" stop-opacity=".45"/>
+      <stop offset="1" stop-color="#29d8ff" stop-opacity=".04"/>
+    </linearGradient>
+    <filter id="softShadow" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="18" stdDeviation="14" flood-color="#000712" flood-opacity=".66"/>
+    </filter>
+    <filter id="glow" x="-35%" y="-35%" width="170%" height="170%" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="5"/>
+    </filter>
+  </defs>
+
+  <rect width="256" height="256" rx="52" fill="#020713"/>
+  <rect x="14" y="14" width="228" height="228" rx="44" fill="url(#bg)"/>
+
+  <g opacity=".44">
+    <circle cx="127" cy="126" r="93" fill="none" stroke="#47f3ed" stroke-width="2"/>
+    <circle cx="127" cy="126" r="65" fill="none" stroke="#35dfff" stroke-width="1.6" opacity=".72"/>
+    <circle cx="127" cy="126" r="35" fill="none" stroke="#6a70ff" stroke-width="1.4" opacity=".52"/>
+    <path d="M127 31v34M127 187v34M32 126h34M188 126h34" fill="none" stroke="#9ffff6" stroke-linecap="round" stroke-width="3"/>
+  </g>
+
+  <path d="M128 126l72-43c-8 36-29 63-72 43Z" fill="url(#sweep)"/>
+  <path d="M128 126l72-43" fill="none" stroke="#47f3ed" stroke-linecap="round" stroke-width="3.5" opacity=".9"/>
+  <circle cx="128" cy="126" r="7" fill="#dffffc"/>
+
+  <g filter="url(#glow)" opacity=".32">
+    <path d="M77 181V104c0-23 18-41 41-41h69c-7 18-22 26-44 26h-26c-8 0-14 6-14 14v26" fill="none" stroke="#60fff2" stroke-linecap="round" stroke-linejoin="round" stroke-width="27"/>
+    <path d="M77 181c34-33 69-50 105-52" fill="none" stroke="#60fff2" stroke-linecap="round" stroke-width="14"/>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <path d="M78 181V104c0-22 18-40 40-40h70c-7 17-22 26-44 26h-27c-8 0-15 7-15 15v25" fill="none" stroke="#02101d" stroke-linecap="round" stroke-linejoin="round" stroke-width="31" opacity=".68"/>
+    <path d="M78 181V104c0-22 18-40 40-40h70c-7 17-22 26-44 26h-27c-8 0-15 7-15 15v25" fill="none" stroke="url(#mark)" stroke-linecap="round" stroke-linejoin="round" stroke-width="23"/>
+    <path d="M78 181c32-31 68-49 105-52" fill="none" stroke="#02101d" stroke-linecap="round" stroke-width="20" opacity=".7"/>
+    <path d="M78 181c32-31 68-49 105-52" fill="none" stroke="url(#route)" stroke-linecap="round" stroke-width="11"/>
+    <circle cx="77" cy="181" r="13" fill="#67fff0"/>
+    <circle cx="168" cy="137" r="10" fill="#38dfff"/>
+  </g>
+
+  <path d="M102 88h80" fill="none" stroke="#b9fff8" stroke-linecap="round" stroke-width="4" opacity=".42"/>
+  <path d="M102 130c31 0 55 0 79-1" fill="none" stroke="#49e9ed" stroke-linecap="round" stroke-width="3" opacity=".36"/>
+</svg>
