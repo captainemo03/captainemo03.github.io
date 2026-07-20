@@ -8818,3 +8818,111 @@ code,
     transition: none;
   }
 }
+
+/* Final visual QA layer: keeps late-added tools from looking broken on narrow screens. */
+main :where(h1, h2, h3, h4, p, li, a, span, strong, small, em, button, label, input, select, textarea, pre, code) {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+main :where(section, article, div, form, fieldset, label),
+.site-footer :where(article, div, p, nav),
+.sidebar :where(a, div, span, strong) {
+  min-width: 0;
+}
+
+main :where([class$="-grid"], [class*="-grid "], [class$="-layout"], [class*="-layout "], [class$="-hero"], [class*="-hero "], [class$="-row"], [class*="-row "]) > * {
+  min-width: 0;
+}
+
+main :where(.panel-heading, .mini-heading, .top-account-bar, .sea-map-head, .command-deck-heading, .saas-core-heading, .ai-core-heading, .pro-ops-heading, .passport-heading, .enterprise-command-heading) {
+  align-items: start;
+}
+
+main :where(.source-pill, .status-pill, .trust-badge, .source-chip, .badge, .pill, .micro-label) {
+  max-width: 100%;
+  white-space: normal;
+}
+
+main :where(.mini-table, .heatmap-table, .sea-traffic-table, .market-index-detail, .global-port-detail, .broker-output, .template-preview, .report-output) {
+  border-radius: 8px;
+}
+
+@media (max-width: 900px) {
+  .brand-logo-only {
+    min-height: 116px;
+    gap: 8px;
+  }
+
+  .brand-mark {
+    flex-basis: 104px;
+    width: 104px;
+    height: 104px;
+  }
+
+  .brand-mark img {
+    width: 108px;
+    height: 108px;
+  }
+
+  .brand-name {
+    font-size: 1rem;
+    letter-spacing: 0.08em;
+  }
+
+  .footer-legal-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  main :where([class$="-grid"], [class*="-grid "], [class$="-layout"], [class*="-layout "], [class$="-hero"], [class*="-hero "], [class$="-row"], [class*="-row "]),
+  .grid,
+  .metric-grid,
+  .trust-grid,
+  .footer-legal-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .sidebar {
+    padding: 14px 14px 10px;
+  }
+
+  .brand-logo-only {
+    min-height: auto;
+    margin-bottom: 12px;
+  }
+
+  .brand-mark {
+    flex-basis: 92px;
+    width: 92px;
+    height: 92px;
+  }
+
+  .brand-mark img {
+    width: 96px;
+    height: 96px;
+  }
+
+  .nav-list {
+    gap: 7px;
+  }
+
+  .nav-list a,
+  .side-site-link {
+    padding: 10px 11px;
+    text-align: left;
+  }
+
+  .footer-bottom nav {
+    align-items: stretch;
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  .footer-bottom nav > * {
+    justify-content: center;
+    width: 100%;
+  }
+}

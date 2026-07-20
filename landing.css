@@ -201,6 +201,29 @@ p {
   color: var(--muted);
 }
 
+.page-shell,
+.topbar,
+.hero,
+.panel,
+.site-footer,
+.card,
+.nav-links {
+  min-width: 0;
+}
+
+.hero p,
+.panel p,
+.panel li,
+.card,
+.nav-links a,
+.site-footer {
+  overflow-wrap: anywhere;
+}
+
+.panel {
+  line-height: 1.62;
+}
+
 @media (max-width: 820px) {
   .topbar {
     align-items: flex-start;
@@ -220,5 +243,33 @@ p {
   .page-shell {
     width: min(100% - 24px, 1120px);
     padding-top: 16px;
+  }
+}
+
+@media (max-width: 560px) {
+  .hero,
+  .panel,
+  .site-footer {
+    padding: 16px;
+  }
+
+  .hero h1 {
+    font-size: clamp(2rem, 13vw, 3.2rem);
+  }
+
+  .brand img {
+    width: 34px;
+    height: 34px;
+  }
+
+  .nav-links {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  .nav-links a {
+    justify-content: center;
+    width: 100%;
   }
 }

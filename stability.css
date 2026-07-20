@@ -4659,3 +4659,49 @@ body,
     transition: none;
   }
 }
+
+/* Visual polish guard for dense engineering controls. */
+.lab-shell,
+.lab-header,
+.lab-hero,
+.loadicator-panel,
+.lab-card,
+.stability-resource-panel,
+.lab-footer,
+main :where(section, article, div, form, label) {
+  min-width: 0;
+}
+
+main :where(h1, h2, h3, p, li, span, strong, small, em, button, label, input, select, textarea, pre, code) {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+img,
+svg,
+canvas,
+video {
+  max-width: 100%;
+}
+
+@media (max-width: 760px) {
+  main :where([class$="-grid"], [class*="-grid "], [class$="-layout"], [class*="-layout "], [class$="-row"], [class*="-row "]),
+  .status-grid,
+  .lab-footer-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .lab-header,
+  .lab-nav,
+  .lab-actions {
+    align-items: stretch;
+  }
+
+  .lab-nav a,
+  .primary-button,
+  .ghost-button {
+    justify-content: center;
+    width: 100%;
+    white-space: normal;
+  }
+}

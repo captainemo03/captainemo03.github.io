@@ -483,3 +483,49 @@ html[data-theme="light"] .risk-bars small {
     display: grid;
   }
 }
+
+/* Visual polish guard for quote forms and underwriting cards. */
+.insurance-shell,
+.insurance-header,
+.insurance-hero,
+.panel,
+.insurance-footer,
+main :where(section, article, div, form, label) {
+  min-width: 0;
+}
+
+main :where(h1, h2, h3, p, li, span, strong, small, em, button, label, input, select, textarea, pre, code) {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+img,
+svg,
+canvas,
+video {
+  max-width: 100%;
+}
+
+@media (max-width: 720px) {
+  main :where([class$="-grid"], [class*="-grid "], [class$="-layout"], [class*="-layout "], [class$="-row"], [class*="-row "]),
+  .metric-grid,
+  .coverage-list,
+  .glossary-grid,
+  .risk-bars div,
+  .footer-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .insurance-nav {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  .insurance-nav a,
+  .insurance-form button {
+    justify-content: center;
+    width: 100%;
+    white-space: normal;
+  }
+}

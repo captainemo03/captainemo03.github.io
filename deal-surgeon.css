@@ -620,3 +620,58 @@ html[data-theme="light"] .surgeon-form textarea {
     font-size: 2.55rem;
   }
 }
+
+/* Visual polish guard for the deal timeline and risk cards. */
+.surgeon-shell,
+.surgeon-header,
+.surgeon-hero,
+.surgeon-panel,
+.surgeon-footer,
+main :where(section, article, div, form, label) {
+  min-width: 0;
+}
+
+main :where(h1, h2, h3, p, li, span, strong, small, em, button, label, input, select, textarea, pre, code) {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+img,
+svg,
+canvas,
+video {
+  max-width: 100%;
+}
+
+.timeline-step {
+  grid-template-columns: 34px minmax(0, 1fr);
+}
+
+.timeline-step strong,
+.timeline-step small,
+.timeline-step em {
+  word-break: normal;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 720px) {
+  main :where([class$="-grid"], [class*="-grid "], [class$="-layout"], [class*="-layout "], [class$="-row"], [class*="-row "]),
+  .surgeon-status-grid,
+  .panel-grid,
+  .surgeon-form {
+    grid-template-columns: 1fr !important;
+  }
+
+  .surgeon-nav {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  .surgeon-nav a,
+  .surgeon-form button {
+    justify-content: center;
+    width: 100%;
+    white-space: normal;
+  }
+}
