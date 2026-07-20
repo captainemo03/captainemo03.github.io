@@ -1,4 +1,4 @@
-const FOCUSEA_CACHE = "focusea-concept2-final-cache-1";
+const FOCUSEA_CACHE = "focusea-concept2-true-cache-1";
 const FOCUSEA_ASSETS = [
   "./",
   "./index.html",
