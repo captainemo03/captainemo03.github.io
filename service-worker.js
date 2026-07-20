@@ -1,4 +1,4 @@
-const FOCUSEA_CACHE = "focusea-command-widgets-cache-1";
+const FOCUSEA_CACHE = "focusea-signup-alerts-cache-1";
 const FOCUSEA_ASSETS = [
   "./",
   "./index.html",

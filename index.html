@@ -28,7 +28,7 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <script src="theme.js?v=theme-1"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="styles.css?v=command-widgets-1" />
+    <link rel="stylesheet" href="styles.css?v=signup-alerts-1" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -4651,6 +4651,22 @@ Subject: Firm offer
               </div>
               <div class="broker-output" id="memberAuthStatus"></div>
             </article>
+
+            <article class="membership-card signup-alert-card">
+              <div class="mini-heading"><span>Owner Alerts</span><strong>first sign-up notification log</strong></div>
+              <p class="muted-copy">
+                When a new username is created on this browser, Focusea records an owner alert with username, Gmail,
+                first page and time. Real email/push alerts require a backend or webhook service.
+              </p>
+              <div class="signup-alert-list" id="memberSignupAlerts">
+                <div><strong>No sign-up alerts yet.</strong><span>First new account will appear here.</span></div>
+              </div>
+              <div class="button-row">
+                <button type="button" class="ghost-button small" id="copySignupAlerts">Copy Alerts</button>
+                <button type="button" class="ghost-button small" id="clearSignupAlerts">Clear Log</button>
+              </div>
+              <small class="form-note">Production path: connect this alert log to EmailJS, Formspree, Firebase or a FastAPI backend for real owner notifications.</small>
+            </article>
           </div>
           <div class="account-grid">
             <article><span>Saved CV</span><strong>1 draft</strong><small>Deck Cadet profile</small></article>
@@ -5393,7 +5409,7 @@ Subject: Firm offer
 
     <script src="monetization-config.js?v=adsense-readiness-1"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="script.js?v=command-widgets-1"></script>
+    <script src="script.js?v=signup-alerts-1"></script>
     <script src="monetization.js?v=adsense-readiness-1"></script>
   </body>
 </html>

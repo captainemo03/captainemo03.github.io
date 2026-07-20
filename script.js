@@ -2941,6 +2941,9 @@ const topMemberSessionPill = document.querySelector("#topMemberSessionPill");
 const topMemberSessionNote = document.querySelector("#topMemberSessionNote");
 const memberResumeLast = document.querySelector("#memberResumeLast");
 const memberLogout = document.querySelector("#memberLogout");
+const memberSignupAlerts = document.querySelector("#memberSignupAlerts");
+const copySignupAlerts = document.querySelector("#copySignupAlerts");
+const clearSignupAlerts = document.querySelector("#clearSignupAlerts");
 const runBrokerOs = document.querySelector("#runBrokerOs");
 const brokerOsHeadline = document.querySelector("#brokerOsHeadline");
 const brokerOsSummary = document.querySelector("#brokerOsSummary");
@@ -4417,6 +4420,7 @@ function safeLocalSet(key, value) {
 
 const memberAccountsKey = "focusea-member-accounts-v1";
 const memberSessionKey = "focusea-member-session-v1";
+const memberSignupAlertsKey = "focusea-owner-signup-alerts-v1";
 const guestWorkspaceKey = "focusea-workspace-v2";
 
 function normalizeMemberUsername(username = "") {
@@ -4577,6 +4581,94 @@ function getMemberAccounts() {
 
 function setMemberAccounts(accounts = {}) {
   return safeLocalSet(memberAccountsKey, accounts);
+}
+
+function getMemberSignupAlerts() {
+  const alerts = safeLocalGet(memberSignupAlertsKey, []);
+  return Array.isArray(alerts) ? alerts : [];
+}
+
+function setMemberSignupAlerts(alerts = []) {
+  return safeLocalSet(memberSignupAlertsKey, alerts.slice(0, 30));
+}
+
+function maskMemberEmail(email = "") {
+  const normalized = normalizeMemberEmail(email);
+  const [name = "", domain = "gmail.com"] = normalized.split("@");
+  if (!name) return "hidden@gmail.com";
+  return `${name.slice(0, 2)}${"*".repeat(Math.max(name.length - 2, 3))}@${domain}`;
+}
+
+function formatMemberAlertTime(value = "") {
+  const date = new Date(value || Date.now());
+  if (Number.isNaN(date.getTime())) return "Unknown time";
+  return date.toLocaleString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
+function queueMemberSignupAlert(account = {}) {
+  if (!account.username) return;
+  const alerts = getMemberSignupAlerts();
+  const alert = {
+    id: `signup-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    username: account.username,
+    email: account.email || "",
+    page: account.lastPage || pageFromHash() || "dashboard",
+    createdAt: account.createdAt || new Date().toISOString(),
+    status: "Local owner alert"
+  };
+  setMemberSignupAlerts([alert, ...alerts].slice(0, 30));
+  renderMemberSignupAlerts("New sign-up alert recorded.");
+}
+
+function renderMemberSignupAlerts(message = "") {
+  if (!memberSignupAlerts) return;
+  const alerts = getMemberSignupAlerts();
+  if (!alerts.length) {
+    memberSignupAlerts.innerHTML = `
+      <div>
+        <strong>No sign-up alerts yet.</strong>
+        <span>${escapeHtml(message || "First new account will appear here.")}</span>
+      </div>
+    `;
+    return;
+  }
+  memberSignupAlerts.innerHTML = alerts.slice(0, 5).map((alert) => `
+    <div>
+      <strong>${escapeHtml(alert.username || "new-user")}</strong>
+      <span>${escapeHtml(maskMemberEmail(alert.email))} · ${escapeHtml(memberPageLabel(alert.page || "dashboard"))}</span>
+      <small>${escapeHtml(formatMemberAlertTime(alert.createdAt))} · ${escapeHtml(alert.status || "Local owner alert")}</small>
+    </div>
+  `).join("");
+}
+
+async function copyMemberSignupAlerts() {
+  const alerts = getMemberSignupAlerts();
+  const text = alerts.length
+    ? alerts.map((alert) => [
+      `Username: ${alert.username || ""}`,
+      `Gmail: ${alert.email || ""}`,
+      `First page: ${memberPageLabel(alert.page || "dashboard")}`,
+      `Created: ${formatMemberAlertTime(alert.createdAt)}`,
+      `Status: ${alert.status || "Local owner alert"}`
+    ].join("\n")).join("\n\n")
+    : "No Focusea sign-up alerts yet.";
+  try {
+    await navigator.clipboard.writeText(text);
+    renderMemberSignupAlerts("Sign-up alerts copied.");
+  } catch {
+    renderMemberSignupAlerts("Clipboard blocked by browser. Alerts are still visible here.");
+  }
+}
+
+function clearMemberSignupAlerts() {
+  setMemberSignupAlerts([]);
+  renderMemberSignupAlerts("Sign-up alert log cleared.");
 }
 
 function getMemberSession() {
@@ -4740,6 +4832,7 @@ async function handleMemberSignup(event) {
     workspaceKey: memberWorkspaceKey(username)
   };
   setMemberAccounts(accounts);
+  queueMemberSignupAlert(accounts[username]);
   setMemberSession(username);
   if (profileForm?.elements.profileName && !profileForm.elements.profileName.value) {
     profileForm.elements.profileName.value = username;
@@ -21071,6 +21164,8 @@ if (memberLoginForm) memberLoginForm.addEventListener("submit", handleMemberLogi
 if (memberForgotForm) memberForgotForm.addEventListener("submit", handleMemberForgotPassword);
 if (memberResumeLast) memberResumeLast.addEventListener("click", resumeMemberLastPage);
 if (memberLogout) memberLogout.addEventListener("click", logoutMember);
+if (copySignupAlerts) copySignupAlerts.addEventListener("click", copyMemberSignupAlerts);
+if (clearSignupAlerts) clearSignupAlerts.addEventListener("click", clearMemberSignupAlerts);
 if (pushImportToInbox) pushImportToInbox.addEventListener("click", pushImportedOfferToInbox);
 if (refreshTerminalAlarms) refreshTerminalAlarms.addEventListener("click", renderTerminalAlarms);
 
@@ -22349,6 +22444,7 @@ updateLiveFeed();
 setupPageSections();
 renderMemberSignupHint();
 renderMemberAuthStatus();
+renderMemberSignupAlerts();
 renderCommandWidgetCalculators();
 renderCommandRecentWork();
 activatePage(initialPageForSession(), false);
