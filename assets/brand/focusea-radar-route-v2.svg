@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">Focusea route compass logo</title>
+  <desc id="desc">A sharp maritime route compass mark with an F-shaped navigation path, radar rings and a ship bow signal.</desc>
+  <defs>
+    <linearGradient id="plate" x1="25" y1="18" x2="232" y2="240" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#073146"/>
+      <stop offset=".5" stop-color="#031826"/>
+      <stop offset="1" stop-color="#050817"/>
+    </linearGradient>
+    <linearGradient id="route" x1="53" y1="180" x2="209" y2="79" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6dfff0"/>
+      <stop offset=".46" stop-color="#20d8ff"/>
+      <stop offset="1" stop-color="#7b72ff"/>
+    </linearGradient>
+    <linearGradient id="letter" x1="74" y1="55" x2="175" y2="195" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffffff"/>
+      <stop offset=".42" stop-color="#d7fffa"/>
+      <stop offset="1" stop-color="#42efd8"/>
+    </linearGradient>
+    <filter id="shadow" x="-28%" y="-28%" width="156%" height="156%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="18" stdDeviation="12" flood-color="#000615" flood-opacity=".7"/>
+    </filter>
+    <filter id="cyanGlow" x="-35%" y="-35%" width="170%" height="170%" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="4"/>
+    </filter>
+  </defs>
+
+  <rect width="256" height="256" rx="56" fill="#020713"/>
+  <rect x="14" y="14" width="228" height="228" rx="45" fill="url(#plate)"/>
+  <path d="M25 177c33-23 63-27 94-11 34 18 64 7 98-34" fill="none" stroke="#00101c" stroke-width="20" stroke-linecap="round" opacity=".55"/>
+
+  <g opacity=".58">
+    <circle cx="128" cy="128" r="92" fill="none" stroke="#55ffe8" stroke-width="2"/>
+    <circle cx="128" cy="128" r="66" fill="none" stroke="#2bd8ff" stroke-width="2" opacity=".72"/>
+    <circle cx="128" cy="128" r="34" fill="none" stroke="#897dff" stroke-width="2" opacity=".72"/>
+    <path d="M128 32v24M128 200v24M32 128h24M200 128h24" fill="none" stroke="#d7fffa" stroke-linecap="round" stroke-width="4" opacity=".74"/>
+  </g>
+
+  <path d="M128 128l84-51c-10 39-35 72-84 51Z" fill="#55ffe8" opacity=".14"/>
+  <path d="M128 128l82-50" fill="none" stroke="#55ffe8" stroke-linecap="round" stroke-width="5"/>
+  <circle cx="128" cy="128" r="8" fill="#55ffe8"/>
+
+  <g filter="url(#cyanGlow)" opacity=".38">
+    <path d="M78 70h88M78 70v116M78 119h61" fill="none" stroke="#55ffe8" stroke-linecap="round" stroke-linejoin="round" stroke-width="25"/>
+    <path d="M145 119h39" fill="none" stroke="#55ffe8" stroke-linecap="round" stroke-width="18"/>
+  </g>
+
+  <g filter="url(#shadow)">
+    <path d="M79 72h89M79 72v113M79 120h61" fill="none" stroke="#020713" stroke-linecap="round" stroke-linejoin="round" stroke-width="30" opacity=".72"/>
+    <path d="M79 70h89M79 70v115M79 119h61" fill="none" stroke="url(#letter)" stroke-linecap="round" stroke-linejoin="round" stroke-width="19"/>
+    <path d="M143 119h42l-18-16M185 119l-18 16" fill="none" stroke="#55ffe8" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/>
+  </g>
+
+  <path d="M50 181c24-19 51-23 80-9 32 15 58 5 82-31" fill="none" stroke="url(#route)" stroke-linecap="round" stroke-width="9"/>
+  <circle cx="50" cy="181" r="8" fill="#6dfff0"/>
+  <circle cx="130" cy="172" r="7" fill="#20d8ff"/>
+  <circle cx="212" cy="141" r="8" fill="#7b72ff"/>
+
+  <path d="M106 211h44l-22 16Z" fill="#55ffe8" opacity=".82"/>
+</svg>
