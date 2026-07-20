@@ -27,7 +27,7 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <script src="theme.js?v=theme-1"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="styles.css?v=glossary-about-1" />
+    <link rel="stylesheet" href="styles.css?v=case-room-1" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -113,6 +113,7 @@
           <a href="#superSuite" data-page-link="superSuite">Super Suite</a>
           <a href="#growthSuite" data-page-link="growthSuite">Broker Growth Suite</a>
           <a href="#insuranceDesk" data-page-link="insuranceDesk">Marine Insurance Desk</a>
+          <a href="#caseRoom" data-page-link="caseRoom">Maritime Case Room</a>
           <a href="#enterprise" data-page-link="enterprise">Enterprise Command</a>
           <a href="#pythonEngine" data-page-link="pythonEngine">Python Engine</a>
           <a href="#market" data-page-link="market">Market & News</a>
@@ -4948,6 +4949,84 @@ Subject: Firm offer
                   <button type="button" class="ghost-button small" id="insuranceDownloadEmail">Download Email Draft</button>
                 </div>
               <div class="broker-output" id="insuranceExportStatus"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="case-room-panel" id="caseRoomPanel" aria-labelledby="caseRoomTitle">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Maritime Case Room</p>
+              <h2 id="caseRoomTitle">Turn real maritime failure patterns into broker, claim and safety lessons.</h2>
+              <p>
+                Study a casualty, claim or commercial dispute as a working file. Focusea links what went wrong to
+                evidence, decision risk, required documents and the tool that could reduce the exposure next time.
+              </p>
+            </div>
+            <span class="source-pill">training case model</span>
+          </div>
+
+          <form class="case-room-form" id="caseRoomForm">
+            <label>
+              <span>Case type</span>
+              <select name="caseType">
+                <option value="bulkLiquefaction">Bulk cargo liquefaction</option>
+                <option value="demurrageDispute">Demurrage dispute</option>
+                <option value="containerGrounding">Container grounding</option>
+                <option value="engineBreakdown">Engine breakdown / off-hire</option>
+                <option value="portDelay">Port congestion and missed laycan</option>
+                <option value="sanctionsHold">Sanctions hold / payment freeze</option>
+                <option value="cargoDamage">Cargo damage and clean BL dispute</option>
+              </select>
+            </label>
+            <label>
+              <span>Lens</span>
+              <select name="caseLens">
+                <option value="broker">Broker lesson</option>
+                <option value="claim">Claim file</option>
+                <option value="student">Student / presentation</option>
+                <option value="insurance">Insurance underwriting</option>
+              </select>
+            </label>
+            <label>
+              <span>Evidence quality</span>
+              <select name="evidenceQuality">
+                <option value="strong">Strong evidence</option>
+                <option value="mixed">Mixed evidence</option>
+                <option value="weak">Weak evidence</option>
+              </select>
+            </label>
+            <button type="submit">Analyze Case</button>
+          </form>
+
+          <div class="case-room-layout">
+            <article class="case-room-brief" id="caseRoomBrief"></article>
+            <article>
+              <div class="mini-heading"><span>What went wrong?</span><strong>root cause map</strong></div>
+              <div class="case-card-list" id="caseRootCause"></div>
+            </article>
+            <article>
+              <div class="mini-heading"><span>Evidence Pack</span><strong>documents needed</strong></div>
+              <div class="case-card-list" id="caseEvidence"></div>
+            </article>
+            <article>
+              <div class="mini-heading"><span>Focusea Prevention Map</span><strong>tool mapping</strong></div>
+              <div class="case-card-list" id="caseToolMap"></div>
+            </article>
+          </div>
+
+          <div class="case-room-bottom">
+            <article>
+              <div class="mini-heading"><span>Risk Score</span><strong>commercial / legal / ops</strong></div>
+              <div class="case-risk-grid" id="caseRiskGrid"></div>
+            </article>
+            <article>
+              <div class="mini-heading"><span>Next Action</span><strong>what the user should do</strong></div>
+              <div class="case-card-list" id="caseNextAction"></div>
+              <div class="button-row">
+                <button type="button" class="ghost-button small" id="downloadCaseBrief">Download Case Brief</button>
+              </div>
+              <div class="broker-output" id="caseExportStatus"></div>
             </article>
           </div>
         </section>

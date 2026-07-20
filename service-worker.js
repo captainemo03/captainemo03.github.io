@@ -1,4 +1,4 @@
-const FOCUSEA_CACHE = "focusea-glossary-about-1";
+const FOCUSEA_CACHE = "focusea-case-room-1";
 const FOCUSEA_ASSETS = [
   "./",
   "./index.html",

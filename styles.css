@@ -5496,6 +5496,7 @@ main {
   background: rgba(255, 255, 255, 0.035);
 }
 
+.case-room-panel,
 .about-focusea-panel {
   margin-top: 18px;
   padding: clamp(18px, 3vw, 28px);
@@ -5504,6 +5505,119 @@ main {
   background:
     linear-gradient(135deg, rgba(40, 240, 198, 0.1), transparent 34%),
     rgba(8, 14, 35, 0.72);
+}
+
+.case-room-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.7fr) minmax(0, 0.7fr) auto;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.case-room-form label {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+}
+
+.case-room-form span {
+  color: #8dfbe8;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.case-room-form select {
+  width: 100%;
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid rgba(100, 97, 255, 0.34);
+  border-radius: 8px;
+  background: rgba(2, 13, 18, 0.56);
+  color: var(--text);
+  font: inherit;
+}
+
+.case-room-form button {
+  align-self: end;
+}
+
+.case-room-layout,
+.case-room-bottom,
+.case-risk-grid,
+.case-card-list {
+  display: grid;
+  gap: 12px;
+}
+
+.case-room-layout {
+  grid-template-columns: minmax(0, 1.1fr) repeat(3, minmax(0, 1fr));
+}
+
+.case-room-bottom {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  margin-top: 12px;
+}
+
+.case-room-layout > article,
+.case-room-bottom > article,
+.case-room-brief,
+.case-card-list div,
+.case-risk-grid div {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid rgba(100, 97, 255, 0.22);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.case-room-brief {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+}
+
+.case-room-brief b {
+  color: var(--cyan);
+  font-size: clamp(2rem, 5vw, 4rem);
+  line-height: 0.9;
+}
+
+.case-room-brief span,
+.case-card-list span,
+.case-risk-grid span {
+  display: block;
+  color: #8dfbe8;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.case-room-brief strong,
+.case-card-list strong,
+.case-risk-grid strong {
+  display: block;
+  margin-top: 5px;
+  color: var(--text);
+  overflow-wrap: break-word;
+}
+
+.case-card-list p {
+  margin: 7px 0 0;
+}
+
+.case-risk-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.case-risk-grid em {
+  display: block;
+  height: 8px;
+  margin-top: 9px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--cyan), var(--gold), var(--danger));
 }
 
 .about-grid,
@@ -8413,6 +8527,10 @@ code,
   .top-account-bar,
   .panel-heading,
   .mini-heading,
+  .case-room-form,
+  .case-room-layout,
+  .case-room-bottom,
+  .case-risk-grid,
   .about-grid,
   .about-proof-grid,
   .glossary-stat-grid,

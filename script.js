@@ -2776,6 +2776,15 @@ const academicMappingResult = document.querySelector("#academicMappingResult");
 const academicExportStatus = document.querySelector("#academicExportStatus");
 const downloadAcademicPack = document.querySelector("#downloadAcademicPack");
 const copyAcademicCitations = document.querySelector("#copyAcademicCitations");
+const caseRoomForm = document.querySelector("#caseRoomForm");
+const caseRoomBrief = document.querySelector("#caseRoomBrief");
+const caseRootCause = document.querySelector("#caseRootCause");
+const caseEvidence = document.querySelector("#caseEvidence");
+const caseToolMap = document.querySelector("#caseToolMap");
+const caseRiskGrid = document.querySelector("#caseRiskGrid");
+const caseNextAction = document.querySelector("#caseNextAction");
+const downloadCaseBrief = document.querySelector("#downloadCaseBrief");
+const caseExportStatus = document.querySelector("#caseExportStatus");
 const redFlagForm = document.querySelector("#redFlagForm");
 const redFlagResult = document.querySelector("#redFlagResult");
 const recapBuilderForm = document.querySelector("#recapBuilderForm");
@@ -3542,6 +3551,7 @@ const pageGroups = {
   superSuite: ["#superSuitePanel"],
   growthSuite: ["#growthSuitePanel"],
   insuranceDesk: ["#insuranceDeskPanel"],
+  caseRoom: ["#caseRoomPanel"],
   enterprise: ["#enterpriseCommandPanel"],
   pythonEngine: ["#pythonEngineSuite"],
   market: ["#intelligence", "#newsBulletin"],
@@ -20781,11 +20791,19 @@ if (growthDownloadReport) {
 }
 bindBrokerForm(insuranceQuoteForm, renderInsuranceDesk);
 bindBrokerForm(academicIntelForm, renderAcademicIntel);
+bindBrokerForm(caseRoomForm, renderCaseRoom);
 if (downloadAcademicPack) {
   downloadAcademicPack.addEventListener("click", () => {
     if (!lastAcademicPack) renderAcademicIntel();
     downloadTextFile("focusea-academic-study-pack.txt", lastAcademicPack || "No academic pack generated.");
     if (academicExportStatus) academicExportStatus.textContent = "Academic study pack downloaded.";
+  });
+}
+if (downloadCaseBrief) {
+  downloadCaseBrief.addEventListener("click", () => {
+    if (!window.focuseaLastCaseRoomReport) renderCaseRoom();
+    downloadTextFile("focusea-maritime-case-room-brief.txt", window.focuseaLastCaseRoomReport || "No case brief generated.");
+    if (caseExportStatus) caseExportStatus.innerHTML = `<small class="download-confirm">Case brief downloaded.</small>`;
   });
 }
 if (copyAcademicCitations) {
@@ -21562,6 +21580,143 @@ function renderAcademicIntel() {
   }
 }
 
+const caseRoomCases = {
+  bulkLiquefaction: {
+    title: "Bulk cargo liquefaction",
+    summary: "A dense bulk parcel is loaded after heavy rain. Moisture evidence is incomplete and the vessel develops a dangerous list at sea.",
+    score: 86,
+    roots: ["Moisture/TML evidence not challenged before loading.", "Cargo declaration and sampling trail are weak.", "Stability and cargo suitability were treated separately."],
+    evidence: ["Cargo declaration and MSDS", "TML / moisture certificates", "Hatch survey photos", "Loading sequence", "Stability/loadicator report", "Weather and rain records"],
+    tools: ["Cargo Compatibility", "Loadicator Pro", "Document AI Room", "Insurance Desk"],
+    actions: ["Stop treating cargo docs as paperwork only.", "Require moisture/TML evidence before clean acceptance.", "Attach stability and cargo-risk notes to the fixture file."]
+  },
+  demurrageDispute: {
+    title: "Demurrage dispute",
+    summary: "Owners claim demurrage, but NOR validity, rain stoppages and time-bar documents are contested by charterers.",
+    score: 74,
+    roots: ["NOR wording is ambiguous.", "SOF events do not match the invoice calculation.", "Weather exceptions and time bar were not tracked early."],
+    evidence: ["NOR", "Signed SOF", "Rain letters", "Terminal logs", "Laytime statement", "CP laytime clause", "Demurrage invoice"],
+    tools: ["SOF Analyzer", "Laytime Calculator", "Demurrage Calculator", "Claim Evidence Checklist"],
+    actions: ["Rebuild laytime from SOF before sending claim.", "Check CP wording against recap.", "Track time bar deadline in the deal room."]
+  },
+  containerGrounding: {
+    title: "Container grounding",
+    summary: "A container vessel grounds after route pressure and port schedule stress. Cargo interests ask for delay and damage explanations.",
+    score: 79,
+    roots: ["Schedule pressure outweighed navigation risk.", "Client communication started too late.", "Insurance and GA exposure were not framed early."],
+    evidence: ["Voyage plan", "Weather routing", "AIS track", "Master statement", "Cargo manifest", "Damage photos", "GA/security notices"],
+    tools: ["Route Risk Radar", "Insurance Desk", "Client Portal", "Case Brief Generator"],
+    actions: ["Prepare client-safe timeline.", "Separate confirmed facts from assumptions.", "Map insurance, GA and delay exposure immediately."]
+  },
+  engineBreakdown: {
+    title: "Engine breakdown / off-hire",
+    summary: "A time-chartered vessel loses propulsion. Charterers allege off-hire while owners argue the delay is outside the clause.",
+    score: 68,
+    roots: ["Performance/off-hire wording was not reviewed before fixture.", "Repair evidence and readiness timestamps are incomplete.", "Client expectation was not managed."],
+    evidence: ["Engine log", "Noon reports", "Class/service report", "Off-hire clause", "Repair invoice", "Readiness notice"],
+    tools: ["CP Clause Analyzer", "Document Vault", "Claim Center", "Broker Email Studio"],
+    actions: ["Build a neutral event timeline.", "Compare breakdown facts against off-hire wording.", "Draft reserved-rights correspondence."]
+  },
+  portDelay: {
+    title: "Port congestion and missed laycan",
+    summary: "A vessel is fixed against a narrow laycan and then loses the berth window due to congestion and pilot delay.",
+    score: 71,
+    roots: ["Laycan was too tight for the route/port risk.", "Port delay was priced as a note, not a commercial exposure.", "Subjects were lifted before port readiness was checked."],
+    evidence: ["Line-up report", "Pilot/tug schedule", "ETA updates", "Port agent messages", "Fixture recap", "Cancellation notice"],
+    tools: ["Port Intelligence Pro", "Fixture Risk Radar", "Voyage Estimate Pro", "Broker Inbox Alerts"],
+    actions: ["Add laycan buffer or cancellation guard.", "Tie port congestion to TCE sensitivity.", "Record agent updates in the deal room."]
+  },
+  sanctionsHold: {
+    title: "Sanctions hold / payment freeze",
+    summary: "A payment and cargo release are delayed after a counterparty or cargo-origin screening issue appears late in the workflow.",
+    score: 88,
+    roots: ["Screening happened after commercial momentum built.", "Counterparty and cargo-origin risk were not linked to payment flow.", "Documentation did not clearly show clearance status."],
+    evidence: ["Counterparty details", "Cargo origin docs", "Bills of lading", "Payment route", "Screening notes", "Compliance correspondence"],
+    tools: ["Compliance Terminal", "Document AI Room", "Deal Passport", "Client Brief"],
+    actions: ["Screen before subjects are lifted.", "Keep compliance status visible in the deal card.", "Do not present simulated clearance as verified clearance."]
+  },
+  cargoDamage: {
+    title: "Cargo damage and clean BL dispute",
+    summary: "Cargo receivers allege damage while the shipment documents show clean bills and incomplete photo evidence.",
+    score: 77,
+    roots: ["Clean BL wording was accepted without enough condition evidence.", "Survey/photo timeline is incomplete.", "Insurance and carrier liability positions are mixed together."],
+    evidence: ["Bills of lading", "Mate's receipts", "Pre-load survey", "Discharge survey", "Photos", "Cargo claim letter", "Insurance notice"],
+    tools: ["Document Vault", "Insurance Desk", "Claim Evidence Checklist", "Client Portal"],
+    actions: ["Build a photo/evidence chronology.", "Separate cargo policy claim from carrier liability.", "Check LOI and clean BL risk before document release."]
+  }
+};
+
+function caseLensNote(lens) {
+  return {
+    broker: "Broker view: protect the fixture, client communication and next commercial action.",
+    claim: "Claim view: evidence quality, time bar, wording and burden of proof matter most.",
+    student: "Student view: explain root cause, consequence and prevention in presentation language.",
+    insurance: "Insurance view: policy trigger, exclusions, deductible, subrogation and loss mitigation."
+  }[lens] || "Broker view: protect the fixture and next action.";
+}
+
+function evidenceAdjustment(level) {
+  return { strong: -8, mixed: 4, weak: 14 }[level] || 0;
+}
+
+function renderCaseRoom() {
+  if (!caseRoomForm || !caseRoomBrief) return;
+  const values = collectFormValues(caseRoomForm);
+  const selected = caseRoomCases[values.caseType] || caseRoomCases.bulkLiquefaction;
+  const riskScore = clamp(selected.score + evidenceAdjustment(values.evidenceQuality), 0, 100);
+  const legal = clamp(riskScore + (values.caseLens === "claim" ? 8 : 0), 0, 100);
+  const commercial = clamp(riskScore - 6 + (values.caseLens === "broker" ? 6 : 0), 0, 100);
+  const operational = clamp(riskScore - 4 + (values.caseLens === "insurance" ? 5 : 0), 0, 100);
+  const decision = riskScore >= 82 ? "Critical case" : riskScore >= 68 ? "High attention" : "Controlled learning case";
+  const evidenceLabel = String(values.evidenceQuality || "mixed").replace(/^\w/, (letter) => letter.toUpperCase());
+  const lensText = caseLensNote(values.caseLens);
+
+  caseRoomBrief.innerHTML = `
+    <span>${escapeHtml(decision)}</span>
+    <b>${riskScore}</b>
+    <strong>${escapeHtml(selected.title)}</strong>
+    <p>${escapeHtml(selected.summary)}</p>
+    <p>${escapeHtml(lensText)}</p>
+    <small>Evidence quality: ${escapeHtml(evidenceLabel)}</small>
+  `;
+  caseRootCause.innerHTML = selected.roots.map((item, index) => `<div><span>Cause ${index + 1}</span><strong>${escapeHtml(item)}</strong></div>`).join("");
+  caseEvidence.innerHTML = selected.evidence.map((item) => `<div><span>Document</span><strong>${escapeHtml(item)}</strong></div>`).join("");
+  caseToolMap.innerHTML = selected.tools.map((item) => `<div><span>Focusea tool</span><strong>${escapeHtml(item)}</strong><p>Use this module to reduce repeat exposure in the next fixture file.</p></div>`).join("");
+  caseRiskGrid.innerHTML = [
+    ["Commercial", commercial],
+    ["Legal / Claim", legal],
+    ["Operational", operational]
+  ].map(([label, score]) => `<div><span>${label}</span><strong>${score}/100</strong><em style="width:${score}%"></em></div>`).join("");
+  caseNextAction.innerHTML = selected.actions.map((item, index) => `<div><span>Action ${index + 1}</span><strong>${escapeHtml(item)}</strong></div>`).join("");
+
+  window.focuseaLastCaseRoomReport = [
+    "FOCUSEA MARITIME CASE ROOM",
+    `Case: ${selected.title}`,
+    `Decision: ${decision}`,
+    `Risk score: ${riskScore}/100`,
+    `Lens: ${lensText}`,
+    `Evidence quality: ${evidenceLabel}`,
+    "",
+    "Summary",
+    selected.summary,
+    "",
+    "What went wrong",
+    ...selected.roots.map((item) => `- ${item}`),
+    "",
+    "Evidence pack",
+    ...selected.evidence.map((item) => `- ${item}`),
+    "",
+    "Focusea prevention map",
+    ...selected.tools.map((item) => `- ${item}`),
+    "",
+    "Next actions",
+    ...selected.actions.map((item) => `- ${item}`),
+    "",
+    "Disclaimer",
+    "Educational case model only. Real casualty, legal, insurance and safety decisions require qualified professional review."
+  ].join("\n");
+}
+
 function glossaryEntries() {
   return Object.entries(wikiTerms).map(([key, entry]) => ({
     key,
@@ -21877,6 +22032,7 @@ renderWorkbench();
 renderControlTower();
 renderGrowthSuite();
 renderInsuranceDesk();
+renderCaseRoom();
 renderBalticFeedPanel();
 renderSecurityShield();
 renderPythonHistory();
