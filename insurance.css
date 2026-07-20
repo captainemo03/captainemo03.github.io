@@ -34,6 +34,14 @@ body {
 a {
   color: inherit;
   text-decoration: none;
+  overflow-wrap: break-word;
+}
+
+button,
+input,
+select,
+textarea {
+  max-width: 100%;
 }
 
 .insurance-header,
@@ -64,6 +72,7 @@ a {
 .theme-switcher {
   display: flex;
   align-items: center;
+  min-width: 0;
 }
 
 .insurance-brand {
@@ -108,6 +117,7 @@ a {
 .theme-switcher button,
 .primary-button,
 .ghost-button {
+  min-width: 0;
   min-height: 38px;
   padding: 9px 12px;
   border: 1px solid rgba(91, 255, 220, 0.22);
@@ -280,7 +290,10 @@ p {
 
 .metric-grid,
 .coverage-list,
-.glossary-grid {
+.glossary-grid,
+.company-grid,
+.referral-grid,
+.comparison-grid {
   display: grid;
   gap: 10px;
 }
@@ -291,7 +304,10 @@ p {
 
 .metric-grid div,
 .coverage-list div,
-.glossary-grid div {
+.glossary-grid div,
+.company-card,
+.referral-card,
+.comparison-card {
   min-width: 0;
   padding: 12px;
   border: 1px solid rgba(100, 97, 255, 0.2);
@@ -301,16 +317,54 @@ p {
 
 .metric-grid span,
 .coverage-list span,
-.glossary-grid span {
+.glossary-grid span,
+.company-card span,
+.referral-card span,
+.comparison-card span {
   display: block;
   color: var(--muted);
+  overflow-wrap: break-word;
 }
 
 .metric-grid strong,
 .coverage-list strong,
-.glossary-grid strong {
+.glossary-grid strong,
+.company-card strong,
+.referral-card strong,
+.comparison-card strong {
   display: block;
   margin-top: 4px;
+  overflow-wrap: break-word;
+}
+
+.company-grid,
+.referral-grid,
+.comparison-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+}
+
+.quote-badge {
+  display: inline-flex;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 8px;
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: rgba(91, 255, 220, 0.12);
+  color: var(--cyan);
+  font-size: 0.75rem;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.quote-badge.warning {
+  background: rgba(255, 203, 114, 0.14);
+  color: var(--gold);
+}
+
+.quote-badge.danger {
+  background: rgba(255, 107, 156, 0.14);
+  color: var(--danger);
 }
 
 .risk-bars {
@@ -340,6 +394,7 @@ p {
 .risk-bars small {
   grid-column: 1 / -1;
   color: var(--muted);
+  overflow-wrap: break-word;
 }
 
 .export-status {

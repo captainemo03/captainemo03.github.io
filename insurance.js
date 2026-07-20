@@ -2,6 +2,9 @@ const quoteForm = document.querySelector("#insuranceQuoteForm");
 const quoteOutput = document.querySelector("#quoteOutput");
 const coverageOutput = document.querySelector("#coverageOutput");
 const claimOutput = document.querySelector("#claimOutput");
+const companyOutput = document.querySelector("#companyOutput");
+const referralOutput = document.querySelector("#referralOutput");
+const comparisonOutput = document.querySelector("#comparisonOutput");
 const glossaryOutput = document.querySelector("#insuranceGlossary");
 const premiumStatus = document.querySelector("#premiumStatus");
 const premiumStatusNote = document.querySelector("#premiumStatusNote");
@@ -40,6 +43,49 @@ const coverageProfiles = {
   "Freight, Demurrage & Defence": { baseRate: 0.0019, risk: 14, note: "Legal cost support for freight, demurrage, charter party and claim disputes." },
   "Pollution Liability": { baseRate: 0.0055, risk: 30, note: "Pollution exposure depends on cargo, bunker quantity, trading area and local regulation." },
   "Port Risk Cover": { baseRate: 0.0035, risk: 18, note: "Useful for port stay, repair period, lay-up or restricted movement exposure." }
+};
+
+const companyProfiles = {
+  london: {
+    label: "London Market Syndicate",
+    appetite: "Broad blue-water appetite with strong referral discipline.",
+    multiplier: 1.08,
+    capacity: 15000000,
+    strengths: "Complex H&M, war extensions, layered placements and high-value risks.",
+    conditions: "Subject to sanctions, class, claims record, route warranty and final slip wording."
+  },
+  piClub: {
+    label: "International P&I Club",
+    appetite: "Liability-led appetite focused on member quality and operational controls.",
+    multiplier: 0.96,
+    capacity: 25000000,
+    strengths: "P&I, pollution, crew, collision, cargo liability and FDD-style disputes.",
+    conditions: "Subject to club rules, entered vessel status, trading limits and calls history."
+  },
+  cargoSpecialist: {
+    label: "Cargo Specialist Insurer",
+    appetite: "Cargo-first appetite with strong packaging, stowage and survey requirements.",
+    multiplier: 1.02,
+    capacity: 12000000,
+    strengths: "Project cargo, containers, bulk cargo damage and warehouse-to-warehouse transits.",
+    conditions: "Subject to packing declaration, survey, lashing plan, ICC wording and loss history."
+  },
+  warRisk: {
+    label: "War Risk Underwriter",
+    appetite: "Selective appetite for breach areas, piracy zones and geopolitical exposure.",
+    multiplier: 1.34,
+    capacity: 8000000,
+    strengths: "War AP, piracy, K&R coordination, breach notices and security warranties.",
+    conditions: "Subject to voyage declaration, listed areas, BMP compliance and security plan."
+  },
+  regional: {
+    label: "Regional Marine Insurer",
+    appetite: "Practical regional appetite for lower complexity port and coastal risks.",
+    multiplier: 0.9,
+    capacity: 5000000,
+    strengths: "Port risk, smaller cargo placements, local voyages and agency-backed files.",
+    conditions: "Subject to local law, survey, documents, deductible and restricted trading area."
+  }
 };
 
 function money(value, digits = 0) {
@@ -110,21 +156,85 @@ function vesselTypeMultiplier(type = "") {
   return 1;
 }
 
+function complianceProfile(values = {}) {
+  const sanctions = String(values.sanctionsStatus || "").toLowerCase();
+  const survey = String(values.surveyStatus || "").toLowerCase();
+  let score = 0;
+  const notes = [];
+  if (sanctions.includes("blocked")) {
+    score += 60;
+    notes.push("Sanctions status blocks quotation until cleared.");
+  } else if (sanctions.includes("possible")) {
+    score += 30;
+    notes.push("Possible sanctions match requires compliance clearance.");
+  } else if (sanctions.includes("pending")) {
+    score += 12;
+    notes.push("Sanctions screening is still pending.");
+  } else {
+    notes.push("Sanctions screening marked clear by user input.");
+  }
+  if (survey.includes("deficiency")) {
+    score += 26;
+    notes.push("Reported deficiency requires survey or exclusion.");
+  } else if (survey.includes("required") || survey.includes("pending")) {
+    score += 14;
+    notes.push("Class/survey evidence must be completed before binding.");
+  } else {
+    notes.push("Class confirmation entered.");
+  }
+  return { score, notes };
+}
+
+function insurerBadgeClass(score) {
+  if (score >= 75) return "danger";
+  if (score >= 50) return "warning";
+  return "";
+}
+
 function calculateQuote(values = {}) {
   const coverage = coverageProfiles[values.coverageType] || coverageProfiles["Hull & Machinery"];
   const cargo = cargoProfiles[values.cargoType] || cargoProfiles.grain;
+  const company = companyProfiles[values.insuranceCompany] || companyProfiles.london;
   const zone = riskZoneProfile(values.riskZone);
+  const compliance = complianceProfile(values);
   const age = Math.max(new Date().getFullYear() - (Number(values.buildYear) || new Date().getFullYear()), 0);
   const ageMultiplier = age > 25 ? 1.42 : age > 18 ? 1.24 : age > 10 ? 1.1 : 1;
   const typeMultiplier = vesselTypeMultiplier(values.vesselType);
   const claimMultiplier = 1 + Math.min(Number(values.claims) || 0, 5) * 0.12;
   const deductibleRatio = (Number(values.deductible) || 0) / Math.max(Number(values.insuredValue) || 1, 1);
   const deductibleCredit = deductibleRatio >= 0.02 ? 0.88 : deductibleRatio >= 0.01 ? 0.94 : 1;
-  const premium = (Number(values.insuredValue) || 0) * coverage.baseRate * zone.multiplier * ageMultiplier * typeMultiplier * cargo.multiplier * claimMultiplier * deductibleCredit;
-  const riskScore = clamp(Math.round(coverage.risk + zone.score + cargo.risk * 0.26 + age * 0.9 + (Number(values.claims) || 0) * 8), 0, 100);
-  const decision = riskScore >= 78 ? "Refer to Underwriter" : riskScore >= 62 ? "High / senior review" : riskScore >= 42 ? "Medium / review terms" : "Low / quoteable";
+  const lineSize = Number(values.lineSize) || company.capacity;
+  const policyLimit = Number(values.policyLimit) || 0;
+  const capacityPressure = policyLimit > lineSize ? 1.16 : policyLimit > lineSize * 0.75 ? 1.06 : 1;
+  const reinsuranceMultiplier = String(values.reinsuranceNeeded || "").toLowerCase().includes("yes") ? 1.08 : 1;
+  const premium = (Number(values.insuredValue) || 0) * coverage.baseRate * zone.multiplier * ageMultiplier * typeMultiplier * cargo.multiplier * claimMultiplier * deductibleCredit * company.multiplier * capacityPressure * reinsuranceMultiplier;
+  const riskScore = clamp(Math.round(coverage.risk + zone.score + cargo.risk * 0.26 + age * 0.9 + (Number(values.claims) || 0) * 8 + compliance.score + (capacityPressure > 1 ? 8 : 0)), 0, 100);
+  const decision = riskScore >= 82 ? "Do not bind / executive referral" : riskScore >= 72 ? "Refer to Underwriter" : riskScore >= 58 ? "High / senior review" : riskScore >= 40 ? "Medium / review terms" : "Low / quoteable";
   const recommendedDeductible = Math.max(Number(values.deductible) || 0, (Number(values.insuredValue) || 0) * (riskScore >= 70 ? 0.012 : riskScore >= 45 ? 0.008 : 0.005));
-  return { coverage, cargo, zone, age, premium, riskScore, decision, recommendedDeductible, ageMultiplier, typeMultiplier, claimMultiplier, deductibleCredit };
+  const companyShare = premium * (clamp(Number(values.coinsuranceShare) || 100, 1, 100) / 100);
+  const expiresAt = new Date(Date.now() + (Number(values.quoteValidity) || 7) * 86400000);
+  return { coverage, cargo, company, zone, compliance, age, premium, riskScore, decision, recommendedDeductible, ageMultiplier, typeMultiplier, claimMultiplier, deductibleCredit, capacityPressure, reinsuranceMultiplier, companyShare, expiresAt };
+}
+
+function referralChecklist(values, quote) {
+  const items = [
+    { label: "Sanctions and counterparty screening", status: /clear/i.test(values.sanctionsStatus || "") ? "clear" : "required", note: quote.compliance.notes[0] || "Compliance status needed." },
+    { label: "Class, survey and vessel condition", status: /confirmed/i.test(values.surveyStatus || "") ? "clear" : "required", note: quote.compliance.notes[1] || "Survey status needed." },
+    { label: "Claims record", status: Number(values.claims) > 2 ? "required" : "clear", note: Number(values.claims) > 2 ? "High claim frequency needs loss run review." : "Claims count acceptable for indication." },
+    { label: "Capacity / line size", status: Number(values.policyLimit) > Number(values.lineSize) ? "required" : "clear", note: Number(values.policyLimit) > Number(values.lineSize) ? "Requested limit exceeds company line; reinsurance or co-insurance needed." : "Requested limit sits within entered line." },
+    { label: "Route warranty", status: quote.zone.score >= 30 ? "required" : "clear", note: quote.zone.note },
+    { label: "Cargo conditions", status: quote.cargo.risk >= 70 ? "required" : "clear", note: quote.cargo.note }
+  ];
+  return items;
+}
+
+function comparisonScenarios(values, quote) {
+  const base = quote.premium;
+  return [
+    { name: "Standard quote", premium: base, deductible: quote.recommendedDeductible, note: "Current input, company appetite and selected risk zone." },
+    { name: "Higher deductible", premium: base * 0.92, deductible: quote.recommendedDeductible * 1.4, note: "Lower premium indication with more assured retention." },
+    { name: "Senior referral terms", premium: base * 1.18, deductible: quote.recommendedDeductible * 1.15, note: "Stronger terms for sanctions, war, older vessel or heavy claim history." }
+  ];
 }
 
 function claimRisks(values, quote) {
@@ -146,16 +256,21 @@ function quoteText(values = collectFormValues(quoteForm), quote = calculateQuote
     `Generated: ${new Date().toLocaleString()}`,
     "",
     "ASSURED / VESSEL",
+    `Assured: ${values.assuredName || "-"}`,
+    `Broker: ${values.brokerCompany || "-"}`,
     `Vessel: ${values.vesselName || "-"} / IMO ${values.imo || "-"}`,
     `Type: ${values.vesselType || "-"} / Flag: ${values.flag || "-"} / Class: ${values.classSociety || "-"}`,
     `Build year: ${values.buildYear || "-"} / Age: ${quote.age} years / DWT: ${values.dwt || "-"} / GT: ${values.gt || "-"}`,
     "",
     "VOYAGE / COVER",
+    `Insurance company: ${quote.company.label}`,
     `Load port: ${values.loadPort || "-"}`,
     `Discharge port: ${values.dischargePort || "-"}`,
     `Route: ${values.route || "-"}`,
     `Cargo: ${quote.cargo.label}`,
     `Coverage: ${values.coverageType || "-"}`,
+    `Policy limit: ${money(values.policyLimit || 0)} / company line: ${money(values.lineSize || quote.company.capacity)}`,
+    `Co-insurance share: ${values.coinsuranceShare || 100}% / company share premium: ${money(quote.companyShare)}`,
     `Risk zone: ${values.riskZone || "-"}`,
     "",
     "INDICATION",
@@ -164,8 +279,11 @@ function quoteText(values = collectFormValues(quoteForm), quote = calculateQuote
     `Recommended deductible: ${money(quote.recommendedDeductible)}`,
     `Risk score: ${quote.riskScore}/100`,
     `Decision: ${quote.decision}`,
+    `Quote valid until: ${quote.expiresAt.toLocaleDateString()}`,
     "",
     "UNDERWRITER NOTES",
+    `Company appetite: ${quote.company.appetite}`,
+    `Company strengths: ${quote.company.strengths}`,
     quote.coverage.note,
     quote.zone.note,
     `Cargo note: ${quote.cargo.note}`,
@@ -173,6 +291,9 @@ function quoteText(values = collectFormValues(quoteForm), quote = calculateQuote
     "",
     "CLAIM RISK PANEL",
     ...risks.map((risk) => `- ${risk.name}: ${Math.round(risk.score)}/100 - ${risk.note}`),
+    "",
+    "REFERRAL CHECKLIST",
+    ...referralChecklist(values, quote).map((item) => `- ${item.label}: ${item.status.toUpperCase()} - ${item.note}`),
     "",
     "DISCLAIMER",
     "This is an educational indication only. Binding insurance terms require licensed insurer/underwriter approval."
@@ -188,13 +309,17 @@ function emailDraft(values = collectFormValues(quoteForm), quote = calculateQuot
     "Please find below an indicative marine insurance quote request generated in Focusea:",
     "",
     `Vessel: ${values.vesselName || "-"} / IMO ${values.imo || "-"}`,
+    `Assured / broker: ${values.assuredName || "-"} / ${values.brokerCompany || "-"}`,
     `Type / flag / class: ${values.vesselType || "-"} / ${values.flag || "-"} / ${values.classSociety || "-"}`,
     `Voyage: ${values.loadPort || "-"} to ${values.dischargePort || "-"} (${values.route || "-"})`,
     `Cargo: ${quote.cargo.label}`,
     `Coverage: ${values.coverageType || "-"}`,
+    `Proposed insurer: ${quote.company.label}`,
+    `Policy limit / line: ${money(values.policyLimit || 0)} / ${money(values.lineSize || quote.company.capacity)}`,
     `Insured value: ${money(values.insuredValue || 0)}`,
     `Deductible: ${money(values.deductible || 0)} / suggested ${money(quote.recommendedDeductible)}`,
     `Estimated premium indication: ${money(quote.premium)}`,
+    `Company share premium: ${money(quote.companyShare)}`,
     `Risk result: ${quote.decision} (${quote.riskScore}/100)`,
     "",
     `Broker / underwriter note: ${values.underwriterNote || "Please review terms, exclusions and subjectivities."}`,
@@ -243,8 +368,31 @@ function renderQuote() {
       <div><span>Recommended deductible</span><strong>${money(quote.recommendedDeductible)}</strong></div>
       <div><span>Cargo</span><strong>${escapeHtml(quote.cargo.label)}</strong></div>
       <div><span>Coverage rate</span><strong>${(quote.coverage.baseRate * 100).toFixed(2)}%</strong></div>
+      <div><span>Company</span><strong>${escapeHtml(quote.company.label)}</strong></div>
+      <div><span>Company share</span><strong>${money(quote.companyShare)}</strong></div>
+      <div><span>Valid until</span><strong>${escapeHtml(quote.expiresAt.toLocaleDateString())}</strong></div>
     </div>
   `;
+
+  if (companyOutput) {
+    const badge = insurerBadgeClass(quote.riskScore);
+    companyOutput.innerHTML = `
+      <div class="company-grid">
+        <div class="company-card"><span>Selected company</span><strong>${escapeHtml(quote.company.label)}</strong><em class="quote-badge ${badge}">${escapeHtml(quote.decision)}</em></div>
+        <div class="company-card"><span>Appetite</span><strong>${escapeHtml(quote.company.appetite)}</strong></div>
+        <div class="company-card"><span>Capacity</span><strong>${money(quote.company.capacity)} model capacity</strong></div>
+        <div class="company-card"><span>Line pressure</span><strong>${quote.capacityPressure > 1 ? "Capacity pressure detected" : "Within entered line"}</strong></div>
+        <div class="company-card"><span>Strengths</span><strong>${escapeHtml(quote.company.strengths)}</strong></div>
+        <div class="company-card"><span>Conditions</span><strong>${escapeHtml(quote.company.conditions)}</strong></div>
+      </div>
+    `;
+  }
+
+  if (referralOutput) {
+    referralOutput.innerHTML = `<div class="referral-grid">${referralChecklist(values, quote).map((item) => `
+      <div class="referral-card"><span>${escapeHtml(item.label)}</span><strong>${escapeHtml(item.status === "clear" ? "Clear" : "Required")}</strong><em class="quote-badge ${item.status === "clear" ? "" : "warning"}">${escapeHtml(item.status)}</em><span>${escapeHtml(item.note)}</span></div>
+    `).join("")}</div>`;
+  }
 
   coverageOutput.innerHTML = `
     <div class="coverage-list">
@@ -258,6 +406,12 @@ function renderQuote() {
   claimOutput.innerHTML = `<div class="risk-bars">${claimRisks(values, quote).map((risk) => `
     <div><span>${escapeHtml(risk.name)}</span><strong>${Math.round(risk.score)}/100</strong><em style="width:${clamp(risk.score, 0, 100)}%"></em><small>${escapeHtml(risk.note)}</small></div>
   `).join("")}</div>`;
+
+  if (comparisonOutput) {
+    comparisonOutput.innerHTML = `<div class="comparison-grid">${comparisonScenarios(values, quote).map((scenario) => `
+      <div class="comparison-card"><span>${escapeHtml(scenario.name)}</span><strong>${money(scenario.premium)}</strong><span>Deductible: ${money(scenario.deductible)}</span><span>${escapeHtml(scenario.note)}</span></div>
+    `).join("")}</div>`;
+  }
 
   renderGlossary();
 }
@@ -282,8 +436,8 @@ downloadQuoteTxt?.addEventListener("click", () => {
 
 downloadQuotePdf?.addEventListener("click", () => {
   const quote = ensureQuote();
-  downloadPdfLikeFile("focusea-marine-insurance-quote.pdf", "Focusea Marine Insurance Quote", quote.text);
-  exportStatus.textContent = "Downloaded printable quote file.";
+  downloadPdfLikeFile("focusea-marine-insurance-printable-pack.html", "Focusea Marine Insurance Quote", quote.text);
+  exportStatus.textContent = "Downloaded printable quote pack.";
 });
 
 downloadEmailDraft?.addEventListener("click", () => {

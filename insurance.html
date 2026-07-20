@@ -11,7 +11,7 @@
     <title>Focusea Marine Insurance Desk</title>
     <link rel="icon" href="favicon.svg?v=focusea-badge3" type="image/svg+xml" />
     <script src="theme.js?v=theme-1"></script>
-    <link rel="stylesheet" href="insurance.css?v=insurance-side-site-1" />
+    <link rel="stylesheet" href="insurance.css?v=insurance-company-desk-1" />
   </head>
   <body>
     <header class="insurance-header">
@@ -29,6 +29,7 @@
       <nav class="insurance-nav" aria-label="Marine insurance tools">
         <a href="#quoteBuilder">Quote</a>
         <a href="#riskPanel">Risk</a>
+        <a href="#companyPanel">Companies</a>
         <a href="#coveragePanel">Coverage</a>
         <a href="#claimPanel">Claims</a>
         <a href="#glossaryPanel">Glossary</a>
@@ -43,8 +44,8 @@
           <h1>Build marine insurance quote indications like an underwriting workspace.</h1>
           <p>
             Enter vessel, voyage, cargo, coverage, insured value, deductible and claims history.
-            Focusea estimates premium, risk, subjectivities, exclusions, claim exposure and an
-            underwriter email draft.
+            Focusea estimates premium, company appetite, referral triggers, subjectivities,
+            exclusions, claim exposure and an underwriter email draft.
           </p>
           <div class="hero-actions">
             <a href="#quoteBuilder" class="primary-button">Start Quote</a>
@@ -93,6 +94,10 @@
         </div>
 
         <form class="insurance-form" id="insuranceQuoteForm">
+          <label><span>Insurance company</span><select name="insuranceCompany"><option value="london">London Market Syndicate</option><option value="piClub">International P&I Club</option><option value="cargoSpecialist">Cargo Specialist Insurer</option><option value="warRisk">War Risk Underwriter</option><option value="regional">Regional Marine Insurer</option></select></label>
+          <label><span>Assured / client</span><input name="assuredName" value="Focusea Shipping Ltd" /></label>
+          <label><span>Broker company</span><input name="brokerCompany" value="Focusea Broker Desk" /></label>
+          <label><span>Quote validity days</span><input name="quoteValidity" type="number" value="7" min="1" max="30" /></label>
           <label><span>Vessel name</span><input name="vesselName" value="MV Focusea Trader" /></label>
           <label><span>IMO</span><input name="imo" value="9811001" /></label>
           <label><span>Vessel type</span><select name="vesselType"><option>Bulk Carrier</option><option>Container</option><option>Tanker</option><option>LNG</option><option>Ro-Ro</option><option>General Cargo</option></select></label>
@@ -103,12 +108,18 @@
           <label><span>GT</span><input name="gt" type="number" value="34500" min="0" step="100" /></label>
           <label><span>Cargo type</span><select name="cargoType"><option value="coal">Coal</option><option value="grain">Grain</option><option value="ironOre">Iron ore</option><option value="container">Container</option><option value="crudeOil">Crude oil</option><option value="lng">LNG</option><option value="chemicals">Chemicals</option><option value="projectCargo">Project cargo</option></select></label>
           <label><span>Coverage type</span><select name="coverageType"><option>Hull & Machinery</option><option>P&I</option><option>Cargo Insurance</option><option>War Risk</option><option>Kidnap & Ransom</option><option>Charterers Liability</option><option>Freight, Demurrage & Defence</option><option>Pollution Liability</option><option>Port Risk Cover</option></select></label>
+          <label><span>Requested policy limit USD</span><input name="policyLimit" type="number" value="10000000" min="0" step="100000" /></label>
+          <label><span>Company line size USD</span><input name="lineSize" type="number" value="5000000" min="0" step="100000" /></label>
+          <label><span>Co-insurance share %</span><input name="coinsuranceShare" type="number" value="60" min="1" max="100" step="1" /></label>
+          <label><span>Reinsurance needed</span><select name="reinsuranceNeeded"><option>No / within line</option><option>Yes / facultative support</option><option>Yes / treaty check</option></select></label>
           <label><span>Load port</span><input name="loadPort" value="Taboneo, Indonesia" /></label>
           <label><span>Discharge port</span><input name="dischargePort" value="Paradip, India" /></label>
           <label><span>Voyage route</span><input name="route" value="Indonesia -> India via Malacca" /></label>
           <label><span>Insured value USD</span><input name="insuredValue" type="number" value="28000000" min="0" step="100000" /></label>
           <label><span>Deductible USD</span><input name="deductible" type="number" value="150000" min="0" step="10000" /></label>
           <label><span>Claims last 5 years</span><input name="claims" type="number" value="1" min="0" step="1" /></label>
+          <label><span>Sanctions screening</span><select name="sanctionsStatus"><option>Pending</option><option>Clear</option><option>Possible match</option><option>Blocked / do not quote</option></select></label>
+          <label><span>Class / survey status</span><select name="surveyStatus"><option>Class confirmed</option><option>Survey required</option><option>Class pending</option><option>Deficiency reported</option></select></label>
           <label><span>Risk zone</span><select name="riskZone"><option>Normal trading area</option><option>Congested port / strait</option><option>Weather exposed</option><option>War risk / piracy watch</option><option>Sanctions-sensitive route</option></select></label>
           <label class="wide-label"><span>Broker / underwriter note</span><textarea name="underwriterNote">Subject to clean sanctions screening, class confirmation, claims record, trading warranty and no material change before attachment.</textarea></label>
           <button type="submit">Generate Quote</button>
@@ -124,6 +135,28 @@
           <span class="source-pill">local model</span>
         </div>
         <div class="quote-output" id="quoteOutput"></div>
+      </section>
+
+      <section class="panel-grid">
+        <article class="panel" id="companyPanel">
+          <div class="panel-heading compact-heading">
+            <div>
+              <p class="eyebrow">Company Quote Desk</p>
+              <h2>Appetite, line and referral gate.</h2>
+            </div>
+          </div>
+          <div id="companyOutput"></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-heading compact-heading">
+            <div>
+              <p class="eyebrow">Referral Checklist</p>
+              <h2>What the company must clear.</h2>
+            </div>
+          </div>
+          <div id="referralOutput"></div>
+        </article>
       </section>
 
       <section class="panel-grid">
@@ -149,6 +182,16 @@
       </section>
 
       <section class="panel-grid">
+        <article class="panel">
+          <div class="panel-heading compact-heading">
+            <div>
+              <p class="eyebrow">Quote Comparison</p>
+              <h2>Three underwriting scenarios.</h2>
+            </div>
+          </div>
+          <div id="comparisonOutput"></div>
+        </article>
+
         <article class="panel" id="glossaryPanel">
           <div class="panel-heading compact-heading">
             <div>
@@ -168,7 +211,7 @@
           </div>
           <div class="export-actions">
             <button type="button" class="ghost-button" id="downloadQuoteTxt">Download Quote TXT</button>
-            <button type="button" class="ghost-button" id="downloadQuotePdf">Download Quote PDF</button>
+            <button type="button" class="ghost-button" id="downloadQuotePdf">Download Printable Pack</button>
             <button type="button" class="ghost-button" id="downloadEmailDraft">Download Email Draft</button>
           </div>
           <div class="export-status" id="exportStatus"></div>
@@ -197,6 +240,6 @@
       </footer>
     </main>
 
-    <script src="insurance.js?v=insurance-side-site-1"></script>
+    <script src="insurance.js?v=insurance-company-desk-1"></script>
   </body>
 </html>
