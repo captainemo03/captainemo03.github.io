@@ -9,7 +9,7 @@
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8225865281154040" crossorigin="anonymous" data-focusea-adsense="true"></script>
     <link rel="icon" href="favicon-concept-b.png?v=20260720-b-selected-2" type="image/png" />
     <script src="theme.js?v=theme-1"></script>
-    <link rel="stylesheet" href="stability.css?v=stability-polish-1" />
+    <link rel="stylesheet" href="stability.css?v=limits-polish-1" />
   </head>
   <body>
     <header class="lab-header">
@@ -30,6 +30,7 @@
         <a href="#trimLab">Trim</a>
         <a href="#draftLab">Draft Survey</a>
         <a href="#holdLab">Hold Plan</a>
+        <a href="#operationalLimitsLab">Limits</a>
         <a href="#stabilityResources">Resources</a>
         <a href="index.html">Main Site</a>
       </nav>
@@ -918,9 +919,33 @@
           <div class="result-box" id="heelResult"></div>
         </article>
 
-        <article class="lab-card report-card">
+        <article class="lab-card wide" id="operationalLimitsLab">
           <div class="card-heading">
             <span>07</span>
+            <div>
+              <h2>Operational Limits & Hydrostatics</h2>
+              <p>TPC immersion, density allowance, UKC, air draft and list-corrected draft checks.</p>
+            </div>
+          </div>
+          <form class="calc-form" id="limitsForm">
+            <label><span>Present mean draft (m)</span><input name="meanDraft" type="number" value="12.05" step="0.01" /></label>
+            <label><span>Cargo / ballast change (mt)</span><input name="weightChange" type="number" value="1450" step="10" /></label>
+            <label><span>TPC (mt/cm)</span><input name="tpc" type="number" value="62" step="0.1" /></label>
+            <label><span>Charted water depth (m)</span><input name="waterDepth" type="number" value="14.2" step="0.01" /></label>
+            <label><span>Required UKC (m)</span><input name="requiredUkc" type="number" value="1.0" step="0.05" /></label>
+            <label><span>Air draft at present draft (m)</span><input name="airDraft" type="number" value="46.5" step="0.1" /></label>
+            <label><span>Bridge / crane clearance (m)</span><input name="clearance" type="number" value="50" step="0.1" /></label>
+            <label><span>Observed density</span><input name="density" type="number" value="1.018" step="0.001" /></label>
+            <label><span>Beam (m)</span><input name="beam" type="number" value="32.2" step="0.1" /></label>
+            <label><span>List angle (deg)</span><input name="listAngle" type="number" value="1.4" step="0.1" /></label>
+            <button type="submit">Check Operational Limits</button>
+          </form>
+          <div class="result-box" id="limitsResult"></div>
+        </article>
+
+        <article class="lab-card report-card">
+          <div class="card-heading">
+            <span>08</span>
             <div>
               <h2>Load Master Report</h2>
               <p>Combines the latest calculations into one technical report.</p>
@@ -1009,7 +1034,7 @@
       </footer>
     </main>
 
-    <script src="stability.js?v=stability-english-1"></script>
+    <script src="stability.js?v=limits-1"></script>
     <script src="stability-loadicator-basic.js?v=crane-ops-1"></script>
     <script type="module" src="stability-3d.js?v=crane-ops-1"></script>
   </body>

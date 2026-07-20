@@ -28,7 +28,7 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <script src="theme.js?v=theme-1"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="styles.css?v=focusea-polish-1" />
+    <link rel="stylesheet" href="styles.css?v=command-widgets-1" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -227,6 +227,100 @@
             <strong data-live="weather">9</strong>
             <small data-live-note="weather">Indian Ocean watch</small>
           </article>
+        </section>
+
+        <section class="command-widgets-panel" id="commandWidgets" aria-labelledby="commandWidgetsTitle">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Command Widgets</p>
+              <h2 id="commandWidgetsTitle">Use the empty space for quick actions, live status and micro calculations.</h2>
+            </div>
+            <div class="status-pill">Workspace widgets</div>
+          </div>
+
+          <div class="command-widget-grid">
+            <article class="command-widget-card quick-actions-widget">
+              <div class="mini-heading"><span>Quick Actions</span><strong>jump directly into work</strong></div>
+              <div class="command-widget-actions">
+                <a href="#tools" data-page-link="tools">Calculate Laytime</a>
+                <a href="#broker" data-page-link="broker">Create Recap</a>
+                <a href="stability.html" target="_blank" rel="noopener">Open Loadicator</a>
+                <a href="insurance.html" target="_blank" rel="noopener">Insurance Quote</a>
+                <a href="#portsPage" data-page-link="portsPage">Check Port Risk</a>
+              </div>
+            </article>
+
+            <article class="command-widget-card live-status-widget">
+              <div class="mini-heading"><span>Live Status</span><strong>data confidence layer</strong></div>
+              <div class="status-widget-grid">
+                <div><span>AdSense</span><strong>Review</strong><small>activation waits for Google approval</small></div>
+                <div><span>News</span><strong>Live links</strong><small>source-linked cards</small></div>
+                <div><span>Baltic</span><strong>Licensed required</strong><small>not fake live</small></div>
+                <div><span>Bunker</span><strong>Source needed</strong><small>use verified source/API</small></div>
+              </div>
+            </article>
+
+            <article class="command-widget-card daily-brief-widget">
+              <div class="mini-heading"><span>Today’s Maritime Brief</span><strong>what to check first</strong></div>
+              <ul class="command-brief-list">
+                <li>Review source-linked maritime news before countering any fixture.</li>
+                <li>Check bunker sensitivity before accepting a tight laycan.</li>
+                <li>Confirm port delay and NOR wording before lifting subjects.</li>
+                <li>Attach claim/time-bar risks to open deal rooms.</li>
+              </ul>
+            </article>
+
+            <article class="command-widget-card calculator-widget">
+              <div class="mini-heading"><span>Mini Calculators</span><strong>fast desk checks</strong></div>
+              <form class="widget-calc-grid" id="commandWidgetCalcForm">
+                <label><span>Knots</span><input name="knots" type="number" value="12.5" step="0.1" /></label>
+                <label><span>Distance nm</span><input name="distance" type="number" value="1260" step="10" /></label>
+                <label><span>Demurrage $/day</span><input name="demRate" type="number" value="18000" step="500" /></label>
+                <label><span>Used over h</span><input name="overHours" type="number" value="14" step="1" /></label>
+                <label><span>Bunker mt/day</span><input name="bunkerMt" type="number" value="28" step="0.5" /></label>
+                <label><span>Bunker $/mt</span><input name="bunkerPrice" type="number" value="686.5" step="0.1" /></label>
+                <button type="submit">Calculate</button>
+              </form>
+              <div class="widget-calc-result" id="commandWidgetCalcResult"></div>
+            </article>
+
+            <article class="command-widget-card recommendation-widget">
+              <div class="mini-heading"><span>Tool Recommendation</span><strong>open the right desk</strong></div>
+              <div class="recommendation-stack">
+                <a href="#broker" data-page-link="broker"><span>Broker Desk</span><strong>fixture, TCE, recap, laytime</strong></a>
+                <a href="deal-surgeon.html" target="_blank" rel="noopener"><span>Deal Surgeon</span><strong>risk timeline and missing terms</strong></a>
+                <a href="insurance.html" target="_blank" rel="noopener"><span>Insurance Desk</span><strong>quote, coverage, risk appetite</strong></a>
+                <a href="stability.html" target="_blank" rel="noopener"><span>Loadicator Lab</span><strong>GM, trim, heel, draft</strong></a>
+              </div>
+            </article>
+
+            <article class="command-widget-card trust-widget">
+              <div class="mini-heading"><span>Data Trust Card</span><strong>no fake certainty</strong></div>
+              <p>Focusea never labels demo data as live. Sensitive market, AIS, weather and port values should show status before use.</p>
+              <div class="trust-chip-row">
+                <span>Live</span>
+                <span>Simulated</span>
+                <span>Licensed Required</span>
+                <span>User Input</span>
+              </div>
+            </article>
+
+            <article class="command-widget-card learning-widget">
+              <div class="mini-heading"><span>Learning Tip</span><strong>today’s term</strong></div>
+              <strong>Demurrage</strong>
+              <p>Compensation payable when allowed laytime is exceeded. Always connect SOF events, NOR validity and time-bar wording before sending a claim.</p>
+              <a class="ghost-button small" href="#academyPage" data-page-link="academyPage">Open Academy</a>
+            </article>
+
+            <article class="command-widget-card recent-work-widget">
+              <div class="mini-heading"><span>Recent Work</span><strong>continue where you left off</strong></div>
+              <div class="recent-work-list" id="commandRecentWork">
+                <div><span>Last page</span><strong>Dashboard</strong></div>
+                <div><span>Last report</span><strong>Waiting for first export</strong></div>
+                <div><span>Last calculator</span><strong>Mini desk checks ready</strong></div>
+              </div>
+            </article>
+          </div>
         </section>
 
         <section class="sea-traffic-panel sea-traffic-terminal" id="seaTrafficPanel" aria-label="Global sea traffic terminal">
@@ -5299,7 +5393,7 @@ Subject: Firm offer
 
     <script src="monetization-config.js?v=adsense-readiness-1"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="script.js?v=b-selected-2"></script>
+    <script src="script.js?v=command-widgets-1"></script>
     <script src="monetization.js?v=adsense-readiness-1"></script>
   </body>
 </html>

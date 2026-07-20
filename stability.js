@@ -4,7 +4,8 @@ const forms = {
   trim: document.querySelector("#trimForm"),
   draft: document.querySelector("#draftForm"),
   hold: document.querySelector("#holdForm"),
-  heel: document.querySelector("#heelForm")
+  heel: document.querySelector("#heelForm"),
+  limits: document.querySelector("#limitsForm")
 };
 
 const results = {
@@ -13,7 +14,8 @@ const results = {
   trim: document.querySelector("#trimResult"),
   draft: document.querySelector("#draftResult"),
   hold: document.querySelector("#holdResult"),
-  heel: document.querySelector("#heelResult")
+  heel: document.querySelector("#heelResult"),
+  limits: document.querySelector("#limitsResult")
 };
 
 const statusEls = {
@@ -39,7 +41,8 @@ const labState = {
   trim: null,
   draft: null,
   hold: null,
-  heel: null
+  heel: null,
+  limits: null
 };
 
 function num(form, name) {
@@ -409,6 +412,66 @@ function calculateHeel() {
   updateReport();
 }
 
+function calculateOperationalLimits() {
+  const form = forms.limits;
+  if (!form) return;
+  const meanDraft = num(form, "meanDraft");
+  const weightChange = num(form, "weightChange");
+  const tpc = Math.max(num(form, "tpc"), 0.01);
+  const waterDepth = num(form, "waterDepth");
+  const requiredUkc = num(form, "requiredUkc");
+  const airDraft = num(form, "airDraft");
+  const clearance = num(form, "clearance");
+  const density = num(form, "density") || 1.025;
+  const beam = Math.max(num(form, "beam"), 0.01);
+  const listAngle = num(form, "listAngle");
+
+  const immersionCm = weightChange / tpc;
+  const finalDraft = meanDraft + immersionCm / 100;
+  const densityAllowance = finalDraft * (1.025 / density - 1);
+  const saltEquivalentDraft = finalDraft + densityAllowance;
+  const ukc = waterDepth - saltEquivalentDraft;
+  const airDraftAfter = Math.max(airDraft - immersionCm / 100, 0);
+  const airClearance = clearance - airDraftAfter;
+  const listCorrection = (beam / 2) * Math.sin(Math.abs(listAngle) * Math.PI / 180);
+  const deepestSideDraft = saltEquivalentDraft + listCorrection;
+  const limitingUkc = waterDepth - deepestSideDraft;
+  const level = limitingUkc >= requiredUkc && airClearance >= 0.5
+    ? "OK"
+    : limitingUkc >= requiredUkc * 0.75 && airClearance >= 0
+      ? "WATCH"
+      : "ALERT";
+  const note = level === "OK"
+    ? "UKC and air draft margins look workable"
+    : level === "WATCH"
+      ? "Margins are tight; verify tide, squat and terminal clearance"
+      : "Operational limit exceeded or too close";
+
+  labState.limits = {
+    title: "Operational Limits & Hydrostatics",
+    lines: [
+      `Weight change immersion: ${fmt(immersionCm, 1)} cm`,
+      `Estimated final draft: ${m(finalDraft)}`,
+      `Density allowance: ${m(densityAllowance)}`,
+      `Salt-equivalent draft: ${m(saltEquivalentDraft)}`,
+      `List correction at ${fmt(listAngle, 1)} deg: ${m(listCorrection)}`,
+      `Deepest side draft: ${m(deepestSideDraft)}`,
+      `Limiting UKC: ${m(limitingUkc)}`,
+      `Air draft after loading: ${m(airDraftAfter)}`,
+      `Air clearance margin: ${m(airClearance)}`,
+      `Status: ${level} - ${note}`
+    ]
+  };
+
+  renderResult(results.limits, [
+    { label: "Draft change", value: `${fmt(immersionCm, 1)} cm` },
+    { label: "Deepest draft", value: m(deepestSideDraft) },
+    { label: "Limiting UKC", value: m(limitingUkc) },
+    { label: "Air clearance", value: m(airClearance) }
+  ], level, note);
+  updateReport();
+}
+
 function buildReportText() {
   const sections = Object.values(labState).filter(Boolean);
   if (!sections.length) return "Focusea Cargo & Stability Lab\nNo calculations run yet.";
@@ -455,6 +518,7 @@ bind(forms.trim, calculateTrim);
 bind(forms.draft, calculateDraft);
 bind(forms.hold, calculateHold);
 bind(forms.heel, calculateHeel);
+bind(forms.limits, calculateOperationalLimits);
 
 downloadButtons.forEach((button) => {
   button.addEventListener("click", () => {
@@ -468,5 +532,6 @@ calculateTrim();
 calculateDraft();
 calculateHold();
 calculateHeel();
+calculateOperationalLimits();
 normalizeStabilityEnglish();
 setupStabilityEnglishObserver();

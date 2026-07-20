@@ -4366,6 +4366,8 @@ function activatePage(pageName = "dashboard", updateHash = true) {
     history.pushState(null, "", `#${activePage}`);
   }
   recordMemberLocation(activePage);
+  localStorage.setItem("focuseaLastPage", activePage);
+  renderCommandRecentWork();
   if (activePage === "passport") renderDecisionPassportHistory();
   if (activePage === "seaTraffic") setTimeout(() => renderSeaTraffic(), 80);
   window.scrollTo({ top: 0, behavior: "auto" });
@@ -21071,6 +21073,61 @@ if (memberResumeLast) memberResumeLast.addEventListener("click", resumeMemberLas
 if (memberLogout) memberLogout.addEventListener("click", logoutMember);
 if (pushImportToInbox) pushImportToInbox.addEventListener("click", pushImportedOfferToInbox);
 if (refreshTerminalAlarms) refreshTerminalAlarms.addEventListener("click", renderTerminalAlarms);
+
+const commandWidgetCalcForm = document.querySelector("#commandWidgetCalcForm");
+const commandWidgetCalcResult = document.querySelector("#commandWidgetCalcResult");
+const commandRecentWork = document.querySelector("#commandRecentWork");
+
+function widgetNumber(value, decimals = 1) {
+  return Number(value || 0).toLocaleString("en-US", {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals
+  });
+}
+
+function renderCommandWidgetCalculators() {
+  if (!commandWidgetCalcForm || !commandWidgetCalcResult) return;
+  const data = new FormData(commandWidgetCalcForm);
+  const knots = Number(data.get("knots")) || 0;
+  const distance = Number(data.get("distance")) || 0;
+  const demRate = Number(data.get("demRate")) || 0;
+  const overHours = Number(data.get("overHours")) || 0;
+  const bunkerMt = Number(data.get("bunkerMt")) || 0;
+  const bunkerPrice = Number(data.get("bunkerPrice")) || 0;
+  const kmh = knots * 1.852;
+  const etaHours = knots > 0 ? distance / knots : 0;
+  const demurrage = (overHours / 24) * demRate;
+  const bunkerDaily = bunkerMt * bunkerPrice;
+  commandWidgetCalcResult.innerHTML = [
+    ["Speed", `${widgetNumber(kmh, 1)} km/h`],
+    ["ETA", `${widgetNumber(etaHours / 24, 2)} days`],
+    ["Demurrage", money(demurrage, 0)],
+    ["Bunker/day", money(bunkerDaily, 0)],
+    ["CO2/day", `${widgetNumber(bunkerMt * 3.114, 1)} mt`],
+    ["Desk note", etaHours > 240 ? "Add weather buffer" : "Quick check OK"]
+  ].map(([label, value]) => `<div><span>${label}</span><strong>${escapeHtml(value)}</strong></div>`).join("");
+}
+
+function renderCommandRecentWork() {
+  if (!commandRecentWork) return;
+  const lastPage = localStorage.getItem("focuseaLastPage") || pageFromHash() || "dashboard";
+  const reportHistory = safeLocalGet("focuseaReportHistory", []);
+  const lastReport = Array.isArray(reportHistory) && reportHistory.length ? reportHistory.at(-1).title || "Saved report" : "Waiting for first export";
+  const cachedNews = getCachedLiveNews();
+  commandRecentWork.innerHTML = [
+    ["Last page", lastPage],
+    ["Last report", lastReport],
+    ["News cache", cachedNews?.items?.length ? `${cachedNews.items.length} source-linked cards` : "Refresh front-page news"]
+  ].map(([label, value]) => `<div><span>${label}</span><strong>${escapeHtml(String(value))}</strong></div>`).join("");
+}
+
+if (commandWidgetCalcForm) {
+  commandWidgetCalcForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    renderCommandWidgetCalculators();
+  });
+  commandWidgetCalcForm.addEventListener("input", renderCommandWidgetCalculators);
+}
 if (pushFixtureProToInbox) pushFixtureProToInbox.addEventListener("click", pushFixtureImportProToInbox);
 if (refreshMarketConfidence) refreshMarketConfidence.addEventListener("click", renderMarketConfidence);
 if (runTrustAutopilot) runTrustAutopilot.addEventListener("click", runAllTrustAutopilot);
@@ -22292,6 +22349,8 @@ updateLiveFeed();
 setupPageSections();
 renderMemberSignupHint();
 renderMemberAuthStatus();
+renderCommandWidgetCalculators();
+renderCommandRecentWork();
 activatePage(initialPageForSession(), false);
 setInterval(updateLiveFeed, 1000);
 setInterval(refreshBalticLicensedFeed, 1000);

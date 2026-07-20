@@ -4660,6 +4660,13 @@ body,
   }
 }
 
+#operationalLimitsLab {
+  border-color: rgba(45, 241, 202, 0.26);
+  background:
+    radial-gradient(circle at 8% 0%, rgba(45, 241, 202, 0.1), transparent 30%),
+    rgba(7, 18, 36, 0.66);
+}
+
 /* Visual polish guard for dense engineering controls. */
 .lab-shell,
 .lab-header,
