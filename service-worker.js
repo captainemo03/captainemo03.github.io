@@ -1,4 +1,4 @@
-const FOCUSEA_CACHE = "focusea-student-business-1";
+const FOCUSEA_CACHE = "focusea-ads-pending-1";
 const FOCUSEA_ASSETS = [
   "./",
   "./index.html",

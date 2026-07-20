@@ -13,6 +13,8 @@
   const validPublisher = /^ca-pub-[0-9]{16}$/.test(String(config.publisherId || ""));
   const cmpReady = config.certifiedCmpReady === true;
   const monetizationReady = config.enabled === true && validPublisher && cmpReady;
+  const autoAdsEnabled = config.autoAds === true;
+  const showPendingPlacements = config.showPendingPlacements !== false;
   let adScriptState = "not requested";
 
   function updateStatus() {
@@ -64,17 +66,36 @@
     updateStatus();
   }
 
+  function renderPendingPlacements(reason = "Waiting for Google ad fill") {
+    if (!showPendingPlacements) return;
+    placements.forEach((placement) => {
+      const name = placement.dataset.adPlacement || "sponsor";
+      placement.hidden = false;
+      placement.classList.add("ad-placement-preview", "ad-placement-pending");
+      placement.innerHTML = `
+        <div class="ad-preview-shell">
+          <span>Advertisement space</span>
+          <strong>${placementLabel(name)}</strong>
+          <small>${reason}</small>
+        </div>
+      `;
+    });
+  }
+
   function renderManualPlacements() {
+    let renderedSlots = 0;
     placements.forEach((placement) => {
       const name = placement.dataset.adPlacement || "";
       const placementConfig = config.placements?.[name] || {};
       const slot = String(placementConfig.slot || "").trim();
       if (!/^[0-9]+$/.test(slot)) {
-        placement.hidden = true;
+        if (!autoAdsEnabled) placement.hidden = true;
         return;
       }
+      renderedSlots += 1;
       placement.hidden = false;
       placement.classList.remove("ad-placement-preview");
+      placement.classList.remove("ad-placement-pending");
       placement.innerHTML = `
         <span class="ad-disclosure">Advertisement</span>
         <ins class="adsbygoogle"
@@ -89,6 +110,9 @@
         placement.hidden = true;
       }
     });
+    if (renderedSlots === 0 && autoAdsEnabled) {
+      renderPendingPlacements("Auto Ads code loaded. Google will fill ads after site approval, policy checks and inventory availability.");
+    }
   }
 
   function loadAdSense() {
@@ -101,7 +125,7 @@
     script.dataset.focuseaAdsense = "true";
     script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(config.publisherId)}`;
     script.addEventListener("load", () => {
-      adScriptState = "Google ad code loaded";
+      adScriptState = autoAdsEnabled ? "Google Auto Ads code loaded" : "Google ad code loaded";
       renderManualPlacements();
       updateStatus();
     });
@@ -136,5 +160,8 @@
 
   if (previewMode) renderPreview();
   else if (monetizationReady) loadAdSense();
-  else updateStatus();
+  else {
+    renderPendingPlacements(config.enabled ? "Activation blocked until publisher, CMP and AdSense approval are ready." : "Advertising is disabled.");
+    updateStatus();
+  }
 })();
