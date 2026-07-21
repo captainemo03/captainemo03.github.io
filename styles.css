@@ -1491,6 +1491,87 @@ main {
   background: rgba(8, 14, 35, 0.52);
 }
 
+.paste-solve-card {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 16px;
+  align-items: start;
+  margin: 16px 0;
+  padding: clamp(16px, 2.4vw, 24px);
+  border: 1px solid rgba(91, 255, 220, 0.24);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(91, 255, 220, 0.14), transparent 34%),
+    radial-gradient(circle at 100% 12%, rgba(100, 97, 255, 0.16), transparent 36%),
+    rgba(2, 13, 26, 0.64);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.24);
+}
+
+.paste-solve-copy,
+.paste-solve-form {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.paste-solve-copy h3 {
+  margin: 0;
+  color: var(--text);
+  font-size: clamp(1.55rem, 3.2vw, 3.25rem);
+  line-height: 0.98;
+}
+
+.paste-solve-copy p,
+.paste-solve-next p {
+  margin: 0;
+  color: var(--text-soft);
+  line-height: 1.55;
+}
+
+.paste-solve-form,
+.paste-solve-output,
+.paste-solve-exports {
+  min-width: 0;
+}
+
+.paste-solve-form label {
+  display: grid;
+  gap: 7px;
+  color: var(--muted);
+  font-weight: 850;
+}
+
+.paste-solve-form textarea {
+  min-height: 150px;
+  resize: vertical;
+}
+
+.paste-solve-actions,
+.paste-solve-exports {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.paste-solve-output,
+.paste-solve-exports {
+  grid-column: 1 / -1;
+}
+
+.paste-solve-next {
+  margin-top: 10px;
+  padding: 12px;
+  border: 1px solid rgba(255, 203, 114, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 203, 114, 0.08);
+}
+
+.paste-solve-next strong {
+  display: block;
+  color: #ffdd96;
+  margin-bottom: 4px;
+}
+
 .product-navigator-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
@@ -8996,6 +9077,15 @@ code,
 }
 
 @media (max-width: 860px) {
+  .paste-solve-card {
+    grid-template-columns: 1fr;
+  }
+
+  .paste-solve-output,
+  .paste-solve-exports {
+    grid-column: auto;
+  }
+
   .quick-actions-widget,
   .calculator-widget {
     grid-column: auto;

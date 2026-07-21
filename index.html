@@ -28,7 +28,7 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <script src="theme.js?v=theme-1"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="styles.css?v=traffic-density-1" />
+    <link rel="stylesheet" href="styles.css?v=paste-solve-1" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -413,6 +413,42 @@
             <div class="command-search-result" id="commandSearchResult"></div>
           </div>
 
+          <div class="paste-solve-card" id="pasteSolveDesk">
+            <div class="paste-solve-copy">
+              <span class="micro-label">Start New Fixture</span>
+              <h3>Paste once. Focusea builds the broker action pack.</h3>
+              <p>
+                Offer parsing, voyage estimate, Focusea Score, missing terms, clause risk, SOF/laytime,
+                deal room, client brief and downloadable output run from one command box.
+              </p>
+            </div>
+            <form class="paste-solve-form" id="pasteSolveForm">
+              <label>
+                <span>Fixture / SOF / clause text</span>
+                <textarea name="pasteSolveText">50k coal Indonesia to India laycan 10/15 Jul freight USD 18.50 pmt demurrage USD 18,000/day Supramax. Subjects receiver approval by 1700 LT. NOR WIBON/WIPON and time lost waiting berth to count as laytime.</textarea>
+              </label>
+              <div class="paste-solve-actions">
+                <button type="submit">Paste & Solve</button>
+                <button type="button" class="ghost-button small" data-demo-case="coal">Coal Case</button>
+                <button type="button" class="ghost-button small" data-demo-case="grain">Grain Case</button>
+                <button type="button" class="ghost-button small" data-demo-case="lng">LNG Case</button>
+                <button type="button" class="ghost-button small" data-demo-case="claim">Claim Case</button>
+              </div>
+            </form>
+            <div class="paste-solve-output" id="pasteSolveOutput">
+              <div class="paste-solve-next">
+                <strong>Ready to solve</strong>
+                <p>Choose a demo case or paste a real fixture message. The workflow will open the Flagship desk and build score, recap, risk report and client brief.</p>
+              </div>
+            </div>
+            <div class="paste-solve-exports">
+              <button type="button" class="ghost-button small" data-paste-export="client">Download Client Brief</button>
+              <button type="button" class="ghost-button small" data-paste-export="recap">Download Broker Recap</button>
+              <button type="button" class="ghost-button small" data-paste-export="risk">Download Risk Report</button>
+              <button type="button" class="ghost-button small" data-paste-export="email">Copy Professional Email</button>
+            </div>
+          </div>
+
           <div class="product-navigator-grid">
             <article>
               <div class="mini-heading"><span>Public Demo Mode</span><strong>3-minute guided tour</strong></div>
@@ -431,6 +467,8 @@
                 <button type="button" data-role="Student">Student</button>
                 <button type="button" data-role="Chartering">Chartering</button>
                 <button type="button" data-role="Operations">Operations</button>
+                <button type="button" data-role="Insurer">Insurer</button>
+                <button type="button" data-role="Port Agent">Port Agent</button>
               </div>
               <div class="broker-output" id="onboardingResult"></div>
             </article>
@@ -852,6 +890,10 @@
                 <button type="button" id="runFlagshipWorkflow">Run Flagship Workflow</button>
                 <button type="button" class="ghost-button small" data-download-flagship="pdf">Download PDF Pack</button>
                 <button type="button" class="ghost-button small" data-download-flagship="json">Download JSON</button>
+                <button type="button" class="ghost-button small" data-paste-export="client">Client Brief</button>
+                <button type="button" class="ghost-button small" data-paste-export="recap">Broker Recap</button>
+                <button type="button" class="ghost-button small" data-paste-export="risk">Risk Report</button>
+                <button type="button" class="ghost-button small" data-paste-export="email">Copy Email</button>
                 <a href="stability.html" class="ghost-button small">Open Loadicator</a>
               </div>
             </div>
@@ -5409,7 +5451,7 @@ Subject: Firm offer
 
     <script src="monetization-config.js?v=adsense-readiness-1"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="script.js?v=traffic-density-1"></script>
+    <script src="script.js?v=paste-solve-1"></script>
     <script src="monetization.js?v=adsense-readiness-1"></script>
   </body>
 </html>

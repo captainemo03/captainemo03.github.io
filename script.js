@@ -2749,6 +2749,8 @@ const runFlagshipWorkflow = document.querySelector("#runFlagshipWorkflow");
 const commandSearchForm = document.querySelector("#commandSearchForm");
 const commandSearchInput = document.querySelector("#commandSearchInput");
 const commandSearchResult = document.querySelector("#commandSearchResult");
+const pasteSolveForm = document.querySelector("#pasteSolveForm");
+const pasteSolveOutput = document.querySelector("#pasteSolveOutput");
 const startPublicDemo = document.querySelector("#startPublicDemo");
 const nextPublicDemo = document.querySelector("#nextPublicDemo");
 const publicDemoResult = document.querySelector("#publicDemoResult");
@@ -7265,6 +7267,131 @@ function handleFlagshipDownload(type) {
   downloadPdfFile("focusea-flagship-workflow-pack.pdf", "Focusea Flagship Workflow Pack", lastFlagshipWorkflow.reportText);
 }
 
+const pasteSolveDemoCases = {
+  coal: "Firm offer: 50k coal Indonesia to India laycan 10/15 Jul freight USD 18.50 pmt FIOST demurrage USD 18,000/day Supramax. 2.5 pct commission. Subjects receiver approval by 1700 LT. NOR WIBON/WIPON and time lost waiting berth to count as laytime.",
+  grain: "Fresh order: 32k grain Santos to Alexandria laycan 05/10 Aug freight USD 42 pmt demurrage USD 14,000/day Handymax. Need clean holds, grain stability and fumigation docs. Weather delays excepted. Charterers ask 2.5 pct total commission.",
+  lng: "LNG inquiry Qatar to Rotterdam 70k mt laycan 18/22 Aug freight USD 2.85/mmBtu equivalent, demurrage USD 95,000/day. Vessel to be compatible with terminal, Suez transit expected, cooldown and boil-off to be clarified.",
+  claim: "SOF/NOR claim review: 55k iron ore Port Hedland to Qingdao. NOR tendered 10 Jul 0800, berthed 10 Jul 2200, loading started 11 Jul 0600, rain stop 12 Jul 0300-0900, completed 15 Jul 1800. Recap demurrage USD 22,000/day, invoice says USD 25,000/day."
+};
+
+function pasteSolveSetFixtureText(text = "") {
+  const target = pasteSolveForm?.elements.pasteSolveText;
+  if (target) target.value = text;
+  const flagshipText = flagshipWorkflowForm?.elements.fixtureText;
+  if (flagshipText) flagshipText.value = text;
+  const ocrText = flagshipOcrForm?.elements.ocrText;
+  if (ocrText && /sof|nor|completed|rain|invoice/i.test(text)) ocrText.value = text;
+}
+
+function pasteSolveClientBrief(pack) {
+  return [
+    "FOCUSEA CLIENT BRIEF",
+    `Deal: ${pack.dealId}`,
+    `Decision: ${pack.decision}`,
+    `Route: ${pack.parsed.route || "TBC"}`,
+    `Cargo: ${pack.parsed.cargoLabel}`,
+    `Estimated TCE: ${money(pack.estimate.tce)}/day`,
+    `Net P&L: ${money(pack.estimate.netPnl)}`,
+    "",
+    "Client-safe note:",
+    "This is a decision-support summary. Final figures require verified port, weather, bunker, market and charter party data."
+  ].join("\n");
+}
+
+function pasteSolveBrokerRecap(pack) {
+  return [
+    "FOCUSEA BROKER RECAP DRAFT",
+    `Vessel / size: ${pack.parsed.vesselSize || "TBN"}`,
+    `Cargo: ${pack.parsed.quantity ? pack.parsed.quantity.toLocaleString("en-US") : "TBC"} ${pack.parsed.unit} ${pack.parsed.cargoLabel}`,
+    `Load / discharge: ${pack.parsed.route || "TBC"}`,
+    `Laycan: ${pack.parsed.laycan || "TBC"}`,
+    `Freight: ${pack.parsed.freight ? `${money(pack.parsed.freight, 2)} pmt/contract unit` : "TBC"}`,
+    `Demurrage: ${pack.parsed.demurrage ? `${money(pack.parsed.demurrage)}/day` : "TBC"}`,
+    `Commission: ${pack.parsed.commission || "TBC"}%`,
+    "",
+    "Subjects / missing terms:",
+    ...pack.missing.map((item) => `- ${item}`)
+  ].join("\n");
+}
+
+function pasteSolveRiskReport(pack) {
+  return [
+    "FOCUSEA RISK REPORT",
+    `Focusea Score: ${pack.decisionScore}/100`,
+    `Decision: ${pack.decision}`,
+    `Commercial: TCE ${money(pack.estimate.tce)}/day versus target ${money(Number(pack.workflowValues.targetTce) || 22000)}/day`,
+    `Legal / clause: ${pack.clause.riskOwner}`,
+    `Document contradiction: ${pack.invoiceMismatch ? "Detected" : "Not detected"}`,
+    "",
+    "Alerts:",
+    ...pack.alerts.map((item) => `- ${item.label}: ${item.status} | ${item.note}`),
+    "",
+    "Data trust:",
+    ...pack.sources.map((item) => `- ${item.name}: ${item.type} | confidence ${item.confidence}%`)
+  ].join("\n");
+}
+
+function pasteSolveEmailDraft(pack) {
+  return [
+    `Subject: ${pack.dealId} / ${pack.parsed.cargoLabel} / ${pack.parsed.route || "route TBC"} - broker summary`,
+    "",
+    "Dear all,",
+    "",
+    `Please note our current Focusea screen shows ${pack.decision}. Estimated TCE is ${money(pack.estimate.tce)}/day with net voyage P&L around ${money(pack.estimate.netPnl)} before final verification.`,
+    "",
+    "Key points to clarify before proceeding:",
+    ...pack.missing.map((item) => `- ${item}`),
+    "",
+    "We suggest keeping NOR, waiting time, weather exceptions, subjects deadline and demurrage wording clean in the recap.",
+    "",
+    "Best regards,"
+  ].join("\n");
+}
+
+function renderPasteSolve(event) {
+  event?.preventDefault();
+  if (!pasteSolveForm || !pasteSolveOutput) return;
+  const text = String(collectFormValues(pasteSolveForm).pasteSolveText || "");
+  pasteSolveSetFixtureText(text);
+  renderFlagshipWorkflow();
+  const pack = lastFlagshipWorkflow || buildFlagshipWorkflowPack();
+  pasteSolveOutput.innerHTML = `
+    ${metricCards([
+      { label: "Focusea Score", value: `${pack.decisionScore}/100` },
+      { label: "Decision", value: pack.decision },
+      { label: "Cargo", value: pack.parsed.cargoLabel },
+      { label: "Route", value: pack.parsed.route || "TBC" },
+      { label: "TCE", value: `${money(pack.estimate.tce)}/day` },
+      { label: "Missing", value: pack.missing.length }
+    ])}
+    <div class="paste-solve-next">
+      <strong>Next action</strong>
+      <p>${pack.decisionScore >= 74 ? "Do not fix before senior/compliance review and clause cleanup." : pack.decisionScore >= 50 ? "Counter with guards, clarify missing terms and keep subjects active." : "Prepare recap with protective wording and client-safe summary."}</p>
+    </div>
+  `;
+  activatePage("flagship");
+}
+
+async function handlePasteSolveExport(type = "") {
+  if (!lastFlagshipWorkflow) renderPasteSolve();
+  const pack = lastFlagshipWorkflow || buildFlagshipWorkflowPack();
+  const map = {
+    client: () => downloadPdfFile("focusea-client-brief.pdf", "Focusea Client Brief", pasteSolveClientBrief(pack)),
+    recap: () => downloadPdfFile("focusea-broker-recap.pdf", "Focusea Broker Recap", pasteSolveBrokerRecap(pack)),
+    risk: () => downloadPdfFile("focusea-risk-report.pdf", "Focusea Risk Report", pasteSolveRiskReport(pack)),
+    email: async () => {
+      const text = pasteSolveEmailDraft(pack);
+      try {
+        await navigator.clipboard.writeText(text);
+        if (pasteSolveOutput) pasteSolveOutput.insertAdjacentHTML("beforeend", `<small>Professional email copied to clipboard.</small>`);
+      } catch {
+        downloadTextFile("focusea-broker-email.txt", text);
+      }
+    }
+  };
+  map[type]?.();
+}
+
 function navigatorSearchItems() {
   return [
     { keywords: ["demurrage", "despatch", "dispatch", "laytime", "sof", "nor"], page: "tools", title: "Laytime / Demurrage tools", action: "Open calculator tools and use the laytime or demurrage page.", link: "demurrage-calculator.html" },
@@ -7296,10 +7423,11 @@ function runCommandSearch(queryValue = "", shouldNavigate = true) {
 
 const publicDemoSteps = [
   { page: "dashboard", title: "1. Command Search", text: "Start with one search box so visitors can find calculators, glossary terms, ports or broker workflows." },
-  { page: "flagship", title: "2. Flagship Workflow", text: "Paste one fixture mail and produce TCE, P&L, risk, document checks, alerts and client output." },
-  { page: "passport", title: "3. Deal Passport", text: "Show the decision trail: who entered what, why the score changed and what action is next." },
-  { page: "market", title: "4. Market & News", text: "Show source-labelled news, bunker and licensed-required index fields honestly." },
-  { page: "portsPage", title: "5. Port / Glossary / Stability", text: "Finish with port intelligence, maritime dictionary and the load-stability side site." }
+  { page: "flagship", title: "2. Paste & Solve", text: "Paste one fixture mail and produce TCE, P&L, risk, missing terms, document checks, alerts and client output." },
+  { page: "passport", title: "3. Focusea Score", text: "Show Fix / Watch / Avoid with commercial, legal, ops, claim, market and data-confidence reasoning." },
+  { page: "market", title: "4. Market & Data Trust", text: "Show source-labelled news, bunker and licensed-required index fields honestly." },
+  { page: "portsPage", title: "5. Port / Glossary / Stability", text: "Finish with port intelligence, maritime dictionary and the load-stability side site." },
+  { page: "businessCenter", title: "6. Business Output", text: "Separate student learning from business workflows: client brief, insurance quote, claim pack and reports." }
 ];
 
 function renderPublicDemo(step = activeDemoStep, shouldNavigate = true) {
@@ -7316,10 +7444,12 @@ function renderPublicDemo(step = activeDemoStep, shouldNavigate = true) {
 
 function roleRecommendations(role = "Broker") {
   const rows = {
-    Broker: ["Start in Flagship Workflow", "Use Broker Desk for counter mail", "Save client-ready PDF packs"],
-    Student: ["Start with Maritime Dictionary", "Use calculators and stability lab", "Run Public Demo before presentation"],
-    Chartering: ["Use Voyage Estimate and Deal Score", "Check clauses and subjects", "Track market/source confidence"],
-    Operations: ["Use Port Intelligence", "Check laytime/SOF and weather delay", "Use Loadicator for cargo and ballast"]
+    Broker: ["Start with Paste & Solve", "Use Broker Desk for counter mail", "Save client-ready PDF packs"],
+    Student: ["Open Student Center", "Use Glossary, quizzes and Stability Lab", "Run Public Demo before presentation"],
+    Chartering: ["Use Voyage Estimate and Focusea Score", "Check clauses and subjects", "Track market/source confidence"],
+    Operations: ["Use Port Intelligence", "Check laytime/SOF and weather delay", "Use Loadicator for cargo and ballast"],
+    Insurer: ["Open Marine Insurance Desk", "Run vessel/cargo/route risk score", "Download quote and coverage notes"],
+    "Port Agent": ["Open Port Intelligence", "Build PDA / port call timeline", "Track documents, tug/pilot and local notes"]
   };
   return rows[role] || rows.Broker;
 }
@@ -20935,6 +21065,19 @@ if (commandSearchForm) {
     runCommandSearch(commandSearchInput?.value || "");
   });
 }
+if (pasteSolveForm) {
+  pasteSolveForm.addEventListener("submit", renderPasteSolve);
+}
+document.querySelectorAll("[data-demo-case]").forEach((button) => {
+  button.addEventListener("click", () => {
+    const text = pasteSolveDemoCases[button.dataset.demoCase] || pasteSolveDemoCases.coal;
+    pasteSolveSetFixtureText(text);
+    renderPasteSolve();
+  });
+});
+document.querySelectorAll("[data-paste-export]").forEach((button) => {
+  button.addEventListener("click", () => handlePasteSolveExport(button.dataset.pasteExport));
+});
 if (startPublicDemo) {
   startPublicDemo.addEventListener("click", () => renderPublicDemo(0));
 }
