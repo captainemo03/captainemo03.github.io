@@ -9407,3 +9407,40 @@ main :where(.mini-table, .heatmap-table, .sea-traffic-table, .market-index-detai
     margin-inline: -14px;
   }
 }
+.next-gen-scenario-row {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.next-gen-scenario-row button {
+  min-width: 0;
+  padding: 10px 9px;
+  border: 1px solid rgba(84, 255, 232, 0.28);
+  border-radius: 8px;
+  background: rgba(84, 255, 232, 0.08);
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 900;
+  line-height: 1.15;
+  cursor: pointer;
+}
+
+.next-gen-scenario-row button:hover,
+.next-gen-scenario-row button:focus-visible {
+  background: rgba(84, 255, 232, 0.18);
+  border-color: rgba(84, 255, 232, 0.58);
+  outline: none;
+}
+
+@media (max-width: 1180px) {
+  .next-gen-scenario-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .next-gen-scenario-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

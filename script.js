@@ -22679,6 +22679,88 @@ function nextGenRiskRow(label, score, reason) {
   return `<div class="next-gen-risk-row"><span>${escapeHtml(label)}</span><strong style="color:${color}">${score}/100</strong><em style="width:${clamp(score, 0, 100)}%;background:${color}"></em><p>${escapeHtml(reason)}</p></div>`;
 }
 
+
+const nextGenScenarioSamples = {
+  coal: {
+    dealText: "50k coal Indonesia to India laycan 10/15 Jul freight USD 18.50 pmt demurrage USD 18,000/day Supramax 2.5 pct commission subjects stem and receiver approval. NOR WIBON/WIPON, time lost waiting berth to count as laytime. Coal moisture documents and berth congestion to be checked.",
+    targetTce: 22000,
+    bunkerPrice: 686.5,
+    delayDays: 1.5,
+    dataBasis: "user"
+  },
+  grain: {
+    dealText: "60k wheat Santos to Alexandria laycan 01/05 Aug freight USD 27.25 pmt demurrage USD 19,500/day Panamax 2.5 pct commission. Weather working days, NOR valid after free pratique, rain periods to be evidenced by terminal logs. Grain stability and shifting certificate required.",
+    targetTce: 24500,
+    bunkerPrice: 640,
+    delayDays: 2,
+    dataBasis: "user"
+  },
+  container: {
+    dealText: "Container spot: 950 TEU Istanbul to Valencia, laycan 12/14 Sep, freight USD 780 per TEU, demurrage to be agreed, feeder vessel, terminal cut-off and reefer slots subject confirmation. STS crane availability and yard congestion to be checked.",
+    targetTce: 30000,
+    bunkerPrice: 710,
+    delayDays: 1,
+    dataBasis: "api"
+  },
+  lng: {
+    dealText: "LNG carrier voyage Qatar to Rotterdam laycan 20/23 Oct freight USD 92,000/day equivalent, demurrage USD 85,000/day, subjects terminal acceptance, vetting, boil-off and compatibility. War risk and EU ETS exposure to be reviewed.",
+    targetTce: 82000,
+    bunkerPrice: 725,
+    delayDays: 2.5,
+    dataBasis: "licensed"
+  },
+  claim: {
+    dealText: "SOF claim file: NOR tendered 10 Jul 0600, berthed 10 Jul 1800, loading started 11 Jul 0200, rain stop 11 Jul 1200-1800, loading completed 14 Jul 0600. Allowed laytime 72 hours, demurrage USD 18,000/day, time lost waiting berth to count as laytime.",
+    targetTce: 22000,
+    bunkerPrice: 686.5,
+    delayDays: 1.25,
+    dataBasis: "user"
+  },
+  insurance: {
+    dealText: "Marine insurance quote request: 75k crude oil Ras Tanura to Rotterdam, Aframax, insured value USD 48m, H&M, P&I, pollution liability and war risk requested. Vessel age 14 years, class maintained, no major claims, Red Sea avoided via Cape route.",
+    targetTce: 38000,
+    bunkerPrice: 690,
+    delayDays: 3,
+    dataBasis: "user"
+  }
+};
+
+function applyNextGenScenario(key = "coal") {
+  const form = document.querySelector("#nextGenAutopilotForm");
+  const sample = nextGenScenarioSamples[key] || nextGenScenarioSamples.coal;
+  if (!form) return;
+  writeFormValues(form, sample);
+  renderNextGenSuite();
+}
+
+function nextGenReportHistoryItems() {
+  return safeLocalGet("focusea-next-gen-report-history-v1", []);
+}
+
+function saveNextGenReportHistory(type = "full") {
+  const report = window.focuseaNextGenReport || nextGenBuildReport(collectFormValues(document.querySelector("#nextGenAutopilotForm")));
+  const history = nextGenReportHistoryItems();
+  history.unshift({ id: `RPT-${Date.now()}`, type, savedAt: new Date().toLocaleString(), decision: report.decision, score: report.overall, cargo: decisionPassportCargoLabel(report.parsed.cargoType), route: report.route });
+  safeLocalSet("focusea-next-gen-report-history-v1", history.slice(0, 10));
+  renderNextGenReportHistory();
+}
+
+function renderNextGenReportHistory() {
+  const target = document.querySelector("#nextGenReportHistory");
+  if (!target) return;
+  const history = nextGenReportHistoryItems();
+  if (!history.length) {
+    target.innerHTML = `<div><span>No downloaded reports yet</span><strong>Use Download Full Pack or Client Summary.</strong><p>Report history is saved locally in this browser.</p></div>`;
+    return;
+  }
+  target.innerHTML = history.map((item) => `
+    <div>
+      <span>${escapeHtml(item.id)} · ${escapeHtml(item.savedAt)}</span>
+      <strong>${escapeHtml(item.type)} · ${escapeHtml(item.cargo)} · ${item.score}/100</strong>
+      <p>${escapeHtml(item.route)} · ${escapeHtml(item.decision)}</p>
+    </div>
+  `).join("");
+}
 function renderNextGenSuite() {
   const form = document.querySelector("#nextGenAutopilotForm");
   const autopilot = document.querySelector("#nextGenAutopilotResult");
@@ -22728,6 +22810,8 @@ function renderNextGenSuite() {
     ${nextGenMetric("Suggested cover", report.parsed.cargoType === "crudeOil" || report.parsed.cargoType === "lng" ? "H&M + P&I + pollution / war review" : "Cargo + P&I + charterers liability review")}
     ${nextGenMetric("Referral", report.insuranceRisk >= 70 ? "Refer to underwriter" : "Quote draft possible", "Underwriter approval remains required.")}
     ${nextGenMetric("Indicative premium", money(Math.max(4500, report.quantity * report.freightRate * (0.003 + report.insuranceRisk / 60000))), "Non-binding estimate.")}
+    ${nextGenMetric("Company A", report.insuranceRisk >= 70 ? "Refer only" : "Quote range: standard market", "Lower price, stricter exclusions.")}
+    ${nextGenMetric("Company B", "Quote range: broader cover", "Higher premium, better claim wording.")}
     ${nextGenMetric("Exclusions watch", "War, sanctions, inherent vice, poor packing, delay-only loss")}
   `;
 
@@ -22761,8 +22845,17 @@ function renderNextGenSuite() {
     ${nextGenMetric("Cargo behavior", report.parsed.cargoType === "ironOre" ? "High density / tanktop stress" : report.parsed.cargoType === "grain" ? "Shifting / grain stability" : report.parsed.cargoType === "container" ? "High KG / stack tiers" : "Cargo-specific loading checks")}
     ${nextGenMetric("Crane planning", report.parsed.cargoType === "container" ? "STS gantry crane" : report.parsed.cargoType === "projectCargo" ? "Heavy lift / floating crane" : "Grab / shore crane / ship gear", "Select crane before loading sequence.")}
     ${nextGenMetric("Must check", "Draft F/A, trim, heel, corrected GM, free surface, GZ, SF/BM")}
+    ${nextGenMetric("Loading sequence", "H3 -> H2/H4 -> ballast correction -> H1/H5", "Keep shear/bending and heel balanced during each stage.")}
+    ${nextGenMetric("Crane risk", report.parsed.cargoType === "container" ? "STS crane + reefer yard cut-off" : report.parsed.cargoType === "ironOre" ? "High-capacity grab / loader, tanktop stress watch" : "Shore crane or ship gear productivity watch")}
   `;
 
+  const action = document.querySelector("#nextGenActionResult");
+  if (action) action.innerHTML = `
+    ${nextGenMetric("Step 1", report.missing.length ? `Ask missing terms: ${report.missing.slice(0, 3).join(", ")}` : "Terms parsed; verify source documents.")}
+    ${nextGenMetric("Step 2", report.overall >= 72 ? "Do not lift subjects before risk correction." : "Prepare recap and client note with assumptions.")}
+    ${nextGenMetric("Step 3", "Send cargo/load assumptions to Stability Lab.")}
+    ${nextGenMetric("Step 4", "Save Deal Room and export client/report pack.")}
+  `;
   const trust = document.querySelector("#nextGenTrustResult");
   if (trust) trust.innerHTML = `
     ${nextGenMetric("Market indexes", "Licensed required", "Baltic/paid feeds must not be shown as fake live values.")}
@@ -22852,12 +22945,16 @@ if (nextGenAutopilotForm) {
   nextGenAutopilotForm.addEventListener("change", () => renderNextGenSuite());
 }
 
+document.querySelectorAll("[data-next-gen-scenario]").forEach((button) => {
+  button.addEventListener("click", () => applyNextGenScenario(button.dataset.nextGenScenario));
+});
 const nextGenSaveDeal = document.querySelector("#nextGenSaveDeal");
 if (nextGenSaveDeal) nextGenSaveDeal.addEventListener("click", saveNextGenDealRoom);
 
 document.querySelectorAll("[data-next-gen-download]").forEach((button) => {
   button.addEventListener("click", () => {
     const type = button.dataset.nextGenDownload || "full";
+    saveNextGenReportHistory(type);
     downloadTextFile(type === "client" ? "focusea-client-summary.txt" : "focusea-next-gen-maritime-pack.txt", nextGenReportText(type));
   });
 });
@@ -22952,6 +23049,7 @@ renderBusinessCenter();
 renderCaseRoom();
 renderNextGenSuite();
 renderNextGenDealRoom();
+renderNextGenReportHistory();
 renderBalticFeedPanel();
 renderSecurityShield();
 renderPythonHistory();
