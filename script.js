@@ -3597,6 +3597,7 @@ const pageGroups = {
   insuranceDesk: ["#insuranceDeskPanel"],
   studentCenter: ["#studentCenterPanel"],
   businessCenter: ["#businessCenterPanel"],
+  nextGen: ["#nextGenSuitePanel"],
   caseRoom: ["#caseRoomPanel"],
   enterprise: ["#enterpriseCommandPanel"],
   pythonEngine: ["#pythonEngineSuite"],
@@ -22570,6 +22571,296 @@ if (officialImportProForm) {
   officialImportProForm.addEventListener("change", () => renderOfficialImportPro(false));
 }
 
+
+function nextGenTextValue(value, fallback = "-") {
+  const text = String(value ?? "").trim();
+  return text || fallback;
+}
+
+function nextGenCargoFromText(parsed = {}, text = "") {
+  if (parsed.cargoType) return parsed.cargoType;
+  const lower = String(text).toLowerCase();
+  if (/lng|gas/.test(lower)) return "lng";
+  if (/crude|oil|dirty/.test(lower)) return "crudeOil";
+  if (/chemical|methanol|caustic|parcel/.test(lower)) return "chemicals";
+  if (/container|teu|feu/.test(lower)) return "container";
+  if (/iron ore|ore/.test(lower)) return "ironOre";
+  if (/coal/.test(lower)) return "coal";
+  if (/grain|wheat|corn|soy/.test(lower)) return "grain";
+  return "grain";
+}
+
+function nextGenQuantity(parsed = {}, cargo = {}) {
+  return Number(parsed.quantity) || Number(cargo.defaultQuantity) || Number(cargo.quantity) || 50000;
+}
+
+function nextGenRouteText(parsed = {}, text = "") {
+  return parsed.route || String(text).match(/([A-Z][A-Za-z .'-]+)\s+(?:to|-)\s+([A-Z][A-Za-z .'-]+)/)?.[0] || "Load port -> discharge port not fully verified";
+}
+
+function nextGenBuildReport(values = {}) {
+  const rawText = nextGenTextValue(values.dealText, "");
+  const parsed = parseOfferText(rawText);
+  parsed.cargoType = nextGenCargoFromText(parsed, rawText);
+  const cargo = getCargoProfile(parsed.cargoType);
+  const quantity = nextGenQuantity(parsed, cargo);
+  const freightRate = Number(parsed.freight) || Number(cargo.baseFreight) || 18.5;
+  const bunkerPrice = Number(values.bunkerPrice) || Number(liveFeedState?.bunker) || 686.5;
+  const targetTce = Number(values.targetTce) || 22000;
+  const delayDays = Number(values.delayDays) || 0;
+  const distance = /singapore|china|shanghai|japan|korea|india/i.test(rawText) ? 5200 : 3100;
+  const seaCons = parsed.cargoType === "container" ? 42 : parsed.cargoType === "lng" ? 38 : 28;
+  const portDays = 4.5 + delayDays;
+  const portCost = parsed.cargoType === "lng" ? 265000 : parsed.cargoType === "crudeOil" ? 185000 : parsed.cargoType === "container" ? 225000 : 125000;
+  const estimate = calculateVoyageEstimate({
+    cargoType: parsed.cargoType,
+    distance,
+    speed: parsed.cargoType === "container" ? 17 : 12,
+    cargoQty: quantity,
+    freightRate,
+    seaCons,
+    portCons: parsed.cargoType === "lng" ? 9 : 4,
+    portDays,
+    bunkerPrice,
+    portCosts: portCost,
+    canalCosts: /suez|panama|canal/i.test(rawText) ? 220000 : 0,
+    dailyHire: parsed.cargoType === "lng" ? 85000 : parsed.cargoType === "container" ? 38000 : 21000,
+    commission: Number(parsed.commission) || 2.5
+  });
+  const clause = analyzeClauseText(rawText);
+  const parsedRisk = scoreParsedOffer(parsed);
+  const missing = Array.isArray(parsed.missing) ? parsed.missing : [];
+  const completeness = clamp(100 - missing.length * 11, 20, 100);
+  const commercialRisk = clamp(Math.round((estimate.tce < targetTce ? 58 : 24) + delayDays * 7 + (estimate.netPnl < 0 ? 18 : 0)), 0, 100);
+  const clauseRisk = clamp(Math.round(Math.max(clause.ownerRisk || 0, clause.chartererRisk || 0)), 0, 100);
+  const insuranceRisk = clamp(Math.round((cargo.risk || 44) + (/war|piracy|sanction|iran|russia|red sea/i.test(rawText) ? 22 : 0) + (delayDays > 2 ? 8 : 0)), 0, 100);
+  const stabilityRisk = clamp(Math.round((parsed.cargoType === "ironOre" ? 72 : parsed.cargoType === "container" ? 58 : parsed.cargoType === "grain" ? 62 : 46) + (quantity > 70000 ? 12 : 0)), 0, 100);
+  const claimRisk = clamp(Math.round((parsed.demurrage ? 32 : 61) + delayDays * 9 + (/nor|sof|wibon|wipon/i.test(rawText) ? -8 : 12)), 0, 100);
+  const dataTrust = values.dataBasis === "licensed" ? 86 : values.dataBasis === "api" ? 72 : 54;
+  const overall = clamp(Math.round(commercialRisk * 0.26 + clauseRisk * 0.17 + insuranceRisk * 0.16 + stabilityRisk * 0.15 + claimRisk * 0.16 + (100 - dataTrust) * 0.1), 0, 100);
+  const decision = overall >= 72 ? "WATCH / UNDERWRITE REVIEW" : overall >= 48 ? "FIX WITH GUARDS" : "FIXABLE";
+  const route = nextGenRouteText(parsed, rawText);
+  const counter = estimate.tce < targetTce ? `Counter freight by at least USD ${(Math.max(0.75, (targetTce - estimate.tce) / 900)).toFixed(2)} pmt or request bunker / delay protection.` : "Commercial result clears target TCE; protect wording and evidence before subjects lifted.";
+  return {
+    generatedAt: new Date().toLocaleString(),
+    rawText,
+    parsed,
+    cargo,
+    quantity,
+    freightRate,
+    bunkerPrice,
+    targetTce,
+    delayDays,
+    distance,
+    route,
+    estimate,
+    clause,
+    parsedRisk,
+    missing,
+    completeness,
+    commercialRisk,
+    clauseRisk,
+    insuranceRisk,
+    stabilityRisk,
+    claimRisk,
+    dataTrust,
+    overall,
+    decision,
+    counter
+  };
+}
+
+function nextGenMetric(label, value, note = "") {
+  return `<div><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong>${note ? `<p>${escapeHtml(note)}</p>` : ""}</div>`;
+}
+
+function nextGenRiskRow(label, score, reason) {
+  const color = score >= 72 ? "#ff6b9c" : score >= 48 ? "#ffcb72" : "#54ffe8";
+  return `<div class="next-gen-risk-row"><span>${escapeHtml(label)}</span><strong style="color:${color}">${score}/100</strong><em style="width:${clamp(score, 0, 100)}%;background:${color}"></em><p>${escapeHtml(reason)}</p></div>`;
+}
+
+function renderNextGenSuite() {
+  const form = document.querySelector("#nextGenAutopilotForm");
+  const autopilot = document.querySelector("#nextGenAutopilotResult");
+  if (!form || !autopilot) return;
+  const values = collectFormValues(form);
+  const report = nextGenBuildReport(values);
+  window.focuseaNextGenReport = report;
+
+  autopilot.innerHTML = `
+    <div class="next-gen-decision-orb"><span>Focusea Score</span><strong>${report.overall}</strong><em>${escapeHtml(report.decision)}</em></div>
+    <div class="next-gen-metrics">
+      ${nextGenMetric("Cargo", decisionPassportCargoLabel(report.parsed.cargoType), `${report.quantity.toLocaleString()} mt / units`)}
+      ${nextGenMetric("Route", report.route, `Distance model: ${report.distance.toLocaleString()} nm`)}
+      ${nextGenMetric("TCE", money(report.estimate.tce), `Target: ${money(report.targetTce)}`)}
+      ${nextGenMetric("Net P&L", money(report.estimate.netPnl), `Freight: ${money(report.freightRate, 2)} pmt`)}
+      ${nextGenMetric("Data trust", `${report.dataTrust}%`, report.dataTrust >= 80 ? "Licensed/source-ready basis." : "User-input or simulated fields must be verified.")}
+      ${nextGenMetric("Next action", report.counter)}
+    </div>
+    <div class="next-gen-risk-grid">
+      ${nextGenRiskRow("Commercial", report.commercialRisk, report.estimate.tce < report.targetTce ? "TCE is below target or sensitive to bunker/delay." : "TCE clears target under current assumptions.")}
+      ${nextGenRiskRow("Clause", report.clauseRisk, report.clause.dangerousSentences?.[0]?.sentence || "No major red flag found, but CP wording still needs review.")}
+      ${nextGenRiskRow("Claim", report.claimRisk, report.parsed.demurrage ? "Demurrage rate found; evidence package still required." : "Demurrage rate missing or unclear.")}
+      ${nextGenRiskRow("Insurance", report.insuranceRisk, "Premium and referral depend on vessel age, cargo, route and claims history.")}
+      ${nextGenRiskRow("Stability", report.stabilityRisk, "Cargo type and quantity should be sent to Loadicator Bridge before sailing.")}
+      ${nextGenRiskRow("Data", 100 - report.dataTrust, "Live, licensed-required, simulated and user-input fields must stay visibly separated.")}
+    </div>
+  `;
+
+  const laytime = document.querySelector("#nextGenLaytimeResult");
+  if (laytime) laytime.innerHTML = `
+    ${nextGenMetric("Allowed time", "72 h", "Default working model; replace with CP terms.")}
+    ${nextGenMetric("Used time", `${(72 + report.delayDays * 16).toFixed(1)} h`, "Generated from delay assumption and SOF text.")}
+    ${nextGenMetric("Demurrage / dispatch", report.delayDays > 0 ? `Exposure ${money((Number(report.parsed.demurrage) || 18000) * report.delayDays)}` : "Dispatch possible", "Requires signed SOF, NOR and exceptions.")}
+    ${nextGenMetric("Evidence pack", "NOR, SOF, rain logs, terminal logs, invoice", "Claim Center-ready checklist.")}
+  `;
+
+  const clause = document.querySelector("#nextGenClauseResult");
+  if (clause) clause.innerHTML = `
+    ${nextGenMetric("Owner risk", `${report.clause.ownerRisk || 0}/100`, "Commercial exposure for owner side.")}
+    ${nextGenMetric("Charterer risk", `${report.clause.chartererRisk || 0}/100`, "Commercial exposure for charterer side.")}
+    ${nextGenMetric("Counter wording", report.counter, "Use as draft language only.")}
+    ${nextGenMetric("Missing terms", report.missing.length ? report.missing.join(", ") : "No core parser gaps", "Autopilot asks these before recap.")}
+  `;
+
+  const insurance = document.querySelector("#nextGenInsuranceResult");
+  if (insurance) insurance.innerHTML = `
+    ${nextGenMetric("Suggested cover", report.parsed.cargoType === "crudeOil" || report.parsed.cargoType === "lng" ? "H&M + P&I + pollution / war review" : "Cargo + P&I + charterers liability review")}
+    ${nextGenMetric("Referral", report.insuranceRisk >= 70 ? "Refer to underwriter" : "Quote draft possible", "Underwriter approval remains required.")}
+    ${nextGenMetric("Indicative premium", money(Math.max(4500, report.quantity * report.freightRate * (0.003 + report.insuranceRisk / 60000))), "Non-binding estimate.")}
+    ${nextGenMetric("Exclusions watch", "War, sanctions, inherent vice, poor packing, delay-only loss")}
+  `;
+
+  const client = document.querySelector("#nextGenClientPortalResult");
+  if (client) client.innerHTML = `
+    ${nextGenMetric("Client status", report.decision, "Use for a shareable client summary.")}
+    ${nextGenMetric("ETA / schedule", `${report.estimate.totalDays.toFixed(1)} days`, `Includes ${report.delayDays} delay days.`)}
+    ${nextGenMetric("Client note", report.overall >= 72 ? "Proceed only after missing terms and evidence are corrected." : "Proceed with clear assumptions and source labels.")}
+    ${nextGenMetric("Download", "Client Summary button", "Generates a clean text pack now; backend PDF can follow.")}
+  `;
+
+  const tender = document.querySelector("#nextGenTenderResult");
+  if (tender) tender.innerHTML = `
+    ${nextGenMetric("Owner A", money(report.freightRate, 2) + " pmt", "Base offer.")}
+    ${nextGenMetric("Owner B", money(report.freightRate * 0.97, 2) + " pmt", "Cheaper but +2 risk points assumed.")}
+    ${nextGenMetric("Owner C", money(report.freightRate * 1.04, 2) + " pmt", "Higher freight but cleaner clause/evidence basis.")}
+    ${nextGenMetric("Recommendation", report.overall >= 65 ? "Prefer cleaner terms over lowest freight." : "Lowest freight can be considered if subjects are protected.")}
+  `;
+
+  const portAgent = document.querySelector("#nextGenPortAgentResult");
+  if (portAgent) portAgent.innerHTML = `
+    ${nextGenMetric("PDA estimate", money(report.estimate.portCosts), "Pilot, tug, agency, berth and dues placeholder.")}
+    ${nextGenMetric("Line-up watch", report.delayDays > 1 ? "High" : "Medium", "Tie agent updates to laycan and TCE.")}
+    ${nextGenMetric("Required docs", "NOR, SOF, cargo manifest, crew list, ISPS, port clearance")}
+    ${nextGenMetric("Agent question", "Can berth window and weather stoppages be confirmed in writing?")}
+  `;
+
+  const stability = document.querySelector("#nextGenStabilityResult");
+  if (stability) stability.innerHTML = `
+    ${nextGenMetric("Mode", "Engineer + Student", "Send cargo to Loadicator Lab for GM, trim, heel and SF/BM.")}
+    ${nextGenMetric("Cargo behavior", report.parsed.cargoType === "ironOre" ? "High density / tanktop stress" : report.parsed.cargoType === "grain" ? "Shifting / grain stability" : report.parsed.cargoType === "container" ? "High KG / stack tiers" : "Cargo-specific loading checks")}
+    ${nextGenMetric("Crane planning", report.parsed.cargoType === "container" ? "STS gantry crane" : report.parsed.cargoType === "projectCargo" ? "Heavy lift / floating crane" : "Grab / shore crane / ship gear", "Select crane before loading sequence.")}
+    ${nextGenMetric("Must check", "Draft F/A, trim, heel, corrected GM, free surface, GZ, SF/BM")}
+  `;
+
+  const trust = document.querySelector("#nextGenTrustResult");
+  if (trust) trust.innerHTML = `
+    ${nextGenMetric("Market indexes", "Licensed required", "Baltic/paid feeds must not be shown as fake live values.")}
+    ${nextGenMetric("Bunker", "Source labelled", "Use timestamped source or user input.")}
+    ${nextGenMetric("AIS / traffic", "Provider required", "Global live AIS needs licensed API.")}
+    ${nextGenMetric("Rule", "No unlabelled demo data", "This protects user trust and AdSense quality.")}
+  `;
+}
+
+function nextGenReportText(kind = "full") {
+  const report = window.focuseaNextGenReport || nextGenBuildReport(collectFormValues(document.querySelector("#nextGenAutopilotForm")));
+  const base = [
+    "FOCUSEA NEXT GEN MARITIME SUITE",
+    `Generated: ${report.generatedAt}`,
+    `Decision: ${report.decision}`,
+    `Focusea Score: ${report.overall}/100`,
+    `Cargo: ${decisionPassportCargoLabel(report.parsed.cargoType)}`,
+    `Quantity: ${report.quantity.toLocaleString()}`,
+    `Route: ${report.route}`,
+    `Freight: ${money(report.freightRate, 2)} pmt`,
+    `TCE: ${money(report.estimate.tce)} / day`,
+    `Net P&L: ${money(report.estimate.netPnl)}`,
+    `Next action: ${report.counter}`,
+    ""
+  ];
+  if (kind === "client") {
+    return [...base, "Client summary", report.overall >= 72 ? "Proceed only after missing terms, evidence and source labels are corrected." : "Proceed with clearly stated assumptions and professional review.", "", "Disclaimer: decision-support draft only."].join("\n");
+  }
+  return [
+    ...base,
+    "Risk breakdown",
+    `Commercial: ${report.commercialRisk}/100`,
+    `Clause: ${report.clauseRisk}/100`,
+    `Claim: ${report.claimRisk}/100`,
+    `Insurance: ${report.insuranceRisk}/100`,
+    `Stability: ${report.stabilityRisk}/100`,
+    `Data trust: ${report.dataTrust}/100`,
+    "",
+    "Missing fields",
+    report.missing.length ? report.missing.map((item) => `- ${item}`).join("\n") : "- No core parser gaps detected.",
+    "",
+    "Port agent / claim evidence",
+    "- NOR",
+    "- Signed SOF",
+    "- Rain / stoppage letters",
+    "- Terminal logs",
+    "- Cargo documents",
+    "- CP and recap wording",
+    "",
+    "Disclaimer",
+    "Focusea output is decision support only. Legal, insurance, market, class and operational decisions require professional verification."
+  ].join("\n");
+}
+
+function saveNextGenDealRoom() {
+  const report = window.focuseaNextGenReport || nextGenBuildReport(collectFormValues(document.querySelector("#nextGenAutopilotForm")));
+  const deals = safeLocalGet("focusea-next-gen-deal-room-v1", []);
+  deals.unshift({ id: `FX-${Date.now()}`, savedAt: new Date().toLocaleString(), decision: report.decision, score: report.overall, cargo: decisionPassportCargoLabel(report.parsed.cargoType), route: report.route, tce: report.estimate.tce, pnl: report.estimate.netPnl });
+  safeLocalSet("focusea-next-gen-deal-room-v1", deals.slice(0, 8));
+  renderNextGenDealRoom();
+}
+
+function renderNextGenDealRoom() {
+  const target = document.querySelector("#nextGenDealRoom");
+  if (!target) return;
+  const deals = safeLocalGet("focusea-next-gen-deal-room-v1", []);
+  if (!deals.length) {
+    target.innerHTML = `<div><span>No saved deals yet</span><strong>Run Autopilot, then Save Deal Room.</strong><p>Saved fixtures stay in this browser through localStorage.</p></div>`;
+    return;
+  }
+  target.innerHTML = deals.map((deal) => `
+    <div>
+      <span>${escapeHtml(deal.id)} · ${escapeHtml(deal.savedAt)}</span>
+      <strong>${escapeHtml(deal.cargo)} · ${escapeHtml(deal.decision)} · ${deal.score}/100</strong>
+      <p>${escapeHtml(deal.route)} · TCE ${money(deal.tce)} · P&L ${money(deal.pnl)}</p>
+    </div>
+  `).join("");
+}
+
+const nextGenAutopilotForm = document.querySelector("#nextGenAutopilotForm");
+if (nextGenAutopilotForm) {
+  nextGenAutopilotForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    renderNextGenSuite();
+  });
+  nextGenAutopilotForm.addEventListener("input", () => renderNextGenSuite());
+  nextGenAutopilotForm.addEventListener("change", () => renderNextGenSuite());
+}
+
+const nextGenSaveDeal = document.querySelector("#nextGenSaveDeal");
+if (nextGenSaveDeal) nextGenSaveDeal.addEventListener("click", saveNextGenDealRoom);
+
+document.querySelectorAll("[data-next-gen-download]").forEach((button) => {
+  button.addEventListener("click", () => {
+    const type = button.dataset.nextGenDownload || "full";
+    downloadTextFile(type === "client" ? "focusea-client-summary.txt" : "focusea-next-gen-maritime-pack.txt", nextGenReportText(type));
+  });
+});
 chatForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const question = chatInput.value.trim();
@@ -22659,6 +22950,8 @@ renderInsuranceDesk();
 renderStudentCenter();
 renderBusinessCenter();
 renderCaseRoom();
+renderNextGenSuite();
+renderNextGenDealRoom();
 renderBalticFeedPanel();
 renderSecurityShield();
 renderPythonHistory();

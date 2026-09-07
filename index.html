@@ -28,7 +28,7 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <script src="theme.js?v=theme-1"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="styles.css?v=paste-solve-1" />
+    <link rel="stylesheet" href="styles.css?v=next-gen-suite-1" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -116,6 +116,7 @@
           <a href="#insuranceDesk" data-page-link="insuranceDesk">Marine Insurance Desk</a>
           <a href="#studentCenter" data-page-link="studentCenter">Student Center</a>
           <a href="#businessCenter" data-page-link="businessCenter">Business Center</a>
+          <a href="#nextGen" data-page-link="nextGen">Next Gen Suite</a>
           <a href="#caseRoom" data-page-link="caseRoom">Maritime Case Room</a>
           <a href="#enterprise" data-page-link="enterprise">Enterprise Command</a>
           <a href="#pythonEngine" data-page-link="pythonEngine">Python Engine</a>
@@ -5331,6 +5332,60 @@ Subject: Firm offer
           </div>
         </section>
 
+        <section class="next-gen-suite-panel" id="nextGenSuitePanel" aria-labelledby="nextGenSuiteTitle">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Next Gen Maritime Suite</p>
+              <h2 id="nextGenSuiteTitle">Paste one maritime problem; Focusea turns it into risk, calculation, document and action.</h2>
+              <p>
+                This workspace combines fixture autopilot, deal room, smart laytime, clause risk, insurance quote,
+                client portal, tender comparison, port agent planning, stability readiness and data trust in one flow.
+              </p>
+            </div>
+            <span class="source-pill">workflow engine</span>
+          </div>
+
+          <div class="next-gen-command-grid">
+            <article class="next-gen-primary">
+              <div class="mini-heading"><span>1. Fixture Autopilot</span><strong>mail / WhatsApp / recap parser</strong></div>
+              <form class="broker-form single-column" id="nextGenAutopilotForm">
+                <label>
+                  <span>Fixture, SOF, clause or quote request</span>
+                  <textarea name="dealText" rows="7">50k coal Indonesia to India laycan 10/15 Jul freight USD 18.50 pmt demurrage USD 18,000/day Supramax 2.5 pct commission subjects stem and receiver approval. NOR WIBON/WIPON, time lost waiting berth to count as laytime.</textarea>
+                </label>
+                <div class="form-grid compact-grid">
+                  <label><span>Target TCE / day</span><input name="targetTce" type="number" value="22000" /></label>
+                  <label><span>Bunker price / mt</span><input name="bunkerPrice" type="number" value="686.5" /></label>
+                  <label><span>Expected delay days</span><input name="delayDays" type="number" value="1.5" step="0.5" /></label>
+                  <label><span>Data basis</span><select name="dataBasis"><option value="user">User input</option><option value="api">API-ready</option><option value="licensed">Licensed source required</option></select></label>
+                </div>
+                <div class="button-row">
+                  <button type="submit">Run Autopilot</button>
+                  <button type="button" class="ghost-button small" id="nextGenSaveDeal">Save Deal Room</button>
+                  <button type="button" class="ghost-button small" data-next-gen-download="full">Download Full Pack</button>
+                  <button type="button" class="ghost-button small" data-next-gen-download="client">Client Summary</button>
+                </div>
+              </form>
+              <div class="next-gen-score-card" id="nextGenAutopilotResult"></div>
+            </article>
+
+            <article>
+              <div class="mini-heading"><span>2. Deal Room</span><strong>offer to claim file</strong></div>
+              <div class="next-gen-deal-room" id="nextGenDealRoom"></div>
+            </article>
+          </div>
+
+          <div class="next-gen-grid">
+            <article><div class="mini-heading"><span>Smart Laytime Engine</span><strong>SOF to demurrage / dispatch</strong></div><div class="next-gen-output" id="nextGenLaytimeResult"></div></article>
+            <article><div class="mini-heading"><span>Clause Analyzer</span><strong>risk and counter wording</strong></div><div class="next-gen-output" id="nextGenClauseResult"></div></article>
+            <article><div class="mini-heading"><span>Marine Insurance Quote</span><strong>underwriter-style draft</strong></div><div class="next-gen-output" id="nextGenInsuranceResult"></div></article>
+            <article><div class="mini-heading"><span>Client Portal</span><strong>shareable client view</strong></div><div class="next-gen-output" id="nextGenClientPortalResult"></div></article>
+            <article><div class="mini-heading"><span>Tender / RFQ Desk</span><strong>compare owner offers</strong></div><div class="next-gen-output" id="nextGenTenderResult"></div></article>
+            <article><div class="mini-heading"><span>Port Agent Workspace</span><strong>PDA, docs and line-up</strong></div><div class="next-gen-output" id="nextGenPortAgentResult"></div></article>
+            <article><div class="mini-heading"><span>Loadicator Bridge</span><strong>stability readiness</strong></div><div class="next-gen-output" id="nextGenStabilityResult"></div></article>
+            <article><div class="mini-heading"><span>Data Trust Center</span><strong>live vs simulated</strong></div><div class="next-gen-output" id="nextGenTrustResult"></div></article>
+          </div>
+        </section>
         <footer class="site-footer" aria-label="Focusea legal and privacy information">
           <div class="footer-brand">
             <strong>Focusea</strong>
@@ -5451,7 +5506,7 @@ Subject: Firm offer
 
     <script src="monetization-config.js?v=adsense-readiness-1"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="script.js?v=paste-solve-1"></script>
+    <script src="script.js?v=next-gen-suite-1"></script>
     <script src="monetization.js?v=adsense-readiness-1"></script>
   </body>
 </html>

@@ -9206,3 +9206,204 @@ main :where(.mini-table, .heatmap-table, .sea-traffic-table, .market-index-detai
     width: 100%;
   }
 }
+
+/* Next Gen Suite layer */
+.next-gen-suite-panel {
+  display: grid;
+  gap: 18px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background:
+    radial-gradient(circle at 82% 8%, rgba(84, 255, 232, 0.14), transparent 30%),
+    linear-gradient(135deg, rgba(7, 27, 42, 0.86), rgba(5, 10, 28, 0.92));
+  box-shadow: var(--shadow);
+  padding: clamp(18px, 3vw, 34px);
+}
+
+.next-gen-command-grid,
+.next-gen-grid,
+.next-gen-metrics,
+.next-gen-risk-grid {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+.next-gen-command-grid {
+  grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.75fr);
+}
+
+.next-gen-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.next-gen-suite-panel article,
+.next-gen-score-card,
+.next-gen-output,
+.next-gen-deal-room div,
+.next-gen-metrics div,
+.next-gen-risk-row {
+  min-width: 0;
+  border: 1px solid rgba(84, 255, 232, 0.14);
+  border-radius: 8px;
+  background: rgba(0, 13, 28, 0.42);
+}
+
+.next-gen-suite-panel article {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  padding: 16px;
+}
+
+.next-gen-primary {
+  grid-row: span 2;
+}
+
+.next-gen-score-card {
+  display: grid;
+  grid-template-columns: 190px minmax(0, 1fr);
+  gap: 14px;
+  padding: 14px;
+}
+
+.next-gen-decision-orb {
+  display: grid;
+  place-items: center;
+  min-height: 190px;
+  border: 1px solid rgba(84, 255, 232, 0.24);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle, rgba(84, 255, 232, 0.2), rgba(43, 215, 255, 0.08) 42%, transparent 64%),
+    rgba(4, 18, 34, 0.72);
+  text-align: center;
+}
+
+.next-gen-decision-orb span,
+.next-gen-metrics span,
+.next-gen-risk-row span,
+.next-gen-output span,
+.next-gen-deal-room span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 850;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.next-gen-decision-orb strong {
+  display: block;
+  color: var(--text);
+  font-size: clamp(3rem, 7vw, 5.2rem);
+  line-height: 0.9;
+}
+
+.next-gen-decision-orb em {
+  color: var(--accent);
+  font-style: normal;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.next-gen-metrics {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.next-gen-metrics div,
+.next-gen-output,
+.next-gen-deal-room div {
+  padding: 12px;
+}
+
+.next-gen-metrics strong,
+.next-gen-output strong,
+.next-gen-deal-room strong {
+  display: block;
+  margin-top: 5px;
+  color: var(--text);
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+.next-gen-metrics p,
+.next-gen-output p,
+.next-gen-deal-room p,
+.next-gen-risk-row p {
+  margin: 7px 0 0;
+  color: var(--text-soft);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.next-gen-risk-grid {
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.next-gen-risk-row {
+  padding: 11px;
+}
+
+.next-gen-risk-row strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 1.15rem;
+}
+
+.next-gen-risk-row em {
+  display: block;
+  height: 6px;
+  margin-top: 8px;
+  border-radius: 999px;
+  max-width: 100%;
+}
+
+.next-gen-output {
+  display: grid;
+  gap: 10px;
+}
+
+.next-gen-output div {
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(84, 255, 232, 0.1);
+}
+
+.next-gen-output div:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.next-gen-deal-room {
+  display: grid;
+  gap: 10px;
+}
+
+@media (max-width: 1180px) {
+  .next-gen-command-grid,
+  .next-gen-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .next-gen-score-card,
+  .next-gen-metrics,
+  .next-gen-risk-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .next-gen-decision-orb {
+    min-height: 150px;
+    border-radius: 12px;
+  }
+}
+
+@media (max-width: 720px) {
+  .next-gen-command-grid,
+  .next-gen-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .next-gen-suite-panel {
+    border-radius: 0;
+    margin-inline: -14px;
+  }
+}
