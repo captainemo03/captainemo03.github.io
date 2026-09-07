@@ -4,3 +4,13 @@ __pycache__/
 *.pyc
 backend/data/
 .env
+# Local desktop/download artifacts
+*.jnlp
+OpenWebStart_*.exe
+
+# Generated private report outputs
+teslim/
+
+# Local preview / temporary assets
+sinop_home.html
+logo_siyah_beyaz.png
