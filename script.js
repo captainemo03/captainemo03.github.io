@@ -3598,6 +3598,7 @@ const pageGroups = {
   studentCenter: ["#studentCenterPanel"],
   businessCenter: ["#businessCenterPanel"],
   nextGen: ["#nextGenSuitePanel"],
+  innovationLab: ["#innovationLabPanel"],
   caseRoom: ["#caseRoomPanel"],
   enterprise: ["#enterpriseCommandPanel"],
   pythonEngine: ["#pythonEngineSuite"],
@@ -22680,6 +22681,148 @@ function nextGenRiskRow(label, score, reason) {
 }
 
 
+
+function innovationScoreFromText(text = "") {
+  const lower = String(text).toLowerCase();
+  let score = 58;
+  if (/demurrage|dispatch|laytime|nor|sof/.test(lower)) score += 8;
+  if (/coal|grain|iron ore|lng|crude|chemical|container/.test(lower)) score += 7;
+  if (/laycan|subjects|recap|charter|freight/.test(lower)) score += 7;
+  if (/weather|piracy|sanction|war|claim|damage|delay/.test(lower)) score -= 10;
+  if (/stability|gm|trim|heel|ballast|sf|bm|crane/.test(lower)) score += 6;
+  return clamp(score, 0, 100);
+}
+
+function innovationDecision(score = 0) {
+  if (score >= 78) return "Fix with guards";
+  if (score >= 58) return "Watch / improve terms";
+  return "Avoid until clarified";
+}
+
+function innovationTextValue(text = "", pattern, fallback = "Pending") {
+  const match = String(text).match(pattern);
+  return match?.[1]?.trim() || fallback;
+}
+
+function buildInnovationReport() {
+  const form = document.querySelector("#innovationCommandForm");
+  const command = form ? String(new FormData(form).get("command") || "") : "";
+  const score = innovationScoreFromText(command);
+  const decision = innovationDecision(score);
+  const cargo = innovationTextValue(command, /\b(coal|grain|iron ore|lng|crude|chemical|container|project cargo)\b/i, "Cargo not stated");
+  const quantity = innovationTextValue(command, /(\d{1,3}(?:[,\.]\d+)?\s?(?:k|mt|tons|teu))/i, "Quantity missing");
+  const laycan = innovationTextValue(command, /laycan\s+([^,.;]+)/i, "Laycan missing");
+  const demurrage = innovationTextValue(command, /demurrage\s+(?:usd\s*)?([^,.;]+)/i, "Demurrage missing");
+  const needs = [
+    !/freight|pmt|lumpsum/i.test(command) && "Freight basis",
+    !/load|indonesia|brazil|china|rotterdam|india|singapore|mersin|aliaga/i.test(command) && "Load / discharge ports",
+    !/nor|sof|laytime/i.test(command) && "Laytime / NOR wording",
+    !/class|flag|imo|year|vessel/i.test(command) && "Vessel particulars",
+    !/insurance|war|p\&i|hull|deductible/i.test(command) && "Insurance assumptions",
+    !/gm|trim|heel|ballast|stability/i.test(command) && "Stability/loadicator check"
+  ].filter(Boolean);
+  return { command, score, decision, cargo, quantity, laycan, demurrage, needs };
+}
+
+function innovationList(items = []) {
+  return `<div class="innovation-list">${items.map((item) => `<div><span>${escapeHtml(item[0])}</span><strong>${escapeHtml(item[1])}</strong><p>${escapeHtml(item[2] || "")}</p></div>`).join("")}</div>`;
+}
+
+function renderInnovationLab() {
+  const commandResult = document.querySelector("#innovationCommandResult");
+  if (!commandResult) return;
+  const report = buildInnovationReport();
+  window.focuseaInnovationReport = report;
+  commandResult.innerHTML = `
+    <div class="innovation-decision-orb"><strong>${report.score}</strong><span>${escapeHtml(report.decision)}</span></div>
+    <div class="innovation-command-copy">
+      <strong>${escapeHtml(report.cargo)} / ${escapeHtml(report.quantity)}</strong>
+      <p>Laycan: ${escapeHtml(report.laycan)} · Demurrage: ${escapeHtml(report.demurrage)}</p>
+      <small>${report.needs.length ? `${report.needs.length} missing / weak fields detected.` : "Core fields look usable for a first broker pass."}</small>
+    </div>
+  `;
+
+  const dealHealth = document.querySelector("#innovationDealHealth");
+  if (dealHealth) {
+    dealHealth.innerHTML = innovationList([
+      ["Commercial", report.score >= 70 ? "Healthy" : "Needs freight/TCE sensitivity", "Check bunker, port cost, commission and waiting days before fixing."],
+      ["Legal", /nor|wibon|wipon|clause/i.test(report.command) ? "Clause wording detected" : "Clause missing", "NOR, laytime exceptions and subjects should be explicit."],
+      ["Ops", /port|load|discharge|eta|weather/i.test(report.command) ? "Operational context found" : "Ops data thin", "Add port line-up, weather, docs and agency notes."],
+      ["Claim", /sof|rain|demurrage|dispatch/i.test(report.command) ? "Claim workflow available" : "Claim basis incomplete", "SOF and NOR evidence should feed the claim center."],
+      ["Decision", report.decision, "Use this as decision support, not as legal/insurance advice."]
+    ]);
+  }
+
+  const readiness = document.querySelector("#innovationDataReadiness");
+  if (readiness) {
+    readiness.innerHTML = innovationList([
+      ["News", "Live/RSS-ready", "Cards must keep source link and timestamp visible."],
+      ["Baltic indexes", "Licensed required", "Do not label as real-time without a licensed data feed."],
+      ["Bunker", "Source required", "Use API/source labels for VLSFO/MGO assumptions."],
+      ["AIS traffic", "Provider/API required", "Full global vessel traffic needs licensed AIS provider integration."],
+      ["User data", "Browser local", "Backend account sync is the next production step."]
+    ]);
+  }
+
+  const client = document.querySelector("#innovationClientPack");
+  if (client) {
+    client.innerHTML = innovationList([
+      ["Client status", report.decision, "One-page share view: route, ETA, P&L headline, risk and documents."],
+      ["Share ID", `FC-${decisionPassportTrace(report.command).slice(0, 8)}`, "Use as a mock public report reference until backend links exist."],
+      ["Redactions", "Commercial-safe", "Hide margin, private comments and internal counterparty scores by default."]
+    ]);
+  }
+
+  const templates = document.querySelector("#innovationTemplateLibrary");
+  if (templates) {
+    const nextTemplate = report.needs.includes("Laytime / NOR wording") ? "CP clause checklist" : report.score < 65 ? "Counter offer mail" : "Fixture recap";
+    templates.innerHTML = innovationList([
+      ["Recommended", nextTemplate, "Focusea should generate the next document based on weak fields."],
+      ["Available", "Firm offer / Counter / Recap / Claim / Quote", "Keep all templates downloadable and client-safe."],
+      ["Audit trail", "Save version", "Each exported text should record date, source basis and user input."]
+    ]);
+  }
+
+  const glossary = document.querySelector("#innovationGlossaryPro");
+  if (glossary) {
+    glossary.innerHTML = innovationList([
+      ["Demurrage", "Open calculator", "Show definition, example clause, calculation and claim evidence."],
+      ["NOR", "Clause risk", "Explain valid NOR, WIBON/WIPON, free pratique and time counting."],
+      ["GM / GZ", "Open Stability Lab", "Explain KG, KM, corrected GM, righting lever and pass/fail checks."],
+      ["FDD", "Insurance Desk", "Freight, demurrage and defence cover for chartering disputes."]
+    ]);
+  }
+
+  const stability = document.querySelector("#innovationStabilityChecks");
+  if (stability) {
+    stability.innerHTML = innovationList([
+      ["Hydrostatics", "Add TPC, MCTC, KB, BM", "Use these to make draft/trim changes feel engineering-grade."],
+      ["Free surface", "Slack tank correction", "Half-filled ballast/cargo tanks should reduce corrected GM."],
+      ["Longitudinal strength", "SF/BM envelope", "Show shear force and bending moment versus allowable limits."],
+      ["Crane plan", "Gear / shore crane suitability", "Match cargo weight, outreach, hatch location and port equipment."],
+      ["Sequence", "Step-by-step loading", "Each loading step should update GM, trim, heel and stress."],
+      ["Grain / bulk", "Shifting and angle of repose", "Bulk cargo needs stowage factor, trimming and moisture/TML flags."]
+    ]);
+  }
+}
+
+function innovationReportText() {
+  const report = window.focuseaInnovationReport || buildInnovationReport();
+  return [
+    "FOCUSEA INNOVATION LAB REPORT",
+    `Generated: ${new Date().toLocaleString()}`,
+    `Command: ${report.command}`,
+    `Score: ${report.score}/100`,
+    `Decision: ${report.decision}`,
+    `Cargo: ${report.cargo}`,
+    `Quantity: ${report.quantity}`,
+    `Laycan: ${report.laycan}`,
+    `Demurrage: ${report.demurrage}`,
+    "Missing / weak fields:",
+    ...(report.needs.length ? report.needs.map((item) => `- ${item}`) : ["- None for first-pass demo"]),
+    "Next modules: Next Gen Suite, Load-Stability Lab, Insurance Desk, Deal Surgeon, Glossary Pro."
+  ].join("\n");
+}
 const nextGenScenarioSamples = {
   coal: {
     dealText: "50k coal Indonesia to India laycan 10/15 Jul freight USD 18.50 pmt demurrage USD 18,000/day Supramax 2.5 pct commission subjects stem and receiver approval. NOR WIBON/WIPON, time lost waiting berth to count as laytime. Coal moisture documents and berth congestion to be checked.",
@@ -22935,6 +23078,18 @@ function renderNextGenDealRoom() {
   `).join("");
 }
 
+const innovationCommandForm = document.querySelector("#innovationCommandForm");
+if (innovationCommandForm) {
+  innovationCommandForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    renderInnovationLab();
+  });
+  innovationCommandForm.addEventListener("input", renderInnovationLab);
+}
+const downloadInnovationReport = document.querySelector("#downloadInnovationReport");
+if (downloadInnovationReport) {
+  downloadInnovationReport.addEventListener("click", () => downloadTextFile("focusea-innovation-lab-report.txt", innovationReportText()));
+}
 const nextGenAutopilotForm = document.querySelector("#nextGenAutopilotForm");
 if (nextGenAutopilotForm) {
   nextGenAutopilotForm.addEventListener("submit", (event) => {

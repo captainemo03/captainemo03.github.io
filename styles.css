@@ -1,4 +1,4 @@
-﻿:root {
+:root {
   color-scheme: dark;
   --bg: #03101d;
   --panel: #071b2a;
@@ -9442,5 +9442,134 @@ main :where(.mini-table, .heatmap-table, .sea-traffic-table, .market-index-detai
 @media (max-width: 520px) {
   .next-gen-scenario-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.innovation-lab-panel {
+  display: grid;
+  gap: 22px;
+}
+
+.innovation-command-card,
+.innovation-grid > article {
+  border: 1px solid rgba(91, 255, 220, 0.22);
+  background: linear-gradient(145deg, rgba(9, 25, 42, 0.96), rgba(19, 20, 62, 0.9));
+  border-radius: 18px;
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.22);
+}
+
+.innovation-command-card {
+  padding: 20px;
+  display: grid;
+  gap: 18px;
+}
+
+.innovation-command-result {
+  display: grid;
+  grid-template-columns: 148px minmax(0, 1fr);
+  gap: 18px;
+  align-items: center;
+}
+
+.innovation-decision-orb {
+  width: 148px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 16px;
+  color: #ecfeff;
+  background:
+    radial-gradient(circle at center, rgba(91, 255, 220, 0.18) 0 30%, transparent 31%),
+    conic-gradient(from 120deg, rgba(91, 255, 220, 0.95), rgba(108, 92, 255, 0.9), rgba(91, 255, 220, 0.95));
+  box-shadow: inset 0 0 0 12px rgba(5, 16, 30, 0.9), 0 0 38px rgba(91, 255, 220, 0.18);
+}
+
+.innovation-decision-orb strong {
+  display: block;
+  font-size: clamp(2.2rem, 5vw, 4.4rem);
+  line-height: 0.9;
+}
+
+.innovation-decision-orb span,
+.innovation-command-copy small,
+.innovation-list span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.innovation-command-copy {
+  min-width: 0;
+}
+
+.innovation-command-copy strong {
+  display: block;
+  color: #f8fbff;
+  font-size: clamp(1.35rem, 2.2vw, 2.2rem);
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+}
+
+.innovation-command-copy p {
+  color: var(--text-soft);
+  overflow-wrap: anywhere;
+}
+
+.innovation-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 310px), 1fr));
+  gap: 18px;
+}
+
+.innovation-grid > article {
+  padding: 18px;
+  min-width: 0;
+}
+
+.innovation-list {
+  display: grid;
+  gap: 10px;
+}
+
+.innovation-list div {
+  min-width: 0;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.innovation-list strong {
+  display: block;
+  margin-top: 4px;
+  color: #f8fbff;
+  overflow-wrap: anywhere;
+}
+
+.innovation-list p {
+  margin: 6px 0 0;
+  color: var(--text-soft);
+  overflow-wrap: anywhere;
+}
+
+.innovation-action-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+@media (max-width: 720px) {
+  .innovation-command-result {
+    grid-template-columns: 1fr;
+  }
+
+  .innovation-decision-orb {
+    width: min(148px, 55vw);
+    margin-inline: auto;
   }
 }
