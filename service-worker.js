@@ -1,4 +1,4 @@
-const FOCUSEA_CACHE = "focusea-site-health-cache-1";
+const FOCUSEA_CACHE = "focusea-stability-realism-cache-1";
 const FOCUSEA_ASSETS = [
   "./",
   "./index.html",
@@ -31,6 +31,7 @@ const FOCUSEA_ASSETS = [
   "./favicon-concept-b.png",
   "./stability-loadicator-basic.js",
   "./stability-3d.js",
+  "./stability-realism.js",
   "./assets/brand/focusea-concept-b-mark.png",
   "./assets/hero/focusea-command-hero.png"
 ];

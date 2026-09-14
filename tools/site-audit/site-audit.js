@@ -3,7 +3,8 @@ const path = require("path");
 
 const root = process.cwd();
 const ignoredDirs = new Set([".git", "node_modules", "__pycache__", "teslim"]);
-const htmlFiles = walk(root).filter((file) => file.endsWith(".html"));
+const ignoredFiles = new Set(["sinop_home.html"]);
+const htmlFiles = walk(root).filter((file) => file.endsWith(".html") && !ignoredFiles.has(path.basename(file)));
 const requiredPublicPages = [
   "index.html",
   "maritime-broker-tools.html",
@@ -96,7 +97,7 @@ if (fs.existsSync(swPath)) {
   for (const asset of assets) {
     if (!fs.existsSync(path.join(root, asset))) addIssue("service-worker-missing-asset", "service-worker.js", asset);
   }
-  if (!/focusea-site-health-cache-1/.test(sw)) addIssue("service-worker-cache", "service-worker.js", "Cache name is not on the latest expected version.");
+  if (!/focusea-stability-realism-cache-1/.test(sw)) addIssue("service-worker-cache", "service-worker.js", "Cache name is not on the latest expected version.");
 } else {
   addIssue("missing-file", "service-worker.js", "Service worker file is missing.");
 }

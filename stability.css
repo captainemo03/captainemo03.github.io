@@ -4712,3 +4712,358 @@ video {
     white-space: normal;
   }
 }
+.realism-lab {
+  display: grid;
+  gap: 22px;
+  margin-top: 24px;
+  padding: clamp(16px, 2vw, 24px);
+  border: 1px solid rgba(91, 255, 220, 0.22);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(91, 255, 220, 0.12), transparent 35%),
+    linear-gradient(145deg, rgba(5, 16, 31, 0.96), rgba(22, 21, 62, 0.92));
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.26);
+}
+
+.realism-header,
+.realism-layout,
+.realism-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.realism-header {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+}
+
+.realism-header h2 {
+  margin: 0 0 8px;
+  font-size: clamp(1.55rem, 3vw, 2.6rem);
+}
+
+.realism-header p {
+  margin: 0;
+  color: var(--text-soft, #c6d8eb);
+}
+
+.realism-layout {
+  grid-template-columns: minmax(260px, 0.32fr) minmax(0, 1fr);
+  align-items: stretch;
+}
+
+.realism-controls,
+.realism-grid > article,
+.realism-ship-card {
+  min-width: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.realism-controls {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  align-content: start;
+}
+
+.realism-controls label,
+.realism-tank {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+}
+
+.realism-controls span,
+.realism-tank span,
+.realism-metrics span,
+.realism-row span,
+.realism-structure-row span {
+  color: var(--muted, #a7c4d2);
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.realism-controls input,
+.realism-controls select {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid rgba(91, 255, 220, 0.18);
+  border-radius: 12px;
+  color: var(--text, #f4f5ff);
+  background: rgba(2, 9, 19, 0.72);
+  padding: 0 12px;
+  font: inherit;
+  font-weight: 800;
+}
+
+.realism-ship-card {
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+}
+
+.realism-ship {
+  position: relative;
+  min-height: clamp(260px, 42vw, 430px);
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid rgba(91, 255, 220, 0.18);
+  background:
+    linear-gradient(rgba(91, 255, 220, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(91, 255, 220, 0.04) 1px, transparent 1px),
+    radial-gradient(circle at 55% 25%, rgba(46, 202, 255, 0.16), transparent 36%),
+    linear-gradient(180deg, #030716 0 52%, #062b42 52% 100%);
+  background-size: 64px 64px, 64px 64px, auto, auto;
+}
+
+.realism-water {
+  position: absolute;
+  inset: 52% 0 0;
+  background:
+    repeating-linear-gradient(170deg, rgba(91, 255, 220, 0.15) 0 2px, transparent 2px 32px),
+    linear-gradient(180deg, rgba(7, 87, 122, 0.58), rgba(3, 28, 57, 0.9));
+  animation: realismWave 8s linear infinite;
+}
+
+@keyframes realismWave {
+  from { background-position: 0 0, 0 0; }
+  to { background-position: 180px 0, 0 0; }
+}
+
+.realism-hull {
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  bottom: 31%;
+  height: 34%;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  padding: 34px 9% 20px 8%;
+  transform-origin: 50% 75%;
+  border-radius: 18px 34px 72px 18px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0 15%, rgba(79, 112, 222, 0.96) 16% 68%, rgba(155, 33, 102, 0.95) 69% 100%);
+  clip-path: polygon(0 10%, 82% 10%, 100% 45%, 93% 62%, 78% 78%, 5% 84%, 0 72%);
+  box-shadow: 0 24px 42px rgba(0, 0, 0, 0.34);
+  transition: transform 0.25s ease;
+}
+
+.realism-hull::before {
+  content: "";
+  position: absolute;
+  left: 3%;
+  top: -18%;
+  width: 14%;
+  height: 34%;
+  border-radius: 10px 10px 2px 2px;
+  background: linear-gradient(180deg, #eef6ff, #82f7e8 54%, #1cb5b4);
+  box-shadow: 18px 5px 0 rgba(238, 246, 255, 0.9), 36px 10px 0 rgba(238, 246, 255, 0.82);
+}
+
+.realism-hull button {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  align-content: end;
+  min-width: 0;
+  min-height: 84px;
+  overflow: hidden;
+  border: 1px solid rgba(91, 255, 220, 0.35);
+  border-radius: 8px;
+  color: #f8fbff;
+  background: linear-gradient(180deg, rgba(4, 37, 66, 0.9), rgba(3, 15, 35, 0.95));
+  cursor: pointer;
+}
+
+.realism-hull button::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--fill, 0%);
+  background: linear-gradient(180deg, rgba(91, 255, 220, 0.95), rgba(38, 110, 255, 0.8));
+  transition: height 0.25s ease;
+}
+
+.realism-hull button.active {
+  outline: 3px solid rgba(91, 255, 220, 0.7);
+}
+
+.realism-hull button span,
+.realism-hull button strong {
+  position: relative;
+  z-index: 1;
+  display: block;
+  padding: 0 6px 4px;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.realism-draft-line {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 18px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  color: #e8fbff;
+  background: rgba(2, 8, 20, 0.72);
+  font-weight: 900;
+  text-align: center;
+}
+
+.realism-metrics,
+.realism-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
+  gap: 12px;
+}
+
+.realism-metrics div,
+.realism-row,
+.realism-structure-row,
+.realism-warning,
+.realism-tank {
+  min-width: 0;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(2, 8, 20, 0.42);
+}
+
+.realism-metrics strong,
+.realism-row strong,
+.realism-structure-row strong,
+.realism-warning strong,
+.realism-tank strong {
+  display: block;
+  margin-top: 5px;
+  color: #f8fbff;
+  overflow-wrap: anywhere;
+}
+
+.realism-grid > article {
+  padding: 16px;
+}
+
+.realism-row,
+.realism-structure-row {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.realism-row em,
+.realism-structure-row em {
+  display: block;
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.realism-row em::before {
+  content: "";
+  display: block;
+  width: min(var(--bar, 0%), 100%);
+  height: 100%;
+  background: linear-gradient(90deg, #5bffdc, #ffcb72, #ff6b9c);
+}
+
+.realism-structure-row em {
+  height: 24px;
+  background:
+    linear-gradient(90deg, rgba(91, 255, 220, 0.85) 0 var(--sf, 10%), transparent var(--sf, 10%) 100%),
+    linear-gradient(90deg, rgba(255, 107, 156, 0.65) 0 var(--bm, 10%), transparent var(--bm, 10%) 100%),
+    rgba(255, 255, 255, 0.1);
+  background-size: 100% 10px, 100% 10px, auto;
+  background-position: 0 0, 0 14px, 0 0;
+  background-repeat: no-repeat;
+}
+
+.realism-tank input {
+  width: 100%;
+  accent-color: #5bffdc;
+}
+
+.realism-warning {
+  color: var(--text-soft, #c6d8eb);
+  line-height: 1.55;
+  margin-bottom: 10px;
+}
+
+@media (max-width: 980px) {
+  .realism-header,
+  .realism-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .realism-header .ghost-button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 620px) {
+  .realism-lab {
+    margin-inline: -4px;
+    padding: 12px;
+  }
+
+  .realism-hull {
+    left: 3%;
+    right: 3%;
+    grid-template-columns: repeat(5, minmax(42px, 1fr));
+    gap: 4px;
+    padding-inline: 5% 8%;
+  }
+
+  .realism-hull button {
+    min-height: 68px;
+    font-size: 0.74rem;
+  }
+}
+.realism-manifest-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  min-width: 0;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(2, 8, 20, 0.42);
+}
+
+.realism-manifest-row div {
+  min-width: 0;
+}
+
+.realism-manifest-row span {
+  display: block;
+  color: var(--muted, #a7c4d2);
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.realism-manifest-row strong {
+  display: block;
+  margin-top: 5px;
+  color: #f8fbff;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 560px) {
+  .realism-manifest-row {
+    grid-template-columns: 1fr;
+  }
+}
