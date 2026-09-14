@@ -1,4 +1,4 @@
-const FOCUSEA_CACHE = "focusea-paste-solve-cache-1";
+const FOCUSEA_CACHE = "focusea-site-health-cache-1";
 const FOCUSEA_ASSETS = [
   "./",
   "./index.html",
@@ -21,6 +21,7 @@ const FOCUSEA_ASSETS = [
   "./advertising-policy.html",
   "./about.html",
   "./contact.html",
+  "./site-health.html",
   "./stability.css",
   "./insurance.css",
   "./deal-surgeon.css",
