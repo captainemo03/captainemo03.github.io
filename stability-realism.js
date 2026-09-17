@@ -68,6 +68,16 @@
     liquid: { label: "Liquid parcel", kg: 7.2, sf: 1.1, density: 0.91, crane: "Terminal loading arms / hose manifold", risk: "Free surface if slack tank; coating and segregation checks." }
   };
 
+  const craneTypes = {
+    auto: { label: "Auto select", swl: 0, outreach: 0, rate: 0 },
+    shipCrane: { label: "Ship crane", swl: 36, outreach: 28, rate: 420 },
+    mobileHarbour: { label: "Mobile harbour crane", swl: 125, outreach: 48, rate: 900 },
+    sts: { label: "STS gantry crane", swl: 65, outreach: 66, rate: 1250 },
+    shiploader: { label: "Bulk shiploader", swl: 45, outreach: 55, rate: 1800 },
+    heavyLift: { label: "Floating heavy-lift crane", swl: 800, outreach: 70, rate: 180 },
+    terminalArm: { label: "Terminal loading arm", swl: 999, outreach: 38, rate: 1100 }
+  };
+
   const ballastTanks = [
     { id: "FP", label: "Fore peak", lcg: 12, tcg: 0, kg: 2.4, max: 900 },
     { id: "DBP", label: "Double bottom port", lcg: 82, tcg: -7.5, kg: 1.8, max: 1200 },
@@ -83,6 +93,10 @@
     selectedHold: "H3",
     side: "center",
     nextWeight: 750,
+    craneType: "auto",
+    liftWeight: 28,
+    craneOutreach: 24,
+    sequenceStep: 0,
     cargoes: [
       { id: "C1", cargoType: "coal", holdId: "H3", weight: 1800, side: "center" },
       { id: "C2", cargoType: "coal", holdId: "H2", weight: 1200, side: "port" },
@@ -97,9 +111,15 @@
 
   function loadState() {
     try {
-      return { ...defaultState, ...(JSON.parse(localStorage.getItem(STATE_KEY)) || {}) };
+      const stored = JSON.parse(localStorage.getItem(STATE_KEY)) || {};
+      return {
+        ...defaultState,
+        ...stored,
+        ballast: { ...defaultState.ballast, ...(stored.ballast || {}) },
+        cargoes: (Array.isArray(stored.cargoes) ? stored.cargoes : defaultState.cargoes).map((item) => ({ ...item }))
+      };
     } catch {
-      return { ...defaultState };
+      return { ...defaultState, ballast: { ...defaultState.ballast }, cargoes: defaultState.cargoes.map((item) => ({ ...item })) };
     }
   }
 
@@ -206,6 +226,77 @@
     return { vessel, weight, kg, correctedGm, trim, heel, draftMean, draftForward, draftAft, freeSurface, holdLoads, sfbm, warnings, gzMax, angleMaxGz, downflooding, gzArea, imoPass };
   }
 
+  function recommendedCraneKey(cargoType) {
+    if (cargoType === "container20" || cargoType === "container40") return "sts";
+    if (cargoType === "coal" || cargoType === "grain" || cargoType === "ironOre") return "shiploader";
+    if (cargoType === "project") return "heavyLift";
+    if (cargoType === "liquid") return "terminalArm";
+    return "mobileHarbour";
+  }
+
+  function craneAssessment(state) {
+    const recommendedKey = recommendedCraneKey(state.cargoType);
+    const selectedKey = state.craneType === "auto" ? recommendedKey : state.craneType;
+    const crane = craneTypes[selectedKey] || craneTypes.mobileHarbour;
+    const liftWeight = Math.max(0.1, Number(state.liftWeight) || 0.1);
+    const outreach = Math.max(0, Number(state.craneOutreach) || 0);
+    const liquidMode = state.cargoType === "liquid";
+    const overload = !liquidMode && liftWeight > crane.swl;
+    const reachFail = outreach > crane.outreach;
+    const wrongMethod = state.craneType !== "auto" && selectedKey !== recommendedKey;
+    const status = overload || reachFail ? "danger" : wrongMethod ? "watch" : "safe";
+    const cycles = liquidMode ? 1 : Math.max(1, Math.ceil((Number(state.nextWeight) || 0) / liftWeight));
+    const hours = crane.rate > 0 ? (Number(state.nextWeight) || 0) / crane.rate : 0;
+    return {
+      selectedKey, recommendedKey, crane, liftWeight, outreach, cycles, hours, status,
+      notes: [
+        overload ? `Lift weight exceeds SWL by ${(liftWeight - crane.swl).toFixed(1)} mt.` : `SWL margin ${liquidMode ? "not applicable to pumped cargo" : `${Math.max(0, crane.swl - liftWeight).toFixed(1)} mt`}.`,
+        reachFail ? `Required outreach exceeds crane limit by ${(outreach - crane.outreach).toFixed(1)} m.` : `Outreach margin ${Math.max(0, crane.outreach - outreach).toFixed(1)} m.`,
+        wrongMethod ? `${craneTypes[recommendedKey].label} is the preferred handling method for this cargo.` : "Handling method matches the cargo profile."
+      ]
+    };
+  }
+
+  function sequenceModel(state) {
+    const vessel = activeVessel(state);
+    const ordered = [...state.cargoes].sort((left, right) => {
+      const leftHold = holdById(vessel, left.holdId);
+      const rightHold = holdById(vessel, right.holdId);
+      return Math.abs(leftHold.lcg - vessel.lcb) - Math.abs(rightHold.lcg - vessel.lcb);
+    });
+    return ordered.map((cargo, index) => {
+      const partialState = { ...state, cargoes: ordered.slice(0, index + 1) };
+      return { cargo, result: evaluate(partialState), index };
+    });
+  }
+
+  function gzCurveSvg(result) {
+    const maxAngle = 60;
+    const chartWidth = 330;
+    const chartHeight = 112;
+    const baseline = 126;
+    const maxGz = Math.max(0.35, result.gzMax * 1.2);
+    const points = [];
+    for (let angle = 0; angle <= maxAngle; angle += 5) {
+      const radians = angle * Math.PI / 180;
+      const decay = clamp(1 - Math.max(0, angle - result.angleMaxGz) / Math.max(12, result.downflooding), 0, 1);
+      const gz = angle > result.downflooding ? 0 : Math.max(0, result.correctedGm * Math.sin(radians) * decay);
+      const x = 18 + (angle / maxAngle) * chartWidth;
+      const y = baseline - (gz / maxGz) * chartHeight;
+      points.push(`${x.toFixed(1)},${clamp(y, 8, baseline).toFixed(1)}`);
+    }
+    const downfloodX = 18 + (clamp(result.downflooding, 0, maxAngle) / maxAngle) * chartWidth;
+    return `
+      <svg class="realism-gz-chart" viewBox="0 0 370 165" role="img" aria-label="Approximate righting lever curve">
+        <line x1="18" y1="${baseline}" x2="354" y2="${baseline}" class="realism-chart-axis" />
+        <line x1="18" y1="8" x2="18" y2="${baseline}" class="realism-chart-axis" />
+        <line x1="${downfloodX.toFixed(1)}" y1="8" x2="${downfloodX.toFixed(1)}" y2="${baseline}" class="realism-chart-limit" />
+        <polyline points="${points.join(" ")}" class="realism-chart-line" />
+        <text x="20" y="157">0 deg</text><text x="315" y="157">60 deg</text>
+        <text x="${clamp(downfloodX - 35, 24, 290).toFixed(1)}" y="20">Downflooding</text>
+      </svg>
+    `;
+  }
   function optionList(items, selected, labelKey = "label") {
     return items.map((item) => `<option value="${item.id || item[0]}" ${(item.id || item[0]) === selected ? "selected" : ""}>${item[labelKey] || item[1]}</option>`).join("");
   }
@@ -229,6 +320,9 @@
             <label><span>Hold / tank</span><select name="selectedHold"></select></label>
             <label><span>Port / starboard</span><select name="side"><option value="center">Center</option><option value="port">Port</option><option value="starboard">Starboard</option></select></label>
             <label><span>Parcel weight mt</span><input name="nextWeight" type="number" min="50" step="50" /></label>
+            <label><span>Handling equipment</span><select name="craneType"></select></label>
+            <label><span>Lift / grab weight mt</span><input name="liftWeight" type="number" min="0.1" step="0.5" /></label>
+            <label><span>Required outreach m</span><input name="craneOutreach" type="number" min="0" step="1" /></label>
             <div class="button-row">
               <button type="button" data-realism-add>Add cargo</button>
               <button type="button" class="ghost-button small" data-realism-balance>Auto balance</button>
@@ -278,11 +372,15 @@
     const vesselSelect = form.elements.vesselType;
     const cargoSelect = form.elements.cargoType;
     const holdSelect = form.elements.selectedHold;
+    const craneSelect = form.elements.craneType;
     vesselSelect.innerHTML = Object.entries(vesselTypes).map(([key, value]) => `<option value="${key}" ${key === state.vesselType ? "selected" : ""}>${value.name}</option>`).join("");
     cargoSelect.innerHTML = Object.entries(cargoTypes).map(([key, value]) => `<option value="${key}" ${key === state.cargoType ? "selected" : ""}>${value.label}</option>`).join("");
     holdSelect.innerHTML = optionList(vessel.holds, state.selectedHold);
+    craneSelect.innerHTML = Object.entries(craneTypes).map(([key, value]) => `<option value="${key}" ${key === state.craneType ? "selected" : ""}>${value.label}</option>`).join("");
     form.elements.side.value = state.side;
     form.elements.nextWeight.value = state.nextWeight;
+    form.elements.liftWeight.value = state.liftWeight;
+    form.elements.craneOutreach.value = state.craneOutreach;
 
     root.querySelector("[data-realism-ship]").innerHTML = `
       <div class="realism-water"></div>
@@ -315,23 +413,71 @@
       return `<label class="realism-tank"><span>${tank.label}</span><input data-realism-tank="${tank.id}" type="range" min="0" max="${tank.max}" value="${amount}" /><strong>${Math.round(amount)} / ${tank.max} mt</strong></label>`;
     }).join("");
 
-    root.querySelector("[data-realism-structure]").innerHTML = result.sfbm.map((item) => `<div class="realism-structure-row"><span>${item.station}</span><em style="--sf:${clamp(Math.abs(item.shear) * 3, 4, 100)}%;--bm:${clamp(Math.abs(item.bending) * 0.9, 4, 100)}%"></em><strong>SF ${item.shear} · BM ${item.bending}</strong></div>`).join("");
+    const selectedCargo = cargoProfile(state.cargoType);
+    const craneCheck = craneAssessment(state);
+    const sequence = sequenceModel(state);
+    const sequenceIndex = sequence.length ? clamp(Number(state.sequenceStep) || 0, 0, sequence.length - 1) : 0;
+    const activeSequence = sequence[sequenceIndex];
+
+    root.querySelector("[data-realism-manifest]").innerHTML = state.cargoes.length ? state.cargoes.map((cargo) => `
+      <div class="realism-manifest-row">
+        <div><span>${cargoProfile(cargo.cargoType).label} - ${cargo.holdId}</span><strong>${cargo.side}</strong></div>
+        <label><span>Weight mt</span><input data-realism-cargo-weight="${cargo.id}" type="number" min="0" step="50" value="${Number(cargo.weight) || 0}" /></label>
+        <label><span>Side</span><select data-realism-cargo-side="${cargo.id}"><option value="center" ${cargo.side === "center" ? "selected" : ""}>Center</option><option value="port" ${cargo.side === "port" ? "selected" : ""}>Port</option><option value="starboard" ${cargo.side === "starboard" ? "selected" : ""}>Starboard</option></select></label>
+        <button type="button" class="ghost-button small" data-realism-remove="${cargo.id}">Remove</button>
+      </div>
+    `).join("") : `<div class="realism-warning">No cargo parcels yet. Add one from the loading controls.</div>`;
+
+    root.querySelector("[data-realism-structure]").innerHTML = result.sfbm.map((item) => `<div class="realism-structure-row"><span>${item.station}</span><em style="--sf:${clamp(Math.abs(item.shear) * 3, 4, 100)}%;--bm:${clamp(Math.abs(item.bending) * 0.9, 4, 100)}%"></em><strong>SF ${item.shear} - BM ${item.bending}</strong></div>`).join("");
     root.querySelector("[data-realism-warnings]").innerHTML = result.warnings.map((warning) => `<div class="realism-warning">${warning}</div>`).join("");
 
-    const selectedCargo = cargoProfile(state.cargoType);
-    root.querySelector("[data-realism-sequence]").innerHTML = [
-      `1. Load midship parcel first where possible to control bending moment.`,
-      `2. Use ${selectedCargo.crane}; confirm SWL, outreach and hatch access.`,
-      `3. Alternate port/starboard passes; keep TCG close to centerline.`,
-      `4. Recheck draft, trim, heel and corrected GM after every major parcel.`,
-      `5. Use ballast correction only after checking free-surface penalty.`
-    ].map((step) => `<div class="realism-warning">${step}</div>`).join("");
+    root.querySelector("[data-realism-sequence]").innerHTML = sequence.length ? `
+      <div class="realism-sequence-controls">
+        <button type="button" class="ghost-button small" data-realism-sequence-prev ${sequenceIndex === 0 ? "disabled" : ""}>Previous</button>
+        <strong>Step ${sequenceIndex + 1} / ${sequence.length}</strong>
+        <button type="button" class="ghost-button small" data-realism-sequence-next ${sequenceIndex === sequence.length - 1 ? "disabled" : ""}>Next</button>
+      </div>
+      <div class="realism-sequence-card">
+        <span>${cargoProfile(activeSequence.cargo.cargoType).label} to ${activeSequence.cargo.holdId}</span>
+        <strong>${Number(activeSequence.cargo.weight).toLocaleString()} mt - ${activeSequence.cargo.side}</strong>
+        <div class="realism-sequence-metrics">
+          <small>GM ${activeSequence.result.correctedGm.toFixed(2)} m</small>
+          <small>Trim ${activeSequence.result.trim.toFixed(2)} m</small>
+          <small>Heel ${activeSequence.result.heel.toFixed(2)} deg</small>
+          <small>Draft ${activeSequence.result.draftMean.toFixed(2)} m</small>
+        </div>
+      </div>
+    ` : `<div class="realism-warning">Add cargo to generate a step-by-step loading sequence.</div>`;
 
     root.querySelector("[data-realism-cargo]").innerHTML = `
       <div class="realism-warning"><strong>${selectedCargo.label}</strong><br>${selectedCargo.risk}</div>
-      <div class="realism-warning">Stowage factor: ${selectedCargo.sf.toFixed(2)} m3/mt · Model KG: ${selectedCargo.kg.toFixed(2)} m · Density: ${selectedCargo.density.toFixed(2)} mt/m3</div>
+      <div class="realism-warning">Stowage factor: ${selectedCargo.sf.toFixed(2)} m3/mt - Model KG: ${selectedCargo.kg.toFixed(2)} m - Density: ${selectedCargo.density.toFixed(2)} mt/m3</div>
+      <div class="realism-crane-check ${craneCheck.status}">
+        <span>${craneCheck.crane.label}</span><strong>${craneCheck.status.toUpperCase()}</strong>
+        <small>${craneCheck.cycles} cycles - ${craneCheck.hours.toFixed(1)} estimated hours - ${craneCheck.crane.rate} mt/h nominal rate</small>
+        ${craneCheck.notes.map((note) => `<em>${note}</em>`).join("")}
+      </div>
     `;
 
+    root.querySelector("[data-realism-criteria]").innerHTML = `
+      ${gzCurveSvg(result)}
+      <div class="realism-criteria-grid">
+        <div><span>Max GZ</span><strong>${result.gzMax.toFixed(2)} m</strong></div>
+        <div><span>Angle at max GZ</span><strong>${result.angleMaxGz.toFixed(1)} deg</strong></div>
+        <div><span>GZ area model</span><strong>${result.gzArea.toFixed(3)} m.rad</strong></div>
+        <div><span>Downflooding</span><strong>${result.downflooding.toFixed(1)} deg</strong></div>
+      </div>
+      <div class="realism-verdict ${result.imoPass ? "safe" : "danger"}">${result.imoPass ? "DEMO CRITERIA PASS" : "DEMO CRITERIA FAIL"}</div>
+    `;
+
+    root.querySelector("[data-realism-hydro]").innerHTML = [
+      ["TPC", `${result.vessel.tpc.toFixed(1)} mt/cm`],
+      ["MCTC", `${result.vessel.mctc.toFixed(0)} mt-m/cm`],
+      ["LCB", `${result.vessel.lcb.toFixed(1)} m`],
+      ["Mean draft", `${result.draftMean.toFixed(2)} m`],
+      ["Draft difference", `${Math.abs(result.draftAft - result.draftForward).toFixed(2)} m`],
+      ["Free surface", `${result.freeSurface.toFixed(2)} m`]
+    ].map(([label, value]) => `<div class="realism-hydro-row"><span>${label}</span><strong>${value}</strong></div>`).join("");
     root.querySelectorAll("[data-realism-hold]").forEach((button) => {
       button.addEventListener("click", () => {
         const next = loadState();
@@ -354,36 +500,80 @@
       `Draft F/A: ${result.draftForward.toFixed(2)} / ${result.draftAft.toFixed(2)} m`,
       `Trim: ${result.trim.toFixed(2)} m`,
       `Heel: ${result.heel.toFixed(2)} deg`,
+      `GZ max / area: ${result.gzMax.toFixed(2)} m / ${result.gzArea.toFixed(3)} m.rad`,
+      `Downflooding angle: ${result.downflooding.toFixed(1)} deg`,
+      `Demo criteria: ${result.imoPass ? "PASS" : "FAIL"}`,
+      `Handling equipment: ${craneAssessment(state).crane.label}`,
       "Warnings:",
       ...result.warnings.map((warning) => `- ${warning}`),
       "Cargo list:",
       ...state.cargoes.map((cargo) => `- ${cargoProfile(cargo.cargoType).label}: ${cargo.weight} mt in ${cargo.holdId} (${cargo.side})`),
       "Disclaimer: educational decision-support only; use approved vessel data for real loading."
-    ].join("\\n");
+    ].join("\n");
   }
 
   function bind() {
     const root = document.querySelector("#realisticStabilityLab");
     if (!root) return;
     root.addEventListener("input", (event) => {
+      if (!event.target.matches("[data-realism-tank]")) return;
+      const state = loadState();
+      state.ballast[event.target.dataset.realismTank] = Number(event.target.value) || 0;
+      saveState(state);
+      if (event.target.nextElementSibling) event.target.nextElementSibling.textContent = event.target.value + " / " + event.target.max + " mt";
+    });
+
+    root.addEventListener("change", (event) => {
       const state = loadState();
       const form = root.querySelector("[data-realism-form]");
       if (event.target.matches("[data-realism-tank]")) {
         state.ballast[event.target.dataset.realismTank] = Number(event.target.value) || 0;
+      } else if (event.target.matches("[data-realism-cargo-weight]")) {
+        const cargo = state.cargoes.find((item) => item.id === event.target.dataset.realismCargoWeight);
+        if (cargo) cargo.weight = Math.max(0, Number(event.target.value) || 0);
+      } else if (event.target.matches("[data-realism-cargo-side]")) {
+        const cargo = state.cargoes.find((item) => item.id === event.target.dataset.realismCargoSide);
+        if (cargo) cargo.side = event.target.value;
       } else if (form && event.target.closest("[data-realism-form]")) {
         const values = new FormData(form);
-        state.vesselType = String(values.get("vesselType") || state.vesselType);
+        const previousVessel = activeVessel(state);
+        const nextVesselType = String(values.get("vesselType") || state.vesselType);
+        if (nextVesselType !== state.vesselType) {
+          const nextVesselProfile = vesselTypes[nextVesselType] || vesselTypes.bulk;
+          state.cargoes = state.cargoes.map((cargo) => {
+            const oldIndex = Math.max(0, previousVessel.holds.findIndex((hold) => hold.id === cargo.holdId));
+            const mappedHold = nextVesselProfile.holds[clamp(oldIndex, 0, nextVesselProfile.holds.length - 1)];
+            return { ...cargo, holdId: mappedHold.id };
+          });
+        }
+        state.vesselType = nextVesselType;
         state.cargoType = String(values.get("cargoType") || state.cargoType);
         state.selectedHold = String(values.get("selectedHold") || state.selectedHold);
         state.side = String(values.get("side") || state.side);
         state.nextWeight = Number(values.get("nextWeight")) || state.nextWeight;
+        state.craneType = String(values.get("craneType") || state.craneType);
+        state.liftWeight = Number(values.get("liftWeight")) || state.liftWeight;
+        state.craneOutreach = Number(values.get("craneOutreach")) || state.craneOutreach;
+        const nextVessel = activeVessel(state);
+        if (!nextVessel.holds.some((hold) => hold.id === state.selectedHold)) {
+          state.selectedHold = nextVessel.holds[Math.floor(nextVessel.holds.length / 2)].id;
+        }
       }
+      state.sequenceStep = 0;
       saveState(state);
       render();
     });
-
     root.addEventListener("click", (event) => {
       const state = loadState();
+      const sequencePrev = event.target.closest("[data-realism-sequence-prev]");
+      const sequenceNext = event.target.closest("[data-realism-sequence-next]");
+      if (sequencePrev || sequenceNext) {
+        const maxStep = Math.max(0, sequenceModel(state).length - 1);
+        state.sequenceStep = clamp((Number(state.sequenceStep) || 0) + (sequenceNext ? 1 : -1), 0, maxStep);
+        saveState(state);
+        render();
+        return;
+      }
       if (event.target.matches("[data-realism-add]")) {
         state.cargoes = [...state.cargoes, {
           id: `C${Date.now()}`,
@@ -402,7 +592,7 @@
         render();
       }
       if (event.target.matches("[data-realism-reset]")) {
-        saveState({ ...defaultState, ballast: { ...defaultState.ballast }, cargoes: [...defaultState.cargoes] });
+        saveState({ ...defaultState, ballast: { ...defaultState.ballast }, cargoes: defaultState.cargoes.map((item) => ({ ...item })) });
         render();
       }
       if (event.target.matches("[data-realism-balance]")) {

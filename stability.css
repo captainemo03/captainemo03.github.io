@@ -5067,3 +5067,158 @@ video {
     grid-template-columns: 1fr;
   }
 }
+
+/* Stability realism v2: sequence, GZ and crane assessment */
+.realism-manifest-row {
+  grid-template-columns: minmax(150px, 1.4fr) minmax(105px, .7fr) minmax(115px, .7fr) auto;
+}
+
+.realism-manifest-row label {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.realism-manifest-row input,
+.realism-manifest-row select {
+  width: 100%;
+  min-width: 0;
+  min-height: 38px;
+  border: 1px solid rgba(91, 255, 220, .2);
+  border-radius: 9px;
+  color: #f8fbff;
+  background: rgba(2, 9, 19, .78);
+  padding: 0 9px;
+}
+
+.realism-sequence-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.realism-sequence-controls .ghost-button {
+  width: auto;
+  min-width: 88px;
+}
+
+.realism-sequence-controls button:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+
+.realism-sequence-card,
+.realism-crane-check {
+  display: grid;
+  gap: 9px;
+  padding: 14px;
+  border: 1px solid rgba(91, 255, 220, .18);
+  border-radius: 13px;
+  background: rgba(2, 8, 20, .5);
+}
+
+.realism-sequence-card > span,
+.realism-crane-check > span {
+  color: #9ec6d8;
+  font-size: .76rem;
+  font-weight: 900;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.realism-sequence-metrics,
+.realism-criteria-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.realism-sequence-metrics small,
+.realism-criteria-grid div,
+.realism-hydro-row {
+  min-width: 0;
+  padding: 9px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, .05);
+}
+
+.realism-crane-check.safe { border-color: rgba(91, 255, 220, .5); }
+.realism-crane-check.watch { border-color: rgba(255, 203, 114, .6); }
+.realism-crane-check.danger { border-color: rgba(255, 107, 156, .7); }
+
+.realism-crane-check em {
+  color: #c6d8eb;
+  font-style: normal;
+  line-height: 1.45;
+}
+
+.realism-gz-chart {
+  display: block;
+  width: 100%;
+  min-height: 170px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  background: rgba(2, 8, 20, .52);
+}
+
+.realism-gz-chart text {
+  fill: #9ec6d8;
+  font: 700 10px system-ui, sans-serif;
+}
+
+.realism-chart-axis { stroke: rgba(255, 255, 255, .26); stroke-width: 1; }
+.realism-chart-limit { stroke: #ffcb72; stroke-width: 1.5; stroke-dasharray: 5 4; }
+.realism-chart-line { fill: none; stroke: #5bffdc; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+
+.realism-criteria-grid span,
+.realism-hydro-row span {
+  display: block;
+  color: #9ec6d8;
+  font-size: .72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.realism-criteria-grid strong,
+.realism-hydro-row strong {
+  display: block;
+  margin-top: 4px;
+  color: #f8fbff;
+  overflow-wrap: anywhere;
+}
+
+.realism-verdict {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  text-align: center;
+  font-weight: 1000;
+  letter-spacing: .05em;
+}
+
+.realism-verdict.safe { color: #041b18; background: #5bffdc; }
+.realism-verdict.danger { color: #fff; background: #b62e62; }
+
+.realism-hydro-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+@media (max-width: 760px) {
+  .realism-manifest-row { grid-template-columns: 1fr 1fr; }
+  .realism-manifest-row > div { grid-column: 1 / -1; }
+}
+
+@media (max-width: 520px) {
+  .realism-manifest-row,
+  .realism-sequence-metrics,
+  .realism-criteria-grid { grid-template-columns: 1fr; }
+  .realism-manifest-row > div { grid-column: auto; }
+  .realism-sequence-controls { align-items: stretch; }
+  .realism-sequence-controls .ghost-button { min-width: 0; }
+}
