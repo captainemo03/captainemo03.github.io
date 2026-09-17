@@ -1,8 +1,10 @@
-const FOCUSEA_CACHE = "focusea-stability-realism-cache-2";
+const FOCUSEA_CACHE = "focusea-site-shell-cache-1";
 const FOCUSEA_ASSETS = [
   "./",
   "./index.html",
   "./styles.css",
+  "./site-shell.css",
+  "./site-shell.js",
   "./landing.css",
   "./script.js",
   "./theme.js",
