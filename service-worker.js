@@ -1,4 +1,4 @@
-const FOCUSEA_CACHE = "focusea-hero-mobile-4";
+const FOCUSEA_CACHE = "focusea-hero-rebuild-7";
 const FOCUSEA_ASSETS = [
   "./",
   "./index.html",
