@@ -21,7 +21,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from .database import connect, get_db, init_db, row_dict
-from .providers import fetch_provider, provider_status
+from .providers import fetch_aisstream_snapshot, fetch_provider, provider_status
 from .security import expiry_iso, hash_password, iso_now, new_token, token_hash, validate_username, verify_password
 
 from .engines import (
@@ -754,15 +754,38 @@ def api_live_provider_status() -> dict[str, Any]:
 
 
 @app.get("/api/providers/{provider_id}")
-def api_provider_data(
+async def api_provider_data(
     provider_id: str,
     imo: str = Query(default="", max_length=16),
     area: str = Query(default="", max_length=80),
     symbol: str = Query(default="", max_length=32),
+    lat: str = Query(default="", max_length=24),
+    lon: str = Query(default="", max_length=24),
+    min_lat: str = Query(default="", max_length=24),
+    min_lon: str = Query(default="", max_length=24),
+    max_lat: str = Query(default="", max_length=24),
+    max_lon: str = Query(default="", max_length=24),
+    seconds: str = Query(default="", max_length=8),
+    max_vessels: str = Query(default="", max_length=8),
     user: dict[str, Any] = Depends(require_user),
 ) -> dict[str, Any]:
+    params = {
+        "imo": imo,
+        "area": area,
+        "symbol": symbol,
+        "lat": lat,
+        "lon": lon,
+        "min_lat": min_lat,
+        "min_lon": min_lon,
+        "max_lat": max_lat,
+        "max_lon": max_lon,
+        "seconds": seconds,
+        "max_vessels": max_vessels,
+    }
     try:
-        return fetch_provider(provider_id, {"imo": imo, "area": area, "symbol": symbol})
+        if provider_id == "aisstream":
+            return await fetch_aisstream_snapshot(params)
+        return fetch_provider(provider_id, params)
     except ValueError as error:
         raise HTTPException(status_code=400, detail=str(error)) from error
     except Exception as error:

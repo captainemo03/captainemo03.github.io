@@ -3,3 +3,5 @@ uvicorn[standard]>=0.35,<1
 pydantic>=2.11,<3
 python-multipart>=0.0.20,<1
 pypdf>=6,<7
+websockets>=15,<16
+certifi>=2025.8.3

@@ -96,6 +96,19 @@ def test_account_deal_workflow_document_and_logout() -> None:
     assert provider.json()["status"] == "licensed-required"
     assert provider.json()["data"] is None
 
+    provider_status_response = client.get("/api/providers/status")
+    assert provider_status_response.status_code == 200
+    providers = {item["id"]: item for item in provider_status_response.json()["providers"]}
+    assert providers["aisstream"]["status"] == "free-key-required"
+    assert providers["met_norway"]["connected"] is True
+    assert providers["nws"]["connected"] is True
+    assert providers["unlocode"]["status"] == "available"
+    assert providers["wpi"]["status"] == "available"
+
+    unlocode = client.get("/api/providers/unlocode", headers=headers)
+    assert unlocode.status_code == 200
+    assert unlocode.json()["status"] == "free-official-download"
+
     forgot = client.post("/api/auth/forgot-password", json={"email": email})
     assert forgot.status_code == 200
     reset_token = forgot.json()["development_reset_token"]

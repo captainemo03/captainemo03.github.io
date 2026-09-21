@@ -105,7 +105,7 @@ if (fs.existsSync(swPath)) {
   for (const asset of assets) {
     if (!fs.existsSync(path.join(root, asset))) addIssue("service-worker-missing-asset", "service-worker.js", asset);
   }
-  if (!/focusea-production-core-1/.test(sw)) addIssue("service-worker-cache", "service-worker.js", "Cache name is not on the latest expected version.");
+  if (!/focusea-free-data-1/.test(sw)) addIssue("service-worker-cache", "service-worker.js", "Cache name is not on the latest expected version.");
 } else {
   addIssue("missing-file", "service-worker.js", "Service worker file is missing.");
 }

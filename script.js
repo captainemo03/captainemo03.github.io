@@ -23433,7 +23433,7 @@ async function loadProductionProviders() {
     productionProviderResult.innerHTML = `
       <div class="mini-heading"><span>Data Trust</span><strong>Server-side provider status</strong></div>
       <div class="python-capability-list">${(payload.providers || []).map((provider) => `
-        <div><span>${escapeHtml(provider.name)}</span><strong>${escapeHtml(provider.status)}</strong><small>${provider.connected ? "Endpoint connected; response still carries source and timestamp." : `Configure ${escapeHtml(provider.endpoint_env)} on the backend.`}</small></div>
+        <div><span>${escapeHtml(provider.name)}</span><strong>${escapeHtml(provider.status)}</strong><small>${escapeHtml(provider.setup || (provider.connected ? "Connected with source and timestamp." : `Configure ${provider.endpoint_env || "the documented source"} on the backend.`))}${provider.source_url ? ` · <a href="${escapeHtml(provider.source_url)}" target="_blank" rel="noopener noreferrer">source</a>` : ""}</small></div>
       `).join("")}</div>
     `;
   } catch (error) {

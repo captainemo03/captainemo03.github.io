@@ -20,7 +20,8 @@ Open `http://127.0.0.1:8000/docs`. The static website can use `http://127.0.0.1:
 - SQLite Deal Rooms, documents, reports and audit trail
 - fixture message -> parse -> voyage/TCE -> risk -> clause review -> counter mail -> Deal Room
 - PDF/text extraction, MIME/size/PDF-signature checks and SHA-256 document fingerprints
-- AIS, Baltic and bunker adapters that remain locked until licensed endpoints are configured
+- free AISStream snapshot adapter, MET Norway global forecasts, NWS alerts, EIA indicators and official UN/LOCODE/WPI source links
+- commercial AIS, Baltic and bunker adapters that remain locked until licensed endpoints are configured
 - security headers, no-store responses for private endpoints and auth rate limiting
 
 ## Important endpoints
@@ -31,7 +32,8 @@ Open `http://127.0.0.1:8000/docs`. The static website can use `http://127.0.0.1:
 - `POST /api/workflow/fixture`
 - `POST /api/deals/{id}/documents`
 - `GET /api/providers/status`
-- `GET /api/providers/{ais|baltic|bunker}`
+- `GET /api/providers/{aisstream|met_norway|nws|eia|unlocode|wpi}`
+- `GET /api/providers/{ais|baltic|bunker}` for optional commercial feeds
 - existing calculation, laytime, voyage, stability and report endpoints remain available
 
 ## Configuration
@@ -40,7 +42,7 @@ Copy `backend/.env.example` values into your hosting provider's secret environme
 
 Gmail password resets require an app password or approved SMTP credential. Set `FOCUSEA_SMTP_HOST`, `FOCUSEA_SMTP_USERNAME`, `FOCUSEA_SMTP_PASSWORD` and `FOCUSEA_SMTP_FROM`.
 
-AIS and Baltic data are not bundled. Configure licensed provider endpoints and keys. Without them, APIs return `licensed-required` and no invented data.
+AISStream and EIA need free API keys. MET Norway, NWS, UN/LOCODE and WPI do not need keys. Commercial AIS and Baltic data are not bundled; without licensed credentials those adapters return `licensed-required` and no invented data.
 
 ## Deploy
 

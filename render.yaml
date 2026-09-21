@@ -14,6 +14,8 @@ services:
         generateValue: true
       - key: FOCUSEA_RESET_URL
         value: https://captainemo03.github.io/#account
+      - key: FOCUSEA_DATA_CONTACT
+        value: https://captainemo03.github.io/contact.html
     disk:
       name: focusea-data
       mountPath: /var/data
