@@ -2603,7 +2603,6 @@ const newsHeadlineCount = document.querySelector("#newsHeadlineCount");
 const newsSourceCount = document.querySelector("#newsSourceCount");
 const newsFreshestTime = document.querySelector("#newsFreshestTime");
 const newsIntegrityState = document.querySelector("#newsIntegrityState");
-const newsroomEditionDate = document.querySelector("#newsroomEditionDate");
 const newsRailPrev = document.querySelector("#newsRailPrev");
 const newsRailNext = document.querySelector("#newsRailNext");
 const smartSearchForm = document.querySelector("#smartSearchForm");
@@ -4372,12 +4371,7 @@ function activatePage(pageName = "dashboard", updateHash = true) {
     section.classList.add("page-section");
   });
   pageNavLinks.forEach((link) => {
-    const isActive = link.dataset.pageLink === activePage;
-    link.classList.toggle("active", isActive);
-    if (isActive) {
-      const group = link.closest("details.nav-group");
-      if (group) group.open = true;
-    }
+    link.classList.toggle("active", link.dataset.pageLink === activePage);
   });
   document.body.dataset.activePage = activePage;
   if (updateHash && window.location.hash !== `#${activePage}`) {
@@ -5527,11 +5521,9 @@ function translateUiText(value = "") {
     return text.replace(trimmed, uiEnglishPhrases.get(trimmed));
   }
 
-  uiEnglishSnippets
-    .filter(([snippet]) => snippet.length >= 20)
-    .forEach(([snippet, replacement]) => {
-      text = text.split(snippet).join(replacement);
-    });
+  uiEnglishSnippets.forEach(([snippet, replacement]) => {
+    text = text.split(snippet).join(replacement);
+  });
 
   if (/^[\d\s.,:%/$€£+\-()[\]A-Z]{1,60}$/.test(trimmed)) return text;
 
@@ -20321,14 +20313,55 @@ function setLiveNote(key, value) {
   if (element) element.textContent = value;
 }
 
-function updateLiveFeed({ advanceDemo = false, refreshPanels = true } = {}) {
+function updateLiveFeed() {
   const now = new Date();
   const wave = Math.sin(now.getSeconds() / 6);
+  liveFeedState.vessels += Math.round(Math.random() * 14 - 5);
+  liveFeedState.congestion = Math.max(18, Math.min(82, liveFeedState.congestion + Math.round(Math.random() * 4 - 2)));
   applyVerifiedBunkerSnapshot();
-  const dryBulk = advanceDemo ? liveFeedState.dryBulkStates[Math.abs(now.getSeconds()) % liveFeedState.dryBulkStates.length] : liveFeedState.dryBulkStates[0];
-  const lngWatch = advanceDemo ? liveFeedState.lngStates[Math.floor(now.getSeconds() / 20) % liveFeedState.lngStates.length] : liveFeedState.lngStates[0];
-  const security = advanceDemo ? liveFeedState.securityAreas[Math.floor(now.getSeconds() / 15) % liveFeedState.securityAreas.length] : liveFeedState.securityAreas[0];
-  const delayLow = advanceDemo ? 14 + (now.getSeconds() % 8) : 18;
+  liveFeedState.weather = Math.max(2, Math.min(18, liveFeedState.weather + Math.round(Math.random() * 2 - 1)));
+  liveFeedState.pnl = Math.max(92, Math.min(220, liveFeedState.pnl + Math.round(Math.random() * 8 - 4)));
+  liveFeedState.co2 = Math.max(1280, Math.min(1580, liveFeedState.co2 + Math.round(Math.random() * 12 - 6)));
+  liveFeedState.containerIndex = Math.max(1900, Math.min(2550, liveFeedState.containerIndex + Math.round(wave * 8 + Math.random() * 8 - 4)));
+  const moveIndex = (key, min, max, volatility, decimals = 0) => {
+    const next = clamp(Number(liveFeedState[key] || 0) + wave * volatility + Math.random() * volatility - volatility / 2, min, max);
+    liveFeedState[key] = Number(next.toFixed(decimals));
+  };
+  moveIndex("vlccTd3c", 38, 115, 1.8, 1);
+  moveIndex("aframaxWs", 80, 260, 3.4);
+  moveIndex("mrAtlantic", 90, 280, 3.2);
+  liveFeedState.scfi = liveFeedState.containerIndex + 46;
+  moveIndex("ccfi", 850, 2400, 14);
+  moveIndex("wci", 1400, 6200, 42);
+  moveIndex("fbx", 1300, 5900, 36);
+  moveIndex("transpacificSpot", 1800, 7800, 58);
+  moveIndex("bunkerAdjustment", 20, 90, 1.4);
+  moveIndex("lngSpot", 42000, 190000, 950);
+  moveIndex("lngQueue", 18, 92, 1.8);
+  moveIndex("jkmMarker", 6, 24, 0.16, 2);
+  moveIndex("lpgBaltic", 35, 145, 1.5);
+  moveIndex("eua", 45, 110, 0.38, 2);
+  moveIndex("co2CostIndex", 25, 95, 1.2);
+  moveIndex("ciiRisk", 20, 92, 1.1);
+  moveIndex("fueleuExposure", 10, 88, 0.9);
+  liveFeedState.singaporeQueue = clamp(liveFeedState.congestion + Math.round(wave * 7), 15, 88);
+  moveIndex("panamaWait", 8, 90, 1.2);
+  moveIndex("suezWatch", 5, 82, 1.1);
+  liveFeedState.weatherDisruption = clamp(liveFeedState.weather * 4 + Math.round(wave * 5), 12, 90);
+  moveIndex("securityRisk", 6, 86, 1.2);
+  moveIndex("coalRoute", 40, 165, 1.8);
+  moveIndex("grainFreight", 120, 360, 2.5);
+  moveIndex("ironOreCape", 45, 185, 1.7);
+  moveIndex("crudeRouteRisk", 30, 150, 1.5);
+  moveIndex("chemicalTanker", 55, 175, 1.4);
+  moveIndex("projectCargoDemand", 25, 120, 1.2);
+  moveIndex("usdIndex", 92, 118, 0.18, 2);
+  moveIndex("sofr", 2.4, 6.2, 0.03, 2);
+
+  const dryBulk = liveFeedState.dryBulkStates[Math.abs(now.getSeconds()) % liveFeedState.dryBulkStates.length];
+  const lngWatch = liveFeedState.lngStates[Math.floor(now.getSeconds() / 20) % liveFeedState.lngStates.length];
+  const security = liveFeedState.securityAreas[Math.floor(now.getSeconds() / 15) % liveFeedState.securityAreas.length];
+  const delayLow = 14 + (now.getSeconds() % 8);
   const delayHigh = delayLow + 6;
 
   setLiveText("vessels", liveFeedState.vessels.toLocaleString("en-US"));
@@ -20343,21 +20376,20 @@ function updateLiveFeed({ advanceDemo = false, refreshPanels = true } = {}) {
   setLiveText("lngWatch", lngWatch);
   setLiveText("security", security);
 
-  setLiveNote("vessels", advanceDemo ? `simulated AIS delta · ${now.toLocaleTimeString()}` : "simulated snapshot · not live");
+  setLiveNote("vessels", `simulated AIS delta · ${now.toLocaleTimeString()}`);
   setLiveNote("congestion", liveFeedState.congestion > 55 ? "Singapore high queue" : "Singapore watch");
   setLiveNote("bunker", bunkerSourceNote());
   setLiveNote("weather", liveFeedState.weather > 12 ? "multi-region weather watch" : "Indian Ocean watch");
-  setLiveNote("weatherRouting", advanceDemo ? `Bay of Bengal squall line · reroute advised in ${4 + (now.getSeconds() % 5)}h` : "weather route snapshot · verify before use");
+  setLiveNote("weatherRouting", `Bay of Bengal squall line · reroute advised in ${4 + (now.getSeconds() % 5)}h`);
   setLiveNote("anchorageDelay", `Singapore anchorage delay estimated ${delayLow}-${delayHigh}h`);
   setLiveNote("bunkerSpread", bunkerSpreadNote());
-  setLiveNote("containerIndex", advanceDemo ? `Asia-Europe spot rate ${wave >= 0 ? "+" : "-"}${Math.abs(wave * 4.8).toFixed(1)}%` : "simulated snapshot · licensed feed required");
+  setLiveNote("containerIndex", `Asia-Europe spot rate ${wave >= 0 ? "+" : "-"}${Math.abs(wave * 4.8).toFixed(1)}%`);
   setLiveNote("dryBulk", dryBulk === "Bullish" ? "Pacific grain demand rising" : "tonnage balance shifting");
   setLiveNote("lngWatch", `${lngWatch} terminal queue pressure`);
   setLiveNote("security", security === "GoA" ? "Enhanced watch recommended" : "route watch recommended");
 
   const timestamp = document.querySelector("#liveTimestamp");
-  if (timestamp) timestamp.textContent = `Snapshot board · bunker source checked ${verifiedBunkerSnapshot.checkedAt}; AIS/weather/port signals remain clearly labelled.`;
-  if (!refreshPanels) return;
+  if (timestamp) timestamp.textContent = `Live board · bunker verified ${verifiedBunkerSnapshot.checkedAt}; AIS/weather/port signals are demo · last update ${now.toLocaleTimeString()}`;
   renderOpsWorkspace();
   renderCommandDeck(selectedCommandScenarioId);
   renderPortCostRisk();
@@ -20626,19 +20658,13 @@ function newsCacheBust(url) {
 
 function normalizeNewsItem(item, sourcePrefix = "") {
   const rawTitle = stripHtml(item.title || "");
-  const cleanTitle = rawTitle.replace(/\s+-\s+[^-]+$/, "");
   const sourceFromTitle = rawTitle.includes(" - ") ? rawTitle.split(" - ").at(-1) : "";
   const source = item.source || item.author || item.domain || sourceFromTitle || "Live news";
-  const summaryText = stripHtml(item.description || item.content || "").replace(/\s+/g, " ").trim();
-  const summary = summaryText && !summaryText.toLowerCase().includes(cleanTitle.toLowerCase())
-    ? `${summaryText.slice(0, 220).trim()}${summaryText.length > 220 ? "..." : ""}`
-    : "";
   return {
-    title: cleanTitle,
+    title: rawTitle.replace(/\s+-\s+[^-]+$/, ""),
     link: item.link || item.url || "",
     source: sourcePrefix ? `${sourcePrefix} - ${source}` : source,
-    date: parseNewsDate(item.pubDate || item.pubdate || item.seendate || item.date),
-    summary
+    date: parseNewsDate(item.pubDate || item.pubdate || item.seendate || item.date)
   };
 }
 
@@ -20714,12 +20740,8 @@ function parseNewsItems(xmlText) {
     const link = item.querySelector("link")?.textContent || "";
     const source = item.querySelector("source")?.textContent || title.split(" - ").at(-1) || "Google News";
     const pubDate = item.querySelector("pubDate")?.textContent || "";
-    const description = stripHtml(item.querySelector("description")?.textContent || "").replace(/\s+/g, " ").trim();
-    const summary = description && !description.toLowerCase().includes(title.toLowerCase())
-      ? `${description.slice(0, 220).trim()}${description.length > 220 ? "..." : ""}`
-      : "";
     const date = pubDate ? new Date(pubDate) : null;
-    return { title, link, source, date, summary };
+    return { title, link, source, date };
   }).filter((item) => item.title && item.link);
 }
 
@@ -20769,11 +20791,6 @@ function setCachedLiveNews(query, items, sourceLabel) {
   });
 }
 
-if (newsroomEditionDate) {
-  const editionDate = new Date();
-  newsroomEditionDate.dateTime = editionDate.toISOString();
-  newsroomEditionDate.textContent = editionDate.toLocaleDateString("en-GB", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
-}
 function renderNews(items, query, meta = {}) {
   if (!newsGrid || !newsStatus) return;
 
@@ -20796,11 +20813,8 @@ function renderNews(items, query, meta = {}) {
     <article class="news-card ${index === 0 ? "news-card-lead" : ""}">
       <div class="news-card-meta"><span>${escapeHtml(item.source)}</span><b>${String(index + 1).padStart(2, "0")}</b></div>
       <strong>${escapeHtml(item.title)}</strong>
-      ${item.summary ? `<p>${escapeHtml(item.summary)}</p>` : ""}
-      <div class="news-card-footer">
-        <time>${item.date ? item.date.toLocaleString() : "Publication time unavailable"}</time>
-        <a href="${escapeHtml(safeExternalUrl(item.link))}" target="_blank" rel="noopener noreferrer">Open article <span aria-hidden="true">&#8599;</span></a>
-      </div>
+      <small>${item.date ? item.date.toLocaleString() : "Publication time unavailable"}</small>
+      <a href="${escapeHtml(safeExternalUrl(item.link))}" target="_blank" rel="noopener noreferrer">Read full story</a>
     </article>
   `).join("");
 
@@ -23225,7 +23239,7 @@ renderPythonHistory();
 renderCommandDeck();
 renderDecisionPassport();
 initializeSmartOps();
-updateLiveFeed({ advanceDemo: false, refreshPanels: true });
+updateLiveFeed();
 setupPageSections();
 renderMemberSignupHint();
 renderMemberAuthStatus();
@@ -23233,230 +23247,21 @@ renderMemberSignupAlerts();
 renderCommandWidgetCalculators();
 renderCommandRecentWork();
 activatePage(initialPageForSession(), false);
-
+setInterval(updateLiveFeed, 1000);
+setInterval(refreshBalticLicensedFeed, 1000);
 setInterval(() => {
-  if (document.visibilityState === "visible" && document.body.dataset.activePage === "market") refreshBalticLicensedFeed();
-}, 60000);
-setInterval(() => {
-  if (document.visibilityState === "visible" && document.body.dataset.activePage === "seaTraffic" && !seaTrafficPopupVesselId) renderSeaTraffic();
-}, 15000);
+  if (!seaTrafficPopupVesselId) renderSeaTraffic();
+}, 3000);
 refreshBalticLicensedFeed();
 loadMaritimeNews();
 setInterval(() => {
   if (document.visibilityState === "visible") loadMaritimeNews(activeNewsQuery);
 }, 600000);
 normalizeEnglishUi();
+setupEnglishUiObserver();
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("service-worker.js").catch(() => {});
   });
-}
-
-// Production backend bridge: tokens stay in sessionStorage and provider keys stay server-side.
-const productionSessionKey = "focusea-production-session-v1";
-const productionAuthForm = document.querySelector("#productionAuthForm");
-const productionAuthResult = document.querySelector("#productionAuthResult");
-const productionWorkflowForm = document.querySelector("#productionWorkflowForm");
-const productionWorkflowResult = document.querySelector("#productionWorkflowResult");
-const productionDealList = document.querySelector("#productionDealList");
-const productionProviderResult = document.querySelector("#productionProviderResult");
-const productionDocumentForm = document.querySelector("#productionDocumentForm");
-const productionDocumentResult = document.querySelector("#productionDocumentResult");
-const productionRefreshDeals = document.querySelector("#productionRefreshDeals");
-const productionRefreshProviders = document.querySelector("#productionRefreshProviders");
-
-function getProductionSession() {
-  try {
-    return JSON.parse(sessionStorage.getItem(productionSessionKey) || "null");
-  } catch (_) {
-    return null;
-  }
-}
-
-function saveProductionSession(session) {
-  sessionStorage.setItem(productionSessionKey, JSON.stringify(session));
-}
-
-async function productionApi(path, options = {}) {
-  const session = getProductionSession();
-  const base = String(options.apiBase || session?.apiBase || "").replace(/\/+$/, "");
-  if (!base) throw new Error("Enter the deployed Focusea API base URL first.");
-  const headers = new Headers(options.headers || {});
-  if (!(options.body instanceof FormData)) headers.set("Content-Type", "application/json");
-  if (session?.token) headers.set("Authorization", `Bearer ${session.token}`);
-  const response = await fetch(`${base}${path}`, { ...options, headers });
-  let payload = {};
-  try { payload = await response.json(); } catch (_) { payload = {}; }
-  if (!response.ok) throw new Error(payload.detail || `API request failed (${response.status}).`);
-  return payload;
-}
-
-function renderProductionAuth(session, message = "Connected") {
-  if (!productionAuthResult) return;
-  if (!session?.token) {
-    productionAuthResult.innerHTML = `<p>${escapeHtml(message)}</p>`;
-    return;
-  }
-  productionAuthResult.innerHTML = `
-    ${metricCards([
-      { label: "Account", value: session.user?.username || "Connected" },
-      { label: "Email", value: session.user?.email || "-" },
-      { label: "Resume page", value: session.user?.last_page || "dashboard" },
-      { label: "API", value: session.apiBase }
-    ])}
-    <div class="button-row"><button type="button" class="ghost-button small" id="productionLogout">Disconnect session</button></div>
-  `;
-  document.querySelector("#productionLogout")?.addEventListener("click", async () => {
-    try { await productionApi("/api/auth/logout", { method: "POST", body: "{}" }); } catch (_) { /* clear locally even if server is unavailable */ }
-    sessionStorage.removeItem(productionSessionKey);
-    renderProductionAuth(null, "Session disconnected.");
-  });
-}
-
-async function handleProductionAuth(event) {
-  event.preventDefault();
-  const values = collectFormValues(productionAuthForm);
-  const apiBase = String(values.apiBase || "").replace(/\/+$/, "");
-  const action = values.action === "login" ? "login" : "register";
-  const body = action === "register"
-    ? { username: values.username, email: values.email, password: values.password }
-    : { username_or_email: values.email || values.username, password: values.password };
-  productionAuthResult.innerHTML = "<p>Connecting securely...</p>";
-  try {
-    const payload = await productionApi(`/api/auth/${action}`, { apiBase, method: "POST", body: JSON.stringify(body) });
-    const session = { apiBase, token: payload.token, user: payload.user };
-    saveProductionSession(session);
-    productionAuthForm.elements.password.value = "";
-    renderProductionAuth(session, "Connected");
-    await Promise.all([loadProductionDeals(), loadProductionProviders()]);
-  } catch (error) {
-    renderProductionAuth(null, error.message);
-  }
-}
-
-async function handleProductionWorkflow(event) {
-  event.preventDefault();
-  if (!getProductionSession()?.token) {
-    productionWorkflowResult.innerHTML = "<p>Connect an account before creating a Deal Room.</p>";
-    return;
-  }
-  const fixtureText = String(new FormData(productionWorkflowForm).get("fixtureText") || "").trim();
-  productionWorkflowResult.innerHTML = "<p>Parsing offer, calculating voyage, reviewing clauses and creating the audit trail...</p>";
-  try {
-    const payload = await productionApi("/api/workflow/fixture", {
-      method: "POST",
-      body: JSON.stringify({ fixture_text: fixtureText, save_deal: true })
-    });
-    const dealId = payload.deal?.id;
-    if (dealId && productionDocumentForm) productionDocumentForm.elements.dealId.value = dealId;
-    productionWorkflowResult.innerHTML = `
-      ${metricCards([
-        { label: "Deal Room", value: payload.deal?.reference || "Not saved" },
-        { label: "Decision", value: payload.decision?.label || "Review" },
-        { label: "Risk", value: `${payload.decision?.risk_score ?? 0}/100` },
-        { label: "TCE", value: money(payload.voyage?.tce || 0) }
-      ])}
-      <div class="split-card-list">
-        <article><strong>Missing information</strong><p>${escapeHtml((payload.offer?.missing || []).join(", ") || "No parser gaps detected")}</p></article>
-        <article><strong>Next actions</strong><p>${escapeHtml((payload.actions || []).slice(0, 4).join(" "))}</p></article>
-        <article><strong>Counter mail</strong><pre>${escapeHtml(payload.counter_mail || "")}</pre></article>
-      </div>
-    `;
-    await loadProductionDeals();
-  } catch (error) {
-    productionWorkflowResult.innerHTML = `<p>${escapeHtml(error.message)}</p>`;
-  }
-}
-
-async function loadProductionDeals() {
-  if (!productionDealList || !getProductionSession()?.token) return;
-  productionDealList.innerHTML = "<p>Loading Deal Rooms...</p>";
-  try {
-    const payload = await productionApi("/api/deals");
-    const deals = payload.deals || [];
-    productionDealList.innerHTML = deals.length ? `
-      <div class="mini-heading"><span>Saved Deal Rooms</span><strong>${deals.length} records</strong></div>
-      <table class="mini-table"><thead><tr><th>Reference</th><th>Title</th><th>Status</th><th>Risk</th><th>TCE</th></tr></thead><tbody>
-        ${deals.map((deal) => `<tr><td>${escapeHtml(deal.reference)}</td><td>${escapeHtml(deal.title)}</td><td>${escapeHtml(deal.status)}</td><td>${Math.round(deal.risk_score || 0)}/100</td><td>${money(deal.tce || 0)}</td></tr>`).join("")}
-      </tbody></table>
-    ` : "<p>No Deal Rooms saved yet.</p>";
-  } catch (error) {
-    productionDealList.innerHTML = `<p>${escapeHtml(error.message)}</p>`;
-  }
-}
-
-async function loadProductionProviders() {
-  if (!productionProviderResult) return;
-  const session = getProductionSession();
-  if (!session?.apiBase) return;
-  productionProviderResult.innerHTML = "<p>Checking provider configuration...</p>";
-  try {
-    const payload = await productionApi("/api/providers/status");
-    productionProviderResult.innerHTML = `
-      <div class="mini-heading"><span>Data Trust</span><strong>Server-side provider status</strong></div>
-      <div class="python-capability-list">${(payload.providers || []).map((provider) => `
-        <div><span>${escapeHtml(provider.name)}</span><strong>${escapeHtml(provider.status)}</strong><small>${escapeHtml(provider.setup || (provider.connected ? "Connected with source and timestamp." : `Configure ${provider.endpoint_env || "the documented source"} on the backend.`))}${provider.source_url ? ` · <a href="${escapeHtml(provider.source_url)}" target="_blank" rel="noopener noreferrer">source</a>` : ""}</small></div>
-      `).join("")}</div>
-    `;
-  } catch (error) {
-    productionProviderResult.innerHTML = `<p>${escapeHtml(error.message)}</p>`;
-  }
-}
-
-async function handleProductionDocument(event) {
-  event.preventDefault();
-  if (!getProductionSession()?.token) {
-    productionDocumentResult.innerHTML = "<p>Connect an account before uploading documents.</p>";
-    return;
-  }
-  const formData = new FormData(productionDocumentForm);
-  const dealId = String(formData.get("dealId") || "");
-  const documentFile = formData.get("document");
-  const upload = new FormData();
-  upload.append("file", documentFile);
-  productionDocumentResult.innerHTML = "<p>Hashing, checking and extracting the document...</p>";
-  try {
-    const payload = await productionApi(`/api/deals/${encodeURIComponent(dealId)}/documents`, { method: "POST", body: upload });
-    productionDocumentResult.innerHTML = `
-      ${metricCards([
-        { label: "File", value: payload.document?.filename || "Document" },
-        { label: "Size", value: `${Math.round((payload.document?.size_bytes || 0) / 1024)} KB` },
-        { label: "Text", value: payload.document?.text_extracted ? "Extracted" : "OCR required" },
-        { label: "Safety", value: payload.safety?.verdict || payload.safety?.label || "Reviewed" }
-      ])}
-      <p>${escapeHtml((payload.analysis?.findings || []).map((item) => item.text).join(" ") || "Document stored with an audit record.")}</p>
-    `;
-    await loadProductionDeals();
-  } catch (error) {
-    productionDocumentResult.innerHTML = `<p>${escapeHtml(error.message)}</p>`;
-  }
-}
-
-async function syncProductionProgress() {
-  const session = getProductionSession();
-  if (!session?.token) return;
-  const lastPage = location.hash.replace(/^#/, "") || "dashboard";
-  try {
-    await productionApi("/api/auth/progress", { method: "PUT", body: JSON.stringify({ last_page: lastPage }) });
-  } catch (_) { /* resume sync is best effort */ }
-}
-
-productionAuthForm?.addEventListener("submit", handleProductionAuth);
-productionWorkflowForm?.addEventListener("submit", handleProductionWorkflow);
-productionDocumentForm?.addEventListener("submit", handleProductionDocument);
-productionRefreshDeals?.addEventListener("click", loadProductionDeals);
-productionRefreshProviders?.addEventListener("click", loadProductionProviders);
-window.addEventListener("hashchange", syncProductionProgress);
-
-const restoredProductionSession = getProductionSession();
-if (productionAuthForm && !restoredProductionSession) {
-  productionAuthForm.elements.apiBase.value = window.FOCUSEA_BACKEND_CONFIG?.apiBase || "";
-}
-
-if (restoredProductionSession) {
-  if (productionAuthForm) productionAuthForm.elements.apiBase.value = restoredProductionSession.apiBase || "";
-  renderProductionAuth(restoredProductionSession);
-  loadProductionDeals();
-  loadProductionProviders();
 }

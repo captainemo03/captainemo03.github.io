@@ -1,14 +1,12 @@
-const FOCUSEA_CACHE = "focusea-stable-language-1";
+const FOCUSEA_CACHE = "focusea-newsroom-cache-1";
 const FOCUSEA_ASSETS = [
   "./",
   "./index.html",
   "./styles.css",
   "./site-shell.css",
-  "./institutional.css",
   "./site-shell.js",
   "./landing.css",
   "./script.js",
-  "./backend-config.js",
   "./theme.js",
   "./monetization-config.js",
   "./monetization.js",

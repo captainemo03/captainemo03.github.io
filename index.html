@@ -1,8 +1,7 @@
 <!doctype html>
-<html lang="en" class="notranslate" translate="no">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="google" content="notranslate" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Focusea is a maritime broker workspace for chartering, voyage estimates, laytime, demurrage, claims, port intelligence, market monitoring and load planning." />
     <meta name="keywords" content="maritime broker tools, chartering software, voyage estimate, laytime calculator, demurrage calculator, port intelligence, bunker index, shipping market news, loadicator, Focusea" />
@@ -29,7 +28,7 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <script src="theme.js?v=theme-1"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="styles.css?v=stable-dashboard-1" />
+    <link rel="stylesheet" href="styles.css?v=newsroom-1" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -83,7 +82,6 @@
       }
     </script>
       <link rel="stylesheet" href="site-shell.css?v=shell-1" />
-    <link rel="stylesheet" href="institutional.css?v=institutional-1" />
   </head>
   <body>
     <div class="app-shell">
@@ -96,74 +94,44 @@
         </div>
 
         <nav class="nav-list" data-page-nav>
-          <a href="#dashboard" class="active" data-page-link="dashboard">Maritime News</a>
-          <a href="#workbench" data-page-link="workbench">Deal Workbench</a>
+          <a href="#dashboard" class="active" data-page-link="dashboard">Maritime Newsroom</a>
+          <a href="#workbench" data-page-link="workbench">Focusea Workbench</a>
+          <a href="#controlTower" data-page-link="controlTower">Control Tower</a>
+          <a href="#seaTraffic" data-page-link="seaTraffic">Live Sea Traffic</a>
+          <a href="#flagship" data-page-link="flagship">Flagship Workflow</a>
+          <a href="#passport" data-page-link="passport">Deal Passport</a>
+          <a href="#theater" data-page-link="theater">Workflow Control</a>
+          <a href="#saasCore" data-page-link="saasCore">SaaS Core</a>
+          <a href="#aiCore" data-page-link="aiCore">AI Core</a>
+          <a href="#proOps" data-page-link="proOps">Pro Ops</a>
           <a href="#broker" data-page-link="broker">Broker Desk</a>
-          <a href="#market" data-page-link="market">Market Intelligence</a>
-          <a href="#seaTraffic" data-page-link="seaTraffic">Vessel Traffic</a>
-
-          <details class="nav-group">
-            <summary>Commercial operations</summary>
-            <div class="nav-group-links">
-              <a href="#passport" data-page-link="passport">Deal Passport</a>
-              <a href="#controlTower" data-page-link="controlTower">Operations Overview</a>
-              <a href="#flagship" data-page-link="flagship">Fixture Workflow</a>
-              <a href="#theater" data-page-link="theater">Workflow Review</a>
-              <a href="#terminal" data-page-link="terminal">Broker Operations</a>
-              <a href="#commercial" data-page-link="commercial">Commercial Analysis</a>
-              <a href="#brokerOS" data-page-link="brokerOS">Broker Workspace</a>
-              <a href="#autopilot" data-page-link="autopilot">Workflow Automation</a>
-              <a href="#insuranceDesk" data-page-link="insuranceDesk">Marine Insurance</a>
-            </div>
-          </details>
-
-          <details class="nav-group">
-            <summary>Decision support</summary>
-            <div class="nav-group-links">
-              <a href="#aiCore" data-page-link="aiCore">Document Analysis</a>
-              <a href="#dealIQ" data-page-link="dealIQ">Deal Review</a>
-              <a href="#decisionLab" data-page-link="decisionLab">Scenario Analysis</a>
-              <a href="#edge" data-page-link="edge">Risk &amp; Compliance</a>
-              <a href="#superSuite" data-page-link="superSuite">Integrated Reports</a>
-              <a href="#businessCenter" data-page-link="businessCenter">Business Center</a>
-              <a href="#growthSuite" data-page-link="growthSuite">Client &amp; Growth</a>
-            </div>
-          </details>
-
-          <details class="nav-group">
-            <summary>Operations &amp; data</summary>
-            <div class="nav-group-links">
-              <a href="#proOps" data-page-link="proOps">Operations Workflow</a>
-              <a href="#saasCore" data-page-link="saasCore">Platform Services</a>
-              <a href="#enterprise" data-page-link="enterprise">Enterprise Workspace</a>
-              <a href="#pythonEngine" data-page-link="pythonEngine">Calculation Engine</a>
-              <a href="#nextGen" data-page-link="nextGen">Research Tools</a>
-              <a href="#innovationLab" data-page-link="innovationLab">Product Lab</a>
-              <a href="#caseRoom" data-page-link="caseRoom">Maritime Cases</a>
-            </div>
-          </details>
-
-          <details class="nav-group">
-            <summary>Specialist tools</summary>
-            <div class="nav-group-links">
-              <a href="stability.html">Load &amp; Stability</a>
-              <a href="insurance.html">Insurance Desk</a>
-              <a href="deal-surgeon.html">Deal Review Tool</a>
-              <a href="site-health.html">Data &amp; Site Health</a>
-            </div>
-          </details>
-
-          <details class="nav-group">
-            <summary>Learning &amp; account</summary>
-            <div class="nav-group-links">
-              <a href="#studentCenter" data-page-link="studentCenter">Student Center</a>
-              <a href="#academyPage" data-page-link="academyPage">Academy</a>
-              <a href="#portsPage" data-page-link="portsPage">Ports &amp; Dictionary</a>
-              <a href="#tools" data-page-link="tools">Calculators &amp; Tools</a>
-              <a href="#aboutFocusea" data-page-link="aboutFocusea">About Focusea</a>
-              <a href="#accountPage" data-page-link="accountPage">Account</a>
-            </div>
-          </details>
+          <a href="#terminal" data-page-link="terminal">Command Terminal</a>
+          <a href="#edge" data-page-link="edge">Edge Suite</a>
+          <a href="#commercial" data-page-link="commercial">Commercial Suite</a>
+          <a href="#brokerOS" data-page-link="brokerOS">Broker OS</a>
+          <a href="#autopilot" data-page-link="autopilot">Autopilot Pro</a>
+          <a href="#dealIQ" data-page-link="dealIQ">Deal IQ</a>
+          <a href="#decisionLab" data-page-link="decisionLab">Decision Lab</a>
+          <a href="#superSuite" data-page-link="superSuite">Super Suite</a>
+          <a href="#growthSuite" data-page-link="growthSuite">Broker Growth Suite</a>
+          <a href="#insuranceDesk" data-page-link="insuranceDesk">Marine Insurance Desk</a>
+          <a href="#studentCenter" data-page-link="studentCenter">Student Center</a>
+          <a href="#businessCenter" data-page-link="businessCenter">Business Center</a>
+          <a href="#nextGen" data-page-link="nextGen">Next Gen Suite</a>
+          <a href="#innovationLab" data-page-link="innovationLab">Innovation Lab</a>
+          <a href="#caseRoom" data-page-link="caseRoom">Maritime Case Room</a>
+          <a href="#enterprise" data-page-link="enterprise">Enterprise Command</a>
+          <a href="#pythonEngine" data-page-link="pythonEngine">Python Engine</a>
+          <a href="#market" data-page-link="market">Market & News</a>
+          <a href="#tools" data-page-link="tools">Tools</a>
+          <a href="#aboutFocusea" data-page-link="aboutFocusea">Who Are We</a>
+          <a class="side-site-link" href="site-health.html">Site Health Center</a>
+          <a class="side-site-link" href="stability.html" target="_blank" rel="noopener">Side Site: Load-Stability Lab</a>
+          <a class="side-site-link" href="insurance.html" target="_blank" rel="noopener">Side Site: Insurance Desk</a>
+          <a class="side-site-link" href="deal-surgeon.html" target="_blank" rel="noopener">Side Site: Deal Surgeon</a>
+          <a href="#academyPage" data-page-link="academyPage">Academy</a>
+          <a href="#accountPage" data-page-link="accountPage">Account / Sign Up</a>
+          <a href="#portsPage" data-page-link="portsPage">Ports & Wiki</a>
         </nav>
 
         <div class="sidebar-utility">
@@ -194,7 +162,7 @@
 
         <section class="hero" id="command">
           <div>
-            <p class="eyebrow">Maritime decision workspace</p>
+            <p class="eyebrow">Maritime Command Center</p>
             <h1>Turn maritime deals into traceable decisions.</h1>
             <p>
               Parse a fixture, challenge its economics, expose missing terms and leave a decision trail
@@ -206,8 +174,8 @@
             <button type="button" class="ghost-button" data-command-presentation>Demo Flow</button>
             <a href="#passport" class="primary-button" data-page-link="passport">Open Deal Passport</a>
             <a href="#workbench" class="ghost-button" data-page-link="workbench">Open Workbench</a>
-            <a href="#controlTower" class="ghost-button" data-page-link="controlTower">Open operations overview</a>
-            <a href="#flagship" class="ghost-button" data-page-link="flagship">Open fixture workflow</a>
+            <a href="#controlTower" class="ghost-button" data-page-link="controlTower">Open Control Tower</a>
+            <a href="#flagship" class="ghost-button" data-page-link="flagship">Open Flagship Workflow</a>
             <a href="#broker" class="ghost-button" data-page-link="broker">Open Broker Desk</a>
             <a href="#accountPage" class="ghost-button" data-page-link="accountPage">Sign Up / Log In</a>
           </div>
@@ -216,10 +184,9 @@
         <section class="news-panel front-news-rail newsroom-page" id="newsBulletin">
           <div class="newsroom-masthead">
             <div>
-              <p class="eyebrow">News &amp; intelligence</p>
-              <h1>The maritime day,<br />in one place.</h1>
-              <p>Source-linked reporting for shipping, chartering, ports and marine operations. Updated throughout the day.</p>
-              <div class="newsroom-edition"><span>GLOBAL EDITION</span><time id="newsroomEditionDate"></time></div>
+              <p class="eyebrow">Focusea Global Maritime Newsroom</p>
+              <h1>Live shipping news, market moves and operational alerts.</h1>
+              <p>Real external headlines with source, publication time and direct article links. Focusea does not invent breaking news.</p>
             </div>
             <div class="newsroom-quick-actions">
               <a class="primary-button small" href="#market" data-page-link="market">Open Market Terminal</a>
@@ -228,14 +195,14 @@
             </div>
           </div>
           <div class="newsroom-pulse" aria-label="Newsroom status">
-            <article><span>Headlines</span><strong id="newsHeadlineCount">0</strong><small>stories in this edition</small></article>
-            <article><span>Sources</span><strong id="newsSourceCount">0</strong><small>publishers represented</small></article>
-            <article><span>Freshest update</span><strong id="newsFreshestTime">Checking...</strong><small>most recent publication</small></article>
-            <article><span>Feed integrity</span><strong id="newsIntegrityState">Live check</strong><small>source verification mode</small></article>
+            <article><span>Headlines</span><strong id="newsHeadlineCount">0</strong><small>current result set</small></article>
+            <article><span>Sources</span><strong id="newsSourceCount">0</strong><small>independent publishers</small></article>
+            <article><span>Freshest update</span><strong id="newsFreshestTime">Checking...</strong><small>publication timestamp</small></article>
+            <article><span>Feed integrity</span><strong id="newsIntegrityState">Live check</strong><small>live / cache / snapshot</small></article>
           </div>
           <form class="newsroom-search" id="newsSearchForm">
             <label><span>Search maritime news</span><input name="newsQuery" type="search" placeholder="LNG rates, Red Sea, port congestion, bunker..." /></label>
-            <button type="submit">Search news</button>
+            <button type="submit">Search live sources</button>
           </form>
           <div class="news-toolbar">
             <button class="active" data-news-query="maritime shipping">All</button>
@@ -280,7 +247,7 @@
         <section class="command-widgets-panel" id="commandWidgets" aria-labelledby="commandWidgetsTitle">
           <div class="panel-heading">
             <div>
-              <p class="eyebrow">Quick tools</p>
+              <p class="eyebrow">Command Widgets</p>
               <h2 id="commandWidgetsTitle">Use the empty space for quick actions, live status and micro calculations.</h2>
             </div>
             <div class="status-pill">Workspace widgets</div>
@@ -453,7 +420,7 @@
           <div class="command-search-card">
             <form class="command-search-form" id="commandSearchForm">
               <label>
-                <span>Search Focusea tools</span>
+                <span>Focusea Command Search</span>
                 <input id="commandSearchInput" name="commandSearch" placeholder="Try: demurrage hesapla, coal fixture risk, Mersin port, GM stability, chartering glossary" value="demurrage hesapla" />
               </label>
               <button type="submit">Go</button>
@@ -592,10 +559,10 @@
           </div>
         </section>
 
-        <section class="control-tower-panel" id="controlTowerPanel" aria-label="Operations Overview">
+        <section class="control-tower-panel" id="controlTowerPanel" aria-label="Focusea Control Tower">
           <div class="panel-heading">
             <div>
-              <p class="eyebrow">Operations Overview</p>
+              <p class="eyebrow">Focusea Control Tower</p>
               <h2>See today&apos;s open risks before a broker mistake becomes expensive.</h2>
               <p>
                 Deal health, subject deadlines, time bar alarms, monetization status, data confidence
@@ -616,7 +583,7 @@
               <div class="mini-heading"><span>Daily Brief Export</span><strong>PDF / TXT ready</strong></div>
               <p class="muted-copy">Export the current control tower view for a broker morning brief or class presentation.</p>
               <div class="button-row">
-                <button type="button" id="refreshControlTower">Refresh overview</button>
+                <button type="button" id="refreshControlTower">Refresh Control Tower</button>
                 <button type="button" class="ghost-button small" id="downloadControlTowerBrief">Download Brief</button>
               </div>
             </article>
@@ -803,7 +770,7 @@
         <section class="trust-autopilot-panel" id="trustAutopilotCenter">
           <div class="panel-heading">
             <div>
-              <p class="eyebrow">Data & Automation</p>
+              <p class="eyebrow">Trust & Autopilot Center</p>
               <h2>Source-backed broker intelligence, carbon cost and deal automation.</h2>
             </div>
             <div class="status-pill">Professional Layer</div>
@@ -852,7 +819,7 @@
                   <label><span>Bunker $/mt</span><input name="bunkerPrice" type="number" value="686.5" min="0" step="0.1" /></label>
                   <label><span>Daily hire $</span><input name="dailyHire" type="number" value="14500" min="0" step="100" /></label>
                 </div>
-                <button type="submit">Analyze fixture</button>
+                <button type="submit">Run Fixture Autopilot</button>
               </form>
               <div class="button-row">
                 <button type="button" class="ghost-button small" id="frontFixtureToInbox">Push to Inbox</button>
@@ -922,7 +889,7 @@
         <section class="flagship-workflow-panel" id="flagshipWorkflow">
           <div class="panel-heading">
             <div>
-              <p class="eyebrow">Fixture Workflow</p>
+              <p class="eyebrow">Focusea Flagship Workflow</p>
               <h2>Paste one fixture mail; convert it into a deal room, risk gate, document pack, client portal and loadicator action.</h2>
               <p>One screen ties the broker workflow together: offer parsing, voyage economics, document intelligence, time-bar alerts, source confidence and downloadable reports.</p>
             </div>
@@ -935,7 +902,7 @@
               <h3 id="flagshipHeadline">Mail in. Broker output out.</h3>
               <p id="flagshipSummary">Run the workflow to turn a raw fixture message into commercial, legal, ops and client-ready actions.</p>
               <div class="button-row">
-                <button type="button" id="runFlagshipWorkflow">Run workflow</button>
+                <button type="button" id="runFlagshipWorkflow">Run Flagship Workflow</button>
                 <button type="button" class="ghost-button small" data-download-flagship="pdf">Download PDF Pack</button>
                 <button type="button" class="ghost-button small" data-download-flagship="json">Download JSON</button>
                 <button type="button" class="ghost-button small" data-paste-export="client">Client Brief</button>
@@ -956,7 +923,7 @@
 
           <div class="flagship-grid">
             <article class="wide-card">
-              <div class="mini-heading"><span>1. Fixture analysis</span><strong>Parse, estimate, score, counter</strong></div>
+              <div class="mini-heading"><span>1. Fixture AI Autopilot</span><strong>Parse, estimate, score, counter</strong></div>
               <form class="broker-form single-column" id="flagshipWorkflowForm">
                 <label><span>Paste fixture mail / WhatsApp offer</span><textarea name="fixtureText">Firm offer: 50k coal Indonesia to India laycan 10/15 Jul freight USD 18.50 pmt FIOST, demurrage USD 18,000/day, Supramax. 2.5 pct total commission. Subjects stem and receiver approval by 1700 LT. NOR WIBON/WIPON and time lost waiting berth to count as laytime.</textarea></label>
                 <div class="form-row">
@@ -1037,7 +1004,7 @@
         <section class="command-deck-panel" id="commandDeck">
           <div class="panel-heading">
             <div>
-              <p class="eyebrow">Operations Desk</p>
+              <p class="eyebrow">Focusea Command Deck</p>
               <h2>Broker command workflow: tekliften hesap, risk, belge ve aksiyona.</h2>
             </div>
             <div class="status-pill">Workflow Ready</div>
@@ -1088,7 +1055,7 @@
               <div class="mini-heading"><span>Document Pack</span><strong>PDF ready</strong></div>
               <div class="command-documents" id="commandDeckDocuments"></div>
               <div class="button-row">
-                <button type="button" class="primary-button small" id="downloadCommandDeckReport">Operations report PDF</button>
+                <button type="button" class="primary-button small" id="downloadCommandDeckReport">Command Report PDF</button>
                 <button type="button" class="ghost-button small" id="startPresentationMode" data-command-presentation>Demo Flow</button>
               </div>
             </article>
@@ -1103,7 +1070,7 @@
         <section class="decision-passport-panel" id="decisionPassportPanel">
           <div class="panel-heading">
             <div>
-              <p class="eyebrow">Deal Workspace</p>
+              <p class="eyebrow">Focusea Flagship Workspace</p>
               <h2>Deal Passport: one maritime decision, with its evidence attached.</h2>
             </div>
             <div class="status-pill passport-status-pill">No Blind Fix</div>
@@ -1203,7 +1170,7 @@
         <section class="smart-ops-panel" id="smartOps">
           <div class="panel-heading">
             <div>
-              <p class="eyebrow">Operational Review</p>
+              <p class="eyebrow">Focusea Smart Ops</p>
               <h2>Kullanıcıya İş Yaptıran Operasyon Merkezi</h2>
             </div>
             <div class="status-pill">Actionable Workspace</div>
@@ -1326,7 +1293,7 @@
         <section class="broker-pro-panel" id="brokerPro">
           <div class="panel-heading">
             <div>
-              <p class="eyebrow">Broker Analysis</p>
+              <p class="eyebrow">Broker Pro Suite</p>
               <h2>Pazarlık, Clause, Laytime, Cargo Pricing ve Risk Terminali</h2>
             </div>
             <div class="status-pill">Cargo-Aware</div>
@@ -1448,7 +1415,7 @@
         <section class="operations-panel" id="brokerOps">
           <div class="panel-heading">
             <div>
-              <p class="eyebrow">Broker Operations</p>
+              <p class="eyebrow">Broker Operations Suite</p>
               <h2>Offer, Matrix, Sensitivity, Compliance, ETS, CRM ve Doküman Merkezi</h2>
             </div>
             <div class="status-pill">Daily Broker Tools</div>
@@ -1654,7 +1621,7 @@
         <section class="platform-core-panel" id="platformCore">
           <div class="panel-heading">
             <div>
-              <p class="eyebrow">Platform Services</p>
+              <p class="eyebrow">Focusea Platform Core</p>
               <h2>Kayıt, PDF Export, Kanban, Bildirim, Database, Analytics ve Admin</h2>
             </div>
             <div class="status-pill">Persistent Workspace</div>
@@ -1738,7 +1705,7 @@
         <section class="broker-intel-panel" id="brokerIntelligence">
           <div class="panel-heading">
             <div>
-              <p class="eyebrow">Broker Intelligence</p>
+              <p class="eyebrow">Broker Intelligence Suite</p>
               <h2>Copilot, offer parser, TCE optimizer, risk radar ve gercek indirilebilir raporlar</h2>
             </div>
             <div class="status-pill">Download Ready</div>
@@ -1902,7 +1869,7 @@
         <section class="command-terminal-panel" id="commandTerminal">
           <div class="panel-heading">
             <div>
-              <p class="eyebrow">Broker Operations Desk</p>
+              <p class="eyebrow">Broker Command Terminal</p>
               <h2>Deal room, inbox, recap checker, claim builder, port/cargo pro ve admin kontrol</h2>
             </div>
             <div class="status-pill">Workspace Pro</div>
@@ -2164,7 +2131,7 @@ TRALI,Aliaga Nemrut Bay,Turkiye,Turkiye,Tanker / Bulk / Container,20</textarea><
         <section class="edge-suite-panel" id="edgeSuite">
           <div class="panel-heading">
             <div>
-              <p class="eyebrow">Risk & Compliance</p>
+              <p class="eyebrow">Focusea Edge Suite</p>
               <h2>Timeline, negotiation, document AI, profit radar ve broker daily brief</h2>
             </div>
             <div class="status-pill">Differentiator Layer</div>
@@ -2315,7 +2282,7 @@ TRALI,Aliaga Nemrut Bay,Turkiye,Turkiye,Tanker / Bulk / Container,20</textarea><
         <section class="commercial-suite-panel" id="commercialWorkspace">
           <div class="panel-heading">
             <div>
-              <p class="eyebrow">Commercial Analysis</p>
+              <p class="eyebrow">Commercial Suite</p>
               <h2>Broker, charterer ve operasyon ekipleri için gerçek iş araçları</h2>
             </div>
             <div class="status-pill">Workflow Ready</div>
@@ -2626,7 +2593,7 @@ TRALI,Aliaga Nemrut Bay,Turkiye,Turkiye,Tanker / Bulk / Container,20</textarea><
         <section class="autopilot-panel" id="autopilotSuite">
           <div class="panel-heading">
             <div>
-              <p class="eyebrow">Workflow Automation</p>
+              <p class="eyebrow">Broker Autopilot Pro</p>
               <h2>Mailden deal room'a, belgeden claim'e, piyasadan karara tek akilli masa</h2>
             </div>
             <div class="status-pill">End-to-End Workflow</div>
@@ -2634,16 +2601,16 @@ TRALI,Aliaga Nemrut Bay,Turkiye,Turkiye,Tanker / Bulk / Container,20</textarea><
 
           <div class="autopilot-hero">
             <div>
-              <span>Automation status</span>
+              <span>Autopilot status</span>
               <strong id="autopilotHeadline">Paste a fixture message and Focusea builds the desk.</strong>
               <p id="autopilotSummary">Inbox classification, timeline, document contradiction check, voyage optimization, ETS, weather, port restriction, counterparty memory and client portal run together.</p>
             </div>
-            <button type="button" class="primary-button" id="runAutopilot">Run analysis</button>
+            <button type="button" class="primary-button" id="runAutopilot">Run Autopilot</button>
           </div>
 
           <div class="autopilot-grid">
             <article class="wide-card">
-              <div class="mini-heading"><span>1. Broker inbox parser</span><strong>Mail / WhatsApp metninden klasor + deal room</strong></div>
+              <div class="mini-heading"><span>1. Broker Inbox Autopilot</span><strong>Mail / WhatsApp metninden klasor + deal room</strong></div>
               <form class="broker-form single-column" id="autopilotInboxForm">
                 <label><span>Incoming broker message</span><textarea name="message">Firm offer: 50k coal Indonesia to India laycan 10/15 Jul freight USD 18.50 pmt demurrage USD 18,000/day Supramax. Subjects stem and receiver approval by 1700 LT. NOR WIBON/WIPON, time lost waiting berth to count. Please counter quickly.</textarea></label>
                 <div class="auto-deal-controls">
@@ -2651,7 +2618,7 @@ TRALI,Aliaga Nemrut Bay,Turkiye,Turkiye,Tanker / Bulk / Container,20</textarea><
                   <label><span>Default charterer</span><input name="charterer" value="Atlas Commodities" /></label>
                   <label><span>Subject deadline h</span><input name="deadlineHours" type="number" value="18" min="0" step="1" /></label>
                 </div>
-                <button type="submit">Analyze message</button>
+                <button type="submit">Autopilot Analiz Et</button>
               </form>
               <div class="button-row">
                 <button type="button" class="ghost-button small" id="autopilotPushInbox">Inbox + Deal Room'a Aktar</button>
@@ -2789,7 +2756,7 @@ TRALI,Aliaga Nemrut Bay,Turkiye,Turkiye,Tanker / Bulk / Container,20</textarea><
         <section class="deal-iq-panel" id="dealIqSuite">
           <div class="panel-heading">
             <div>
-              <p class="eyebrow">Deal Review</p>
+              <p class="eyebrow">Focusea Deal IQ</p>
               <h2>Fixture War Room, comparables, time bar, CP diff ve profesyonel rapor merkezi</h2>
             </div>
             <div class="status-pill">Broker Intelligence</div>
@@ -2801,7 +2768,7 @@ TRALI,Aliaga Nemrut Bay,Turkiye,Turkiye,Tanker / Bulk / Container,20</textarea><
               <strong id="dealIqHeadline">Open a deal war room and let the desk score it.</strong>
               <p id="dealIqSummary">Commercial risk, market memory, time bars, CP changes, vessel suitability and evidence readiness stay on one page.</p>
             </div>
-            <button type="button" class="primary-button" id="runDealIq">Review deal</button>
+            <button type="button" class="primary-button" id="runDealIq">Run Deal IQ</button>
           </div>
 
           <div class="deal-iq-grid">
@@ -2936,7 +2903,7 @@ TRALI,Aliaga Nemrut Bay,Turkiye,Turkiye,Tanker / Bulk / Container,20</textarea><
             <article class="wide-card">
               <div class="mini-heading"><span>10. Professional Report Center</span><strong>Tum deal IQ raporlarini indir</strong></div>
               <div class="export-actions deal-iq-export">
-                <button type="button" data-download-deal-iq="full-pdf">Full deal review PDF</button>
+                <button type="button" data-download-deal-iq="full-pdf">Full Deal IQ PDF</button>
                 <button type="button" data-download-deal-iq="full-json">Full Pack JSON</button>
                 <button type="button" data-download-deal-iq="client-summary">Client Summary TXT</button>
                 <button type="button" data-download-deal-iq="claim-pack">Claim Pack PDF</button>
@@ -2950,7 +2917,7 @@ TRALI,Aliaga Nemrut Bay,Turkiye,Turkiye,Tanker / Bulk / Container,20</textarea><
         <section class="decision-lab-panel" id="decisionLabSuite">
           <div class="panel-heading">
             <div>
-              <p class="eyebrow">Scenario Analysis</p>
+              <p class="eyebrow">Focusea Decision Lab</p>
               <h2>Fixture doctor, CP battle, time bar, what-if, dispute ve broker training</h2>
             </div>
             <div class="status-pill">Decision Intelligence</div>
@@ -2962,7 +2929,7 @@ TRALI,Aliaga Nemrut Bay,Turkiye,Turkiye,Tanker / Bulk / Container,20</textarea><
               <strong id="decisionLabHeadline">Run the lab to stress-test the fixture.</strong>
               <p id="decisionLabSummary">This layer diagnoses where a broker can lose money, time or legal position before the deal is fixed clean.</p>
             </div>
-            <button type="button" class="primary-button" id="runDecisionLab">Run scenario analysis</button>
+            <button type="button" class="primary-button" id="runDecisionLab">Run Full Decision Lab</button>
           </div>
 
           <div class="decision-lab-grid">
@@ -3566,7 +3533,7 @@ TRALI,Aliaga Nemrut Bay,Turkiye,Turkiye,Tanker / Bulk / Container,20</textarea><
         <section class="saas-core-panel" id="saasCorePanel">
           <div class="panel-heading">
             <div>
-              <p class="eyebrow">Platform Services</p>
+              <p class="eyebrow">Focusea SaaS Core</p>
               <h2>Hesap, deal room, upload, alarm, admin, client portal ve analytics gercek urun katmaninda</h2>
             </div>
             <div class="status-pill">SaaS Ready Layer</div>
@@ -3578,7 +3545,7 @@ TRALI,Aliaga Nemrut Bay,Turkiye,Turkiye,Tanker / Bulk / Container,20</textarea><
               <strong>Focusea artik sadece hesap yapan site degil; kullanici, dosya, alarm, rapor ve musteri portali olan isletim sistemi.</strong>
               <p>Bu sayfa statik GitHub Pages ustunde local workspace ile calisir; Python backend deploy edilince ayni alanlar gercek hesap/veritabani/OCR/API akisini kullanacak sekilde hazirlandi.</p>
             </div>
-            <button type="button" class="primary-button" id="runSaasCore">Run platform check</button>
+            <button type="button" class="primary-button" id="runSaasCore">Run SaaS Core</button>
           </div>
 
           <div class="saas-core-grid">
@@ -3727,7 +3694,7 @@ Subject: Firm offer
         <section class="ai-core-panel" id="aiCorePanel">
           <div class="panel-heading">
             <div>
-              <p class="eyebrow">Document Analysis</p>
+              <p class="eyebrow">Focusea AI Core</p>
               <h2>Autopilot, copilot, deal twin, knowledge graph, audit, vault, rol paneli ve presentation mode</h2>
             </div>
             <div class="status-pill">AI Operating Layer</div>
@@ -3739,12 +3706,12 @@ Subject: Firm offer
               <strong>Bir fixture maili yapistir; Focusea deal'i okur, riskleri aciklar, belge/vault/audit/presentation akisini kurar.</strong>
               <p>Bu katman broker, charterer, owner, operation, claim ve hoca sunumu icin ayni veriyi farkli is akislarina cevirir. Statik sayfada lokal AI mantigi calisir; Python backend acildiginda ayni moduller API-ready hale gelir.</p>
             </div>
-            <button type="button" class="primary-button" id="runAiCore">Run document analysis</button>
+            <button type="button" class="primary-button" id="runAiCore">Run AI Core</button>
           </div>
 
           <div class="ai-core-grid">
             <article class="wide-card ai-main-card">
-              <div class="mini-heading"><span>1. Fixture workflow</span><strong>Fixture mailinden uc tan uca aksiyon</strong></div>
+              <div class="mini-heading"><span>1. Focusea Autopilot</span><strong>Fixture mailinden uc tan uca aksiyon</strong></div>
               <form class="broker-form single-column" id="aiAutopilotForm">
                 <label><span>Fixture / SOF / clause text</span><textarea name="dealText">Firm offer: 50k coal Indonesia to India laycan 10/15 Jul freight USD 18.50 pmt demurrage USD 18,000/day Supramax. NOR WIBON/WIPON and time lost waiting berth to count as laytime. Subjects receiver approval by 1700 LT. NOR tendered 10 Jul 0800, berthed 10 Jul 1800, loading started 11 Jul 0600, rain stop 12 Jul 0300-0900, completed 14 Jul 2200.</textarea></label>
                 <div class="auto-deal-controls">
@@ -3752,11 +3719,11 @@ Subject: Firm offer
                   <label><span>Risk appetite</span><select name="riskAppetite"><option>Balanced</option><option>Conservative</option><option>Aggressive</option></select></label>
                   <label><span>Target TCE</span><input name="targetTce" type="number" value="22000" step="500" /></label>
                 </div>
-                <button type="submit">Run workflow</button>
+                <button type="submit">Autopilot Calistir</button>
               </form>
               <div class="button-row">
-                <button type="button" class="ghost-button small" data-download-ai="autopilot-pdf">Workflow PDF</button>
-                <button type="button" class="ghost-button small" data-download-ai="autopilot-json">Workflow JSON</button>
+                <button type="button" class="ghost-button small" data-download-ai="autopilot-pdf">Autopilot PDF</button>
+                <button type="button" class="ghost-button small" data-download-ai="autopilot-json">Autopilot JSON</button>
                 <button type="button" class="ghost-button small" data-download-ai="action-mail">Action Mail TXT</button>
               </div>
               <div class="broker-output" id="aiAutopilotResult"></div>
@@ -3866,7 +3833,7 @@ Subject: Firm offer
         <section class="pro-ops-panel" id="proOpsPanel">
           <div class="panel-heading">
             <div>
-              <p class="eyebrow">Operations Workflow</p>
+              <p class="eyebrow">Focusea Pro Ops</p>
               <h2>Broker inbox, deal room, AI copilot, OCR lane, Turkiye port ops, claim, market alarm, loadicator, client portal ve Focusea Score</h2>
             </div>
             <div class="status-pill">Broker Operating Desk</div>
@@ -3878,7 +3845,7 @@ Subject: Firm offer
               <strong>Tek fixture metninden teklif karti, deal dosyasi, claim paketi, musteri raporu ve karar skoru uret.</strong>
               <p>Bu sayfa broker/charter is akisini tek yerde toplar: mail parse eder, eksikleri sorar, risk aciklar, liman ve claim tarafini baglar, PDF/JSON ciktisi verir.</p>
             </div>
-            <button type="button" class="primary-button" id="runProOps">Run operations review</button>
+            <button type="button" class="primary-button" id="runProOps">Run Pro Ops</button>
           </div>
 
           <div class="pro-ops-grid">
@@ -3896,7 +3863,7 @@ Subject: Firm offer
               </form>
               <div class="button-row">
                 <button type="button" class="ghost-button small" id="saveProOpsOffer">Offer'i Kaydet</button>
-                <button type="button" class="ghost-button small" id="clearProOpsMemory">Clear operations records</button>
+                <button type="button" class="ghost-button small" id="clearProOpsMemory">Pro Ops Kayitlarini Temizle</button>
                 <button type="button" class="ghost-button small" data-download-proops="inbox-json">Inbox JSON</button>
                 <button type="button" class="ghost-button small" data-download-proops="counter-mail">Counter Mail TXT</button>
               </div>
@@ -4013,7 +3980,7 @@ Subject: Firm offer
         <section class="super-suite-panel" id="superSuitePanel">
           <div class="panel-heading">
             <div>
-              <p class="eyebrow">Integrated Reports</p>
+              <p class="eyebrow">Focusea Super Suite</p>
               <h2>Broker, operasyon, claim, market, loadicator, AI ve akademi tek komuta merkezinde</h2>
             </div>
             <div class="status-pill">All-in-One Product Layer</div>
@@ -4025,7 +3992,7 @@ Subject: Firm offer
               <strong id="superSuiteHeadline">Fixture mailini ver, Focusea tum is akislarini hazirlasin.</strong>
               <p id="superSuiteSummary">Bu katman onceki tum fikirleri tek ekranda toplar: fixture autopilot, deal room, port ops, claim pack, market alert, loadicator bridge, document AI, akademi, client portal ve admin/product merkezi.</p>
             </div>
-            <button type="button" class="primary-button" id="runSuperSuite">Build integrated report</button>
+            <button type="button" class="primary-button" id="runSuperSuite">Run Super Suite</button>
           </div>
 
           <div class="super-suite-grid">
@@ -4099,7 +4066,7 @@ Subject: Firm offer
         <section class="enterprise-command-panel" id="enterpriseCommandPanel">
           <div class="panel-heading">
             <div>
-              <p class="eyebrow">Enterprise Workspace</p>
+              <p class="eyebrow">Focusea Enterprise Command</p>
               <h2>One professional workspace for deal, document, market, port, client and report decisions</h2>
             </div>
             <div class="status-pill">Product OS Layer</div>
@@ -4112,7 +4079,7 @@ Subject: Firm offer
               <p id="enterpriseCommandSummary">This layer connects the strongest Focusea modules into a single broker-grade workflow with traceable scores and downloadable outputs.</p>
             </div>
             <div class="enterprise-command-actions">
-              <button type="button" class="primary-button" id="runEnterpriseCommand">Run analysis</button>
+              <button type="button" class="primary-button" id="runEnterpriseCommand">Run Command</button>
               <a class="ghost-button" href="stability.html" target="_blank" rel="noopener">Open 3D Loadicator</a>
             </div>
           </div>
@@ -4173,17 +4140,17 @@ Subject: Firm offer
         <section class="python-engine-panel" id="pythonEngineSuite">
           <div class="panel-heading">
             <div>
-              <p class="eyebrow">Connected Backend</p>
-              <h2>Accounts, Deal Rooms, document vault, workflow engine and licensed data gateways</h2>
+              <p class="eyebrow">Focusea Python Engine</p>
+              <h2>FastAPI backend, PDF, SOF laytime, fixture parser ve hesap motoru</h2>
             </div>
-            <div class="status-pill">Deployment package ready</div>
+            <div class="status-pill">Backend Ready</div>
           </div>
 
           <div class="python-engine-hero">
             <div>
               <span>Live API bridge</span>
-              <strong id="pythonEngineHeadline">Connect a deployed Focusea API to use persistent accounts and Deal Rooms.</strong>
-              <p id="pythonEngineSummary">The website remains static on GitHub Pages; private accounts, documents and provider keys stay on the separate FastAPI service.</p>
+              <strong id="pythonEngineHeadline">Python backend kapaliysa panel lokal demo ile calisir.</strong>
+              <p id="pythonEngineSummary">Backend'i calistirdiginda bu sayfa ayni formla FastAPI endpointlerine baglanir; GitHub Pages statik kaldigi icin Python ayri deploy edilir.</p>
             </div>
             <div class="python-runbook">
               <code>python -m pip install -r backend/requirements.txt</code>
@@ -4193,95 +4160,47 @@ Subject: Firm offer
 
           <div class="python-engine-grid">
             <article class="wide-card">
-              <div class="mini-heading"><span>1. API Test Console</span><strong>Use the API when connected; local calculation fallback otherwise</strong></div>
+              <div class="mini-heading"><span>1. API Test Console</span><strong>Backend varsa gercek API, yoksa local demo</strong></div>
               <form class="broker-form single-column" id="pythonEngineForm">
                 <div class="auto-deal-controls">
                   <label><span>API base</span><input name="apiBase" value="" placeholder="Leave blank for static demo mode" /></label>
                   <label><span>Job</span><select name="jobType" id="pythonEngineJob"><option value="parse-offer">Broker Inbox Parser</option><option value="sof-laytime">SOF to Laytime</option><option value="voyage-estimate">Voyage Estimate</option><option value="cp-diff">CP Clause Diff</option><option value="stability">Loadicator Stability</option></select></label>
                 </div>
                 <label><span>Input text / payload</span><textarea name="inputText" id="pythonEngineInput">50k coal Indonesia to India laycan 10/15 Jul freight 18.50 pmt demurrage USD 18,000/day Supramax. Subjects stem and receiver approval. Commission 2.5 pct total.</textarea></label>
-                <button type="submit">Run calculation</button>
+                <button type="submit">Python Engine Calistir</button>
               </form>
               <div class="button-row">
-                <button type="button" class="ghost-button small" data-download-python="json">Download JSON</button>
-                <button type="button" class="ghost-button small" data-download-python="pdf">Download PDF</button>
-                <button type="button" class="ghost-button small" data-download-python="runbook">Download runbook</button>
+                <button type="button" class="ghost-button small" data-download-python="json">Sonucu JSON Indir</button>
+                <button type="button" class="ghost-button small" data-download-python="pdf">PDF Rapor Indir</button>
+                <button type="button" class="ghost-button small" data-download-python="runbook">Backend Runbook Indir</button>
               </div>
               <div class="broker-output python-engine-output" id="pythonEngineResult"></div>
             </article>
 
             <article>
-              <div class="mini-heading"><span>2. Backend Capabilities</span><strong>Available API modules</strong></div>
+              <div class="mini-heading"><span>2. Backend Capabilities</span><strong>Python tarafinda eklenenler</strong></div>
               <div class="python-capability-list">
-                <div><span>/api/broker/parse-offer</span><strong>Parses an email or message into structured fixture terms.</strong></div>
-                <div><span>/api/laytime/sof</span><strong>Calculates laytime, demurrage and dispatch from SOF events.</strong></div>
-                <div><span>/api/voyage/estimate</span><strong>Calculates TCE, bunker, hire, port costs and net P&L.</strong></div>
-                <div><span>/api/charterparty/diff</span><strong>Finds material differences between two clauses.</strong></div>
-                <div><span>/api/stability/evaluate</span><strong>Evaluates GM, trim, heel, KG and longitudinal strength proxies.</strong></div>
-                <div><span>/api/reports/{type}/pdf</span><strong>Returns downloadable fixture, laytime, voyage and load-plan PDFs.</strong></div>
-              </div>
-            </article>
-
-            <article class="wide-card free-data-card">
-              <div class="mini-heading"><span>3. Free Data Stack</span><strong>No invented live values</strong></div>
-              <div class="python-capability-list">
-                <div><span>AISStream</span><strong>Free community live AIS snapshot; free server-side key required.</strong><small><a href="https://aisstream.io/documentation" target="_blank" rel="noopener noreferrer">Documentation</a></small></div>
-                <div><span>MET Norway</span><strong>Free global point forecast with source attribution.</strong><small><a href="https://api.met.no/" target="_blank" rel="noopener noreferrer">Official API</a></small></div>
-                <div><span>NWS</span><strong>Free official active weather alerts for the United States and territories.</strong><small><a href="https://www.weather.gov/documentation/services-web-api" target="_blank" rel="noopener noreferrer">Official API</a></small></div>
-                <div><span>EIA Open Data</span><strong>Free-key energy indicators; never labelled as direct bunker quotations.</strong><small><a href="https://www.eia.gov/opendata/" target="_blank" rel="noopener noreferrer">Get free key</a></small></div>
-                <div><span>UN/LOCODE + NGA WPI</span><strong>Free official port datasets for atlas imports and verification.</strong><small><a href="https://unece.org/trade/cefact/unlocode-code-list-country-and-territory" target="_blank" rel="noopener noreferrer">UN/LOCODE</a> · <a href="https://msi.nga.mil/Publications/WPI" target="_blank" rel="noopener noreferrer">WPI</a></small></div>
-                <div><span>Baltic indices</span><strong>Remain locked until a valid display licence exists.</strong><small>Focusea does not substitute simulated numbers.</small></div>
+                <div><span>/api/broker/parse-offer</span><strong>Mail / WhatsApp teklifini deal kartina cevirir.</strong></div>
+                <div><span>/api/laytime/sof</span><strong>NOR, berth, rain, completion olayindan demurrage/dispatch hesaplar.</strong></div>
+                <div><span>/api/voyage/estimate</span><strong>TCE, bunker, hire, port cost ve net P&L cikarir.</strong></div>
+                <div><span>/api/charterparty/diff</span><strong>Iki clause metninde riskli farklari bulur.</strong></div>
+                <div><span>/api/stability/evaluate</span><strong>GM, trim, heel, KG, shear/bending proxy ve ballast onerisi verir.</strong></div>
+                <div><span>/api/reports/{type}/pdf</span><strong>Fixture, laytime, voyage veya load plan PDF dondurur.</strong></div>
               </div>
             </article>
 
             <article>
-              <div class="mini-heading"><span>4. Storage &amp; Alarms</span><strong>Persistent product storage</strong></div>
+              <div class="mini-heading"><span>3. Storage & Alarms</span><strong>Gercek backend akisi</strong></div>
               <ul class="compact-list">
-                <li>Users, sessions, Deal Rooms, documents, reports and audit events use SQLite.</li>
-                <li>The schema can be migrated to managed PostgreSQL for multi-instance deployment.</li>
-                <li>Laycan, subject, time-bar and market alerts are represented as auditable events.</li>
-                <li>PDF embedded text is extracted now; scanned images require a configured OCR worker.</li>
+                <li>Offer, fixture, CRM, vault ve report history JSON storage ile baslar.</li>
+                <li>Sonraki asamada SQLite / PostgreSQL'e tasinmaya hazir schema mantigi var.</li>
+                <li>Laycan, subject deadline, time bar ve bunker alertleri scheduler ile baglanabilir.</li>
+                <li>OCR icin PDF/fotograf okuma modulu backend'e eklenebilir.</li>
               </ul>
             </article>
 
-            <article class="wide-card production-core-card">
-              <div class="mini-heading"><span>5. Production Core</span><strong>Authenticated account and Deal Room workflow</strong></div>
-              <form class="broker-form" id="productionAuthForm">
-                <div class="auto-deal-controls">
-                  <label><span>API base</span><input name="apiBase" type="url" placeholder="https://your-focusea-api.example.com" required /></label>
-                  <label><span>Action</span><select name="action"><option value="register">Create account</option><option value="login">Sign in</option></select></label>
-                </div>
-                <div class="auto-deal-controls">
-                  <label><span>Username</span><input name="username" autocomplete="username" placeholder="unique username" required /></label>
-                  <label><span>Gmail / email</span><input name="email" type="email" autocomplete="email" placeholder="name@gmail.com" /></label>
-                  <label><span>Password</span><input name="password" type="password" autocomplete="current-password" placeholder="Upper + lower + number + *" required /></label>
-                </div>
-                <button type="submit">Connect account</button>
-              </form>
-              <div class="broker-output" id="productionAuthResult"><p>Connect a deployed API to create a secure server-side account.</p></div>
-              <form class="broker-form single-column production-workflow-form" id="productionWorkflowForm">
-                <label><span>Fixture message</span><textarea name="fixtureText">50k coal Indonesia to India laycan 10/15 Jul freight 18.50 pmt demurrage USD 18,000/day Supramax. Subjects stem and receiver approval. Commission 2.5 pct total.</textarea></label>
-                <div class="button-row">
-                  <button type="submit">Create Deal Room</button>
-                  <button type="button" class="ghost-button" id="productionRefreshDeals">Refresh my deals</button>
-                  <button type="button" class="ghost-button" id="productionRefreshProviders">Check data providers</button>
-                </div>
-              </form>
-              <div class="broker-output" id="productionWorkflowResult"><p>Sign in first, then run the fixture workflow.</p></div>
-              <div class="broker-output" id="productionDealList"></div>
-              <div class="broker-output" id="productionProviderResult"></div>
-              <form class="broker-form production-document-form" id="productionDocumentForm" enctype="multipart/form-data">
-                <div class="auto-deal-controls">
-                  <label><span>Deal ID</span><input name="dealId" type="number" min="1" placeholder="Created Deal Room ID" required /></label>
-                  <label><span>CP / SOF / NOR / invoice</span><input name="document" type="file" accept=".pdf,.txt,.csv,.docx,.jpg,.jpeg,.png" required /></label>
-                </div>
-                <button type="submit">Scan and attach document</button>
-              </form>
-              <div class="broker-output" id="productionDocumentResult"></div>
-            </article>
-
             <article class="wide-card">
-              <div class="mini-heading"><span>6. Calculation history</span><strong>Recent calculation jobs</strong></div>
+              <div class="mini-heading"><span>4. Python Report History</span><strong>Son calisan isler</strong></div>
               <div class="broker-output" id="pythonReportHistory"></div>
             </article>
           </div>
@@ -5050,10 +4969,10 @@ Subject: Firm offer
           </article>
         </section>
 
-        <section class="growth-suite-panel" id="growthSuitePanel" aria-label="Client & Growth">
+        <section class="growth-suite-panel" id="growthSuitePanel" aria-label="Broker Growth Suite">
           <div class="panel-heading">
             <div>
-              <p class="eyebrow">Client & Growth</p>
+              <p class="eyebrow">Broker Growth Suite</p>
               <h2>Paste one fixture and let Focusea build the broker workspace.</h2>
               <p>
                 A practical daily desk for offer parsing, deal room memory, port cost estimates,
@@ -5073,7 +4992,7 @@ Subject: Firm offer
                 </label>
                 <label><span>Desk mode</span><select name="growthMode"><option value="full">Full workflow</option><option value="fixture">Fixture only</option><option value="claim">Claim focus</option><option value="client">Client brief</option></select></label>
                 <label><span>Target TCE / day</span><input name="targetTce" type="number" value="22000" min="0" step="500" /></label>
-                <button type="submit">Analyze broker message</button>
+                <button type="submit">Run Broker Autopilot</button>
                 <button type="button" class="ghost-button small" id="growthPushDeal">Save to Deal Room</button>
               </form>
               <div class="broker-output" id="growthInboxResult"></div>
@@ -5430,7 +5349,7 @@ Subject: Firm offer
         <section class="next-gen-suite-panel" id="nextGenSuitePanel" aria-labelledby="nextGenSuiteTitle">
           <div class="panel-heading">
             <div>
-              <p class="eyebrow">Research Tools</p>
+              <p class="eyebrow">Next Gen Maritime Suite</p>
               <h2 id="nextGenSuiteTitle">Paste one maritime problem; Focusea turns it into risk, calculation, document and action.</h2>
               <p>
                 This workspace combines fixture autopilot, deal room, smart laytime, clause risk, insurance quote,
@@ -5463,7 +5382,7 @@ Subject: Firm offer
                   <label><span>Data basis</span><select name="dataBasis"><option value="user">User input</option><option value="api">API-ready</option><option value="licensed">Licensed source required</option></select></label>
                 </div>
                 <div class="button-row">
-                  <button type="submit">Run analysis</button>
+                  <button type="submit">Run Autopilot</button>
                   <button type="button" class="ghost-button small" id="nextGenSaveDeal">Save Deal Room</button>
                   <button type="button" class="ghost-button small" data-next-gen-download="full">Download Full Pack</button>
                   <button type="button" class="ghost-button small" data-next-gen-download="client">Client Summary</button>
@@ -5512,7 +5431,7 @@ Subject: Firm offer
                 <span>Ask Focusea anything</span>
                 <input name="command" value="50k coal Indonesia to India laycan 10/15 Jul demurrage 18k, check deal health and stability" />
               </label>
-              <button type="submit">Run analysis</button>
+              <button type="submit">Run Command</button>
             </form>
             <div class="innovation-command-result" id="innovationCommandResult"></div>
           </div>
@@ -5545,7 +5464,7 @@ Subject: Firm offer
           </div>
 
           <div class="innovation-action-bar">
-            <a class="ghost-button small" href="#nextGen" data-page-link="nextGen">Open research tools</a>
+            <a class="ghost-button small" href="#nextGen" data-page-link="nextGen">Open Next Gen Suite</a>
             <a class="ghost-button small" href="stability.html" target="_blank" rel="noopener">Open Load-Stability Lab</a>
             <a class="ghost-button small" href="insurance.html" target="_blank" rel="noopener">Open Insurance Desk</a>
             <button type="button" class="ghost-button small" id="downloadInnovationReport">Download Innovation Report</button>
@@ -5672,8 +5591,7 @@ Subject: Firm offer
 
     <script src="monetization-config.js?v=adsense-readiness-1"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="backend-config.js?v=free-data-1"></script>
-    <script src="script.js?v=stable-language-1"></script>
+    <script src="script.js?v=newsroom-1"></script>
     <script src="monetization.js?v=adsense-readiness-1"></script>
       <script src="site-shell.js?v=shell-1"></script>
   </body>

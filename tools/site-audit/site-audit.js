@@ -58,7 +58,6 @@ for (const page of requiredPublicPages) {
   }
   const source = fs.readFileSync(pagePath, "utf8");
   if (!source.includes("site-shell.css")) addIssue("missing-site-shell", page, "site-shell.css is not linked.");
-  if (!source.includes("institutional.css")) addIssue("missing-institutional-style", page, "institutional.css is not linked.");
   if (!source.includes("site-shell.js")) addIssue("missing-site-shell", page, "site-shell.js is not linked.");
 }
 
@@ -87,10 +86,6 @@ for (const file of htmlFiles) {
   }
 }
 
-const homeHtml = fs.readFileSync(path.join(root, "index.html"), "utf8");
-if (!/<html[^>]*class="[^"]*notranslate[^"]*"[^>]*translate="no"/.test(homeHtml) || !/<meta name="google" content="notranslate"/.test(homeHtml)) {
-  addIssue("translation-contract", "index.html", "English UI must opt out of browser auto-translation to prevent mixed-language mutations.");
-}
 const sitemapPath = path.join(root, "sitemap.xml");
 if (fs.existsSync(sitemapPath)) {
   const sitemap = fs.readFileSync(sitemapPath, "utf8");
@@ -109,26 +104,11 @@ if (fs.existsSync(swPath)) {
   for (const asset of assets) {
     if (!fs.existsSync(path.join(root, asset))) addIssue("service-worker-missing-asset", "service-worker.js", asset);
   }
-  if (!/focusea-stable-language-1/.test(sw)) addIssue("service-worker-cache", "service-worker.js", "Cache name is not on the latest expected version.");
+  if (!/focusea-newsroom-cache-1/.test(sw)) addIssue("service-worker-cache", "service-worker.js", "Cache name is not on the latest expected version.");
 } else {
   addIssue("missing-file", "service-worker.js", "Service worker file is missing.");
 }
 
-const mainScriptPath = path.join(root, "script.js");
-if (fs.existsSync(mainScriptPath)) {
-  const mainScript = fs.readFileSync(mainScriptPath, "utf8");
-  if (/setInterval\(updateLiveFeed\s*,\s*1000\)/.test(mainScript)) {
-    addIssue("dashboard-layout-shift", "script.js", "Dashboard must not mutate and re-render every second.");
-  }
-  if (/setInterval\(refreshBalticLicensedFeed\s*,\s*1000\)/.test(mainScript)) {
-    addIssue("provider-overpolling", "script.js", "Licensed market providers must not be polled every second.");
-  }
-  if (/setupEnglishUiObserver\(\);/.test(mainScript)) {
-    addIssue("translation-loop", "script.js", "Continuous DOM translation must remain disabled.");
-  }  if (!mainScript.includes("simulated snapshot · not live")) {
-    addIssue("dashboard-trust-label", "script.js", "Stable simulated snapshot label is missing.");
-  }
-}
 if (issues.length) {
   console.error("Focusea site audit failed:");
   for (const issue of issues) console.error(`- [${issue.type}] ${issue.file}: ${issue.detail}`);

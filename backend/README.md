@@ -1,61 +1,71 @@
-# Focusea Production API
+# Focusea Python Backend
 
-FastAPI service for authenticated Focusea accounts, Deal Rooms, fixture workflows, document vaults, reports and licensed maritime data adapters.
+This backend turns the static Focusea interface into an API-ready broker and loadicator workspace.
 
-## Local run
+## Run locally
 
 ```powershell
 python -m pip install -r backend/requirements.txt
 python -m uvicorn backend.main:app --reload
 ```
 
-Open `http://127.0.0.1:8000/docs`. The static website can use `http://127.0.0.1:8000` as its API base.
+Open:
 
-## Production modules
-
-- PBKDF2-SHA256 passwords with unique username and email constraints
-- revocable bearer sessions and one-hour password reset tokens
-- optional Gmail/SMTP password reset delivery
-- new-account owner notification queue and optional webhook
-- SQLite Deal Rooms, documents, reports and audit trail
-- fixture message -> parse -> voyage/TCE -> risk -> clause review -> counter mail -> Deal Room
-- PDF/text extraction, MIME/size/PDF-signature checks and SHA-256 document fingerprints
-- free AISStream snapshot adapter, MET Norway global forecasts, NWS alerts, EIA indicators and official UN/LOCODE/WPI source links
-- commercial AIS, Baltic and bunker adapters that remain locked until licensed endpoints are configured
-- security headers, no-store responses for private endpoints and auth rate limiting
-
-## Important endpoints
-
-- `POST /api/auth/register`, `/login`, `/logout`, `/forgot-password`, `/reset-password`
-- `GET /api/auth/me`, `PUT /api/auth/progress`
-- `GET|POST /api/deals`, `GET|PATCH /api/deals/{id}`
-- `POST /api/workflow/fixture`
-- `POST /api/deals/{id}/documents`
-- `GET /api/providers/status`
-- `GET /api/providers/{aisstream|met_norway|nws|eia|unlocode|wpi}`
-- `GET /api/providers/{ais|baltic|bunker}` for optional commercial feeds
-- existing calculation, laytime, voyage, stability and report endpoints remain available
-
-## Configuration
-
-Copy `backend/.env.example` values into your hosting provider's secret environment settings. Never commit `.env`, API keys or SMTP passwords.
-
-Gmail password resets require an app password or approved SMTP credential. Set `FOCUSEA_SMTP_HOST`, `FOCUSEA_SMTP_USERNAME`, `FOCUSEA_SMTP_PASSWORD` and `FOCUSEA_SMTP_FROM`.
-
-AISStream and EIA need free API keys. MET Norway, NWS, UN/LOCODE and WPI do not need keys. Commercial AIS and Baltic data are not bundled; without licensed credentials those adapters return `licensed-required` and no invented data.
-
-## Deploy
-
-`Dockerfile` and `render.yaml` are included. GitHub Pages hosts only the frontend; deploy the API separately and enter its HTTPS base URL in Focusea's Connected Backend screen.
-
-For multi-instance production, move SQLite and uploaded files to managed PostgreSQL/object storage. Configure backups, malware scanning and an OCR worker before accepting sensitive commercial documents.
-
-## Tests
-
-```powershell
-python -m pip install -r backend/requirements-dev.txt
-python -m pytest backend/tests -q
+```text
+http://127.0.0.1:8000/docs
 ```
-### Render storage note
 
-The included blueprint attaches a persistent disk because SQLite and uploaded documents cannot survive on an ephemeral free web-service filesystem. Use paid persistent storage or migrate to managed PostgreSQL/object storage before real users upload data.
+Then open the site and go to `#pythonEngine`. The API base should stay:
+
+```text
+http://127.0.0.1:8000
+```
+
+## Endpoints
+
+- `GET /health`
+- `GET /api/provider-status`
+- `POST /api/broker/parse-offer`
+- `POST /api/laytime/sof`
+- `POST /api/voyage/estimate`
+- `POST /api/charterparty/diff`
+- `POST /api/counterparty/score`
+- `POST /api/agency/workspace`
+- `POST /api/mail/generate`
+- `POST /api/fixtures/compare`
+- `POST /api/documents/safety`
+- `POST /api/document-room/analyze`
+- `GET /api/data-trust/center`
+- `POST /api/carbon/estimate`
+- `POST /api/alarms/ics`
+- `POST /api/client-portal/pack`
+- `POST /api/daily-brief`
+- `POST /api/ai/autopilot`
+- `POST /api/ai/copilot`
+- `POST /api/ai/knowledge-graph`
+- `GET /api/analytics/performance`
+- `POST /api/stability/evaluate`
+- `POST /api/workspace/save`
+- `GET /api/workspace`
+- `POST /api/audit`
+- `POST /api/reports/{report_type}`
+- `POST /api/reports/{report_type}/pdf`
+
+## Production gates
+
+Use environment variables to make the demo production-safe:
+
+```text
+FOCUSEA_ALLOWED_ORIGINS=https://captainemo03.github.io,https://your-domain.example
+FOCUSEA_AIS_ENDPOINT=https://licensed-ais-provider.example/feed
+FOCUSEA_BALTIC_ENDPOINT=https://licensed-market-provider.example/indexes
+FOCUSEA_BUNKER_ENDPOINT=https://verified-bunker-provider.example/prices
+FOCUSEA_OCR_WORKER=https://your-worker.example/ocr
+```
+
+Provider status stays explicit: AIS and Baltic-style indexes are `licensed-required` until a real licensed endpoint is configured.
+Audit records include source, confidence, actor, reference and the decision-support disclaimer.
+
+## Notes
+
+GitHub Pages can only host the static frontend. Deploy this backend separately on a Python host such as Render, Railway, Fly.io, a VPS, or another FastAPI-compatible service.
