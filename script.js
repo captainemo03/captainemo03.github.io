@@ -2603,6 +2603,7 @@ const newsHeadlineCount = document.querySelector("#newsHeadlineCount");
 const newsSourceCount = document.querySelector("#newsSourceCount");
 const newsFreshestTime = document.querySelector("#newsFreshestTime");
 const newsIntegrityState = document.querySelector("#newsIntegrityState");
+const newsroomEditionDate = document.querySelector("#newsroomEditionDate");
 const newsRailPrev = document.querySelector("#newsRailPrev");
 const newsRailNext = document.querySelector("#newsRailNext");
 const smartSearchForm = document.querySelector("#smartSearchForm");
@@ -20658,13 +20659,19 @@ function newsCacheBust(url) {
 
 function normalizeNewsItem(item, sourcePrefix = "") {
   const rawTitle = stripHtml(item.title || "");
+  const cleanTitle = rawTitle.replace(/\s+-\s+[^-]+$/, "");
   const sourceFromTitle = rawTitle.includes(" - ") ? rawTitle.split(" - ").at(-1) : "";
   const source = item.source || item.author || item.domain || sourceFromTitle || "Live news";
+  const summaryText = stripHtml(item.description || item.content || "").replace(/\s+/g, " ").trim();
+  const summary = summaryText && !summaryText.toLowerCase().includes(cleanTitle.toLowerCase())
+    ? `${summaryText.slice(0, 220).trim()}${summaryText.length > 220 ? "..." : ""}`
+    : "";
   return {
-    title: rawTitle.replace(/\s+-\s+[^-]+$/, ""),
+    title: cleanTitle,
     link: item.link || item.url || "",
     source: sourcePrefix ? `${sourcePrefix} - ${source}` : source,
-    date: parseNewsDate(item.pubDate || item.pubdate || item.seendate || item.date)
+    date: parseNewsDate(item.pubDate || item.pubdate || item.seendate || item.date),
+    summary
   };
 }
 
@@ -20740,8 +20747,12 @@ function parseNewsItems(xmlText) {
     const link = item.querySelector("link")?.textContent || "";
     const source = item.querySelector("source")?.textContent || title.split(" - ").at(-1) || "Google News";
     const pubDate = item.querySelector("pubDate")?.textContent || "";
+    const description = stripHtml(item.querySelector("description")?.textContent || "").replace(/\s+/g, " ").trim();
+    const summary = description && !description.toLowerCase().includes(title.toLowerCase())
+      ? `${description.slice(0, 220).trim()}${description.length > 220 ? "..." : ""}`
+      : "";
     const date = pubDate ? new Date(pubDate) : null;
-    return { title, link, source, date };
+    return { title, link, source, date, summary };
   }).filter((item) => item.title && item.link);
 }
 
@@ -20791,6 +20802,11 @@ function setCachedLiveNews(query, items, sourceLabel) {
   });
 }
 
+if (newsroomEditionDate) {
+  const editionDate = new Date();
+  newsroomEditionDate.dateTime = editionDate.toISOString();
+  newsroomEditionDate.textContent = editionDate.toLocaleDateString(undefined, { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
+}
 function renderNews(items, query, meta = {}) {
   if (!newsGrid || !newsStatus) return;
 
@@ -20813,8 +20829,11 @@ function renderNews(items, query, meta = {}) {
     <article class="news-card ${index === 0 ? "news-card-lead" : ""}">
       <div class="news-card-meta"><span>${escapeHtml(item.source)}</span><b>${String(index + 1).padStart(2, "0")}</b></div>
       <strong>${escapeHtml(item.title)}</strong>
-      <small>${item.date ? item.date.toLocaleString() : "Publication time unavailable"}</small>
-      <a href="${escapeHtml(safeExternalUrl(item.link))}" target="_blank" rel="noopener noreferrer">Read full story</a>
+      ${item.summary ? `<p>${escapeHtml(item.summary)}</p>` : ""}
+      <div class="news-card-footer">
+        <time>${item.date ? item.date.toLocaleString() : "Publication time unavailable"}</time>
+        <a href="${escapeHtml(safeExternalUrl(item.link))}" target="_blank" rel="noopener noreferrer">Open article <span aria-hidden="true">&#8599;</span></a>
+      </div>
     </article>
   `).join("");
 

@@ -28,7 +28,7 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <script src="theme.js?v=theme-1"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="styles.css?v=newsroom-1" />
+    <link rel="stylesheet" href="styles.css?v=editorial-1" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -184,9 +184,10 @@
         <section class="news-panel front-news-rail newsroom-page" id="newsBulletin">
           <div class="newsroom-masthead">
             <div>
-              <p class="eyebrow">Focusea Global Maritime Newsroom</p>
-              <h1>Live shipping news, market moves and operational alerts.</h1>
-              <p>Real external headlines with source, publication time and direct article links. Focusea does not invent breaking news.</p>
+              <p class="eyebrow">News &amp; intelligence</p>
+              <h1>The maritime day,<br />in one place.</h1>
+              <p>Source-linked reporting for shipping, chartering, ports and marine operations. Updated throughout the day.</p>
+              <div class="newsroom-edition"><span>GLOBAL EDITION</span><time id="newsroomEditionDate"></time></div>
             </div>
             <div class="newsroom-quick-actions">
               <a class="primary-button small" href="#market" data-page-link="market">Open Market Terminal</a>
@@ -195,14 +196,14 @@
             </div>
           </div>
           <div class="newsroom-pulse" aria-label="Newsroom status">
-            <article><span>Headlines</span><strong id="newsHeadlineCount">0</strong><small>current result set</small></article>
-            <article><span>Sources</span><strong id="newsSourceCount">0</strong><small>independent publishers</small></article>
-            <article><span>Freshest update</span><strong id="newsFreshestTime">Checking...</strong><small>publication timestamp</small></article>
-            <article><span>Feed integrity</span><strong id="newsIntegrityState">Live check</strong><small>live / cache / snapshot</small></article>
+            <article><span>Headlines</span><strong id="newsHeadlineCount">0</strong><small>stories in this edition</small></article>
+            <article><span>Sources</span><strong id="newsSourceCount">0</strong><small>publishers represented</small></article>
+            <article><span>Freshest update</span><strong id="newsFreshestTime">Checking...</strong><small>most recent publication</small></article>
+            <article><span>Feed integrity</span><strong id="newsIntegrityState">Live check</strong><small>source verification mode</small></article>
           </div>
           <form class="newsroom-search" id="newsSearchForm">
             <label><span>Search maritime news</span><input name="newsQuery" type="search" placeholder="LNG rates, Red Sea, port congestion, bunker..." /></label>
-            <button type="submit">Search live sources</button>
+            <button type="submit">Search news</button>
           </form>
           <div class="news-toolbar">
             <button class="active" data-news-query="maritime shipping">All</button>
@@ -5591,7 +5592,7 @@ Subject: Firm offer
 
     <script src="monetization-config.js?v=adsense-readiness-1"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="script.js?v=newsroom-1"></script>
+    <script src="script.js?v=editorial-1"></script>
     <script src="monetization.js?v=adsense-readiness-1"></script>
       <script src="site-shell.js?v=shell-1"></script>
   </body>
