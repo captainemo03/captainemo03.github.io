@@ -105,11 +105,24 @@ if (fs.existsSync(swPath)) {
   for (const asset of assets) {
     if (!fs.existsSync(path.join(root, asset))) addIssue("service-worker-missing-asset", "service-worker.js", asset);
   }
-  if (!/focusea-free-data-1/.test(sw)) addIssue("service-worker-cache", "service-worker.js", "Cache name is not on the latest expected version.");
+  if (!/focusea-stable-dashboard-1/.test(sw)) addIssue("service-worker-cache", "service-worker.js", "Cache name is not on the latest expected version.");
 } else {
   addIssue("missing-file", "service-worker.js", "Service worker file is missing.");
 }
 
+const mainScriptPath = path.join(root, "script.js");
+if (fs.existsSync(mainScriptPath)) {
+  const mainScript = fs.readFileSync(mainScriptPath, "utf8");
+  if (/setInterval\(updateLiveFeed\s*,\s*1000\)/.test(mainScript)) {
+    addIssue("dashboard-layout-shift", "script.js", "Dashboard must not mutate and re-render every second.");
+  }
+  if (/setInterval\(refreshBalticLicensedFeed\s*,\s*1000\)/.test(mainScript)) {
+    addIssue("provider-overpolling", "script.js", "Licensed market providers must not be polled every second.");
+  }
+  if (!mainScript.includes("simulated snapshot · not live")) {
+    addIssue("dashboard-trust-label", "script.js", "Stable simulated snapshot label is missing.");
+  }
+}
 if (issues.length) {
   console.error("Focusea site audit failed:");
   for (const issue of issues) console.error(`- [${issue.type}] ${issue.file}: ${issue.detail}`);

@@ -20319,55 +20319,14 @@ function setLiveNote(key, value) {
   if (element) element.textContent = value;
 }
 
-function updateLiveFeed() {
+function updateLiveFeed({ advanceDemo = false, refreshPanels = true } = {}) {
   const now = new Date();
   const wave = Math.sin(now.getSeconds() / 6);
-  liveFeedState.vessels += Math.round(Math.random() * 14 - 5);
-  liveFeedState.congestion = Math.max(18, Math.min(82, liveFeedState.congestion + Math.round(Math.random() * 4 - 2)));
   applyVerifiedBunkerSnapshot();
-  liveFeedState.weather = Math.max(2, Math.min(18, liveFeedState.weather + Math.round(Math.random() * 2 - 1)));
-  liveFeedState.pnl = Math.max(92, Math.min(220, liveFeedState.pnl + Math.round(Math.random() * 8 - 4)));
-  liveFeedState.co2 = Math.max(1280, Math.min(1580, liveFeedState.co2 + Math.round(Math.random() * 12 - 6)));
-  liveFeedState.containerIndex = Math.max(1900, Math.min(2550, liveFeedState.containerIndex + Math.round(wave * 8 + Math.random() * 8 - 4)));
-  const moveIndex = (key, min, max, volatility, decimals = 0) => {
-    const next = clamp(Number(liveFeedState[key] || 0) + wave * volatility + Math.random() * volatility - volatility / 2, min, max);
-    liveFeedState[key] = Number(next.toFixed(decimals));
-  };
-  moveIndex("vlccTd3c", 38, 115, 1.8, 1);
-  moveIndex("aframaxWs", 80, 260, 3.4);
-  moveIndex("mrAtlantic", 90, 280, 3.2);
-  liveFeedState.scfi = liveFeedState.containerIndex + 46;
-  moveIndex("ccfi", 850, 2400, 14);
-  moveIndex("wci", 1400, 6200, 42);
-  moveIndex("fbx", 1300, 5900, 36);
-  moveIndex("transpacificSpot", 1800, 7800, 58);
-  moveIndex("bunkerAdjustment", 20, 90, 1.4);
-  moveIndex("lngSpot", 42000, 190000, 950);
-  moveIndex("lngQueue", 18, 92, 1.8);
-  moveIndex("jkmMarker", 6, 24, 0.16, 2);
-  moveIndex("lpgBaltic", 35, 145, 1.5);
-  moveIndex("eua", 45, 110, 0.38, 2);
-  moveIndex("co2CostIndex", 25, 95, 1.2);
-  moveIndex("ciiRisk", 20, 92, 1.1);
-  moveIndex("fueleuExposure", 10, 88, 0.9);
-  liveFeedState.singaporeQueue = clamp(liveFeedState.congestion + Math.round(wave * 7), 15, 88);
-  moveIndex("panamaWait", 8, 90, 1.2);
-  moveIndex("suezWatch", 5, 82, 1.1);
-  liveFeedState.weatherDisruption = clamp(liveFeedState.weather * 4 + Math.round(wave * 5), 12, 90);
-  moveIndex("securityRisk", 6, 86, 1.2);
-  moveIndex("coalRoute", 40, 165, 1.8);
-  moveIndex("grainFreight", 120, 360, 2.5);
-  moveIndex("ironOreCape", 45, 185, 1.7);
-  moveIndex("crudeRouteRisk", 30, 150, 1.5);
-  moveIndex("chemicalTanker", 55, 175, 1.4);
-  moveIndex("projectCargoDemand", 25, 120, 1.2);
-  moveIndex("usdIndex", 92, 118, 0.18, 2);
-  moveIndex("sofr", 2.4, 6.2, 0.03, 2);
-
-  const dryBulk = liveFeedState.dryBulkStates[Math.abs(now.getSeconds()) % liveFeedState.dryBulkStates.length];
-  const lngWatch = liveFeedState.lngStates[Math.floor(now.getSeconds() / 20) % liveFeedState.lngStates.length];
-  const security = liveFeedState.securityAreas[Math.floor(now.getSeconds() / 15) % liveFeedState.securityAreas.length];
-  const delayLow = 14 + (now.getSeconds() % 8);
+  const dryBulk = advanceDemo ? liveFeedState.dryBulkStates[Math.abs(now.getSeconds()) % liveFeedState.dryBulkStates.length] : liveFeedState.dryBulkStates[0];
+  const lngWatch = advanceDemo ? liveFeedState.lngStates[Math.floor(now.getSeconds() / 20) % liveFeedState.lngStates.length] : liveFeedState.lngStates[0];
+  const security = advanceDemo ? liveFeedState.securityAreas[Math.floor(now.getSeconds() / 15) % liveFeedState.securityAreas.length] : liveFeedState.securityAreas[0];
+  const delayLow = advanceDemo ? 14 + (now.getSeconds() % 8) : 18;
   const delayHigh = delayLow + 6;
 
   setLiveText("vessels", liveFeedState.vessels.toLocaleString("en-US"));
@@ -20382,20 +20341,21 @@ function updateLiveFeed() {
   setLiveText("lngWatch", lngWatch);
   setLiveText("security", security);
 
-  setLiveNote("vessels", `simulated AIS delta · ${now.toLocaleTimeString()}`);
+  setLiveNote("vessels", advanceDemo ? `simulated AIS delta · ${now.toLocaleTimeString()}` : "simulated snapshot · not live");
   setLiveNote("congestion", liveFeedState.congestion > 55 ? "Singapore high queue" : "Singapore watch");
   setLiveNote("bunker", bunkerSourceNote());
   setLiveNote("weather", liveFeedState.weather > 12 ? "multi-region weather watch" : "Indian Ocean watch");
-  setLiveNote("weatherRouting", `Bay of Bengal squall line · reroute advised in ${4 + (now.getSeconds() % 5)}h`);
+  setLiveNote("weatherRouting", advanceDemo ? `Bay of Bengal squall line · reroute advised in ${4 + (now.getSeconds() % 5)}h` : "weather route snapshot · verify before use");
   setLiveNote("anchorageDelay", `Singapore anchorage delay estimated ${delayLow}-${delayHigh}h`);
   setLiveNote("bunkerSpread", bunkerSpreadNote());
-  setLiveNote("containerIndex", `Asia-Europe spot rate ${wave >= 0 ? "+" : "-"}${Math.abs(wave * 4.8).toFixed(1)}%`);
+  setLiveNote("containerIndex", advanceDemo ? `Asia-Europe spot rate ${wave >= 0 ? "+" : "-"}${Math.abs(wave * 4.8).toFixed(1)}%` : "simulated snapshot · licensed feed required");
   setLiveNote("dryBulk", dryBulk === "Bullish" ? "Pacific grain demand rising" : "tonnage balance shifting");
   setLiveNote("lngWatch", `${lngWatch} terminal queue pressure`);
   setLiveNote("security", security === "GoA" ? "Enhanced watch recommended" : "route watch recommended");
 
   const timestamp = document.querySelector("#liveTimestamp");
-  if (timestamp) timestamp.textContent = `Live board · bunker verified ${verifiedBunkerSnapshot.checkedAt}; AIS/weather/port signals are demo · last update ${now.toLocaleTimeString()}`;
+  if (timestamp) timestamp.textContent = `Snapshot board · bunker source checked ${verifiedBunkerSnapshot.checkedAt}; AIS/weather/port signals remain clearly labelled.`;
+  if (!refreshPanels) return;
   renderOpsWorkspace();
   renderCommandDeck(selectedCommandScenarioId);
   renderPortCostRisk();
@@ -23263,7 +23223,7 @@ renderPythonHistory();
 renderCommandDeck();
 renderDecisionPassport();
 initializeSmartOps();
-updateLiveFeed();
+updateLiveFeed({ advanceDemo: false, refreshPanels: true });
 setupPageSections();
 renderMemberSignupHint();
 renderMemberAuthStatus();
@@ -23271,11 +23231,13 @@ renderMemberSignupAlerts();
 renderCommandWidgetCalculators();
 renderCommandRecentWork();
 activatePage(initialPageForSession(), false);
-setInterval(updateLiveFeed, 1000);
-setInterval(refreshBalticLicensedFeed, 1000);
+
 setInterval(() => {
-  if (!seaTrafficPopupVesselId) renderSeaTraffic();
-}, 3000);
+  if (document.visibilityState === "visible" && document.body.dataset.activePage === "market") refreshBalticLicensedFeed();
+}, 60000);
+setInterval(() => {
+  if (document.visibilityState === "visible" && document.body.dataset.activePage === "seaTraffic" && !seaTrafficPopupVesselId) renderSeaTraffic();
+}, 15000);
 refreshBalticLicensedFeed();
 loadMaritimeNews();
 setInterval(() => {

@@ -9972,3 +9972,15 @@ html[data-theme="light"] .newsroom-search button { color: #16222b; border-color:
 @media (prefers-reduced-motion: reduce) {
   .newsroom-loading span { animation: none; }
 }
+/* Stable dashboard: reserve metric space and avoid data-refresh layout shifts. */
+body[data-active-page="dashboard"] .dashboard-strip strong,
+body[data-active-page="dashboard"] .newsroom-pulse strong {
+  min-height: 1.35em;
+  font-variant-numeric: tabular-nums;
+}
+
+body[data-active-page="dashboard"] .dashboard-strip small,
+body[data-active-page="dashboard"] .newsroom-pulse small,
+body[data-active-page="dashboard"] .news-status {
+  min-height: 1.55em;
+}
