@@ -264,3 +264,85 @@ html[data-theme="light"] :is(.site-back-to-top, .mobile-nav-toggle, .site-mobile
   .brand-mark img { width: 54px; height: 54px; flex-basis: 54px; }
   .site-mobile-dock { left: 0; right: 0; bottom: 0; border-width: 1px 0 0; border-radius: 0; }
 }
+/* Keep the Focusea vessel present in the newsroom-first dashboard. */
+body[data-active-page="dashboard"] .newsroom-masthead {
+  position: relative;
+  isolation: isolate;
+  min-height: clamp(440px, 58vh, 650px);
+  margin-inline: calc(clamp(18px, 3vw, 42px) * -1);
+  padding-inline: clamp(18px, 3vw, 42px);
+  overflow: hidden;
+  background-color: #071017;
+}
+
+body[data-active-page="dashboard"] .newsroom-masthead::before {
+  content: "";
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  opacity: 1;
+  background-image:
+    linear-gradient(90deg, #071017 0%, rgba(7, 16, 23, .96) 31%, rgba(7, 16, 23, .68) 55%, rgba(7, 16, 23, .15) 100%),
+    linear-gradient(180deg, rgba(7, 16, 23, .08) 45%, rgba(7, 16, 23, .86) 100%),
+    url("assets/hero/focusea-command-hero.png") !important;
+  background-position: center, center, 70% center !important;
+  background-size: cover, cover, cover !important;
+  background-repeat: no-repeat !important;
+  filter: saturate(1.08) contrast(1.08);
+  transform: scale(1.01);
+}
+
+body[data-active-page="dashboard"] .newsroom-masthead::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(102, 143, 157, .08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(102, 143, 157, .08) 1px, transparent 1px) !important;
+  background-size: 74px 74px !important;
+  background-position: center !important;
+  opacity: .34;
+}
+
+body[data-active-page="dashboard"] .newsroom-masthead > * {
+  position: relative;
+  z-index: 1;
+}
+
+html[data-theme="light"] body[data-active-page="dashboard"] .newsroom-masthead::before {
+  background-image:
+    linear-gradient(90deg, rgba(244, 243, 239, .98) 0%, rgba(244, 243, 239, .92) 34%, rgba(244, 243, 239, .42) 64%, rgba(244, 243, 239, .1) 100%),
+    linear-gradient(180deg, rgba(244, 243, 239, .06) 45%, rgba(244, 243, 239, .88) 100%),
+    url("assets/hero/focusea-command-hero.png") !important;
+}
+
+@media (max-width: 900px) {
+  body[data-active-page="dashboard"] .newsroom-masthead {
+    min-height: 610px;
+    align-content: end;
+  }
+
+  body[data-active-page="dashboard"] .newsroom-masthead::before {
+    background-image:
+      linear-gradient(180deg, rgba(7, 16, 23, .12) 0%, rgba(7, 16, 23, .3) 40%, #071017 78%),
+      linear-gradient(90deg, rgba(7, 16, 23, .2), rgba(7, 16, 23, .08)),
+      url("assets/hero/focusea-command-hero.png") !important;
+    background-position: center, center, 66% center !important;
+  }
+}
+
+@media (max-width: 640px) {
+  body[data-active-page="dashboard"] .newsroom-masthead {
+    min-height: 560px;
+    margin-inline: -16px;
+    padding-inline: 16px;
+  }
+
+  body[data-active-page="dashboard"] .newsroom-masthead::before {
+    background-size: cover, cover, auto 100% !important;
+    background-position: center, center, 64% top !important;
+  }
+}
