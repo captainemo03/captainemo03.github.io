@@ -269,7 +269,9 @@ body[data-active-page="dashboard"] .newsroom-masthead {
   position: relative;
   isolation: isolate;
   min-height: clamp(440px, 58vh, 650px);
-  margin-inline: calc(clamp(18px, 3vw, 42px) * -1);
+  width: 100%;
+  max-width: 100%;
+  margin-inline: 0;
   padding-inline: clamp(18px, 3vw, 42px);
   overflow: hidden;
   background-color: #071017;
@@ -337,12 +339,173 @@ html[data-theme="light"] body[data-active-page="dashboard"] .newsroom-masthead::
 @media (max-width: 640px) {
   body[data-active-page="dashboard"] .newsroom-masthead {
     min-height: 560px;
-    margin-inline: -16px;
+    margin-inline: 0;
     padding-inline: 16px;
   }
 
   body[data-active-page="dashboard"] .newsroom-masthead::before {
     background-size: cover, cover, auto 100% !important;
     background-position: center, center, 64% top !important;
+  }
+}
+/* Narrow newsroom containment: responds to the panel width, not only the viewport. */
+body[data-active-page="dashboard"] {
+  overflow-x: clip;
+}
+
+body[data-active-page="dashboard"] main,
+body[data-active-page="dashboard"] .newsroom-page {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+body[data-active-page="dashboard"] .newsroom-page {
+  container: focusea-newsroom / inline-size;
+  overflow: hidden;
+}
+
+@container focusea-newsroom (max-width: 760px) {
+  .newsroom-masthead {
+    grid-template-columns: minmax(0, 1fr) !important;
+    min-height: 560px !important;
+    gap: 22px !important;
+    padding: 30px 18px 24px !important;
+  }
+
+  .newsroom-masthead h1 {
+    max-width: 11ch !important;
+    font-size: clamp(2.55rem, 13cqi, 4.25rem) !important;
+    line-height: .94 !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+  }
+
+  .newsroom-masthead p:not(.eyebrow) {
+    font-size: .98rem !important;
+    line-height: 1.55 !important;
+  }
+
+  .newsroom-edition {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+    gap: 7px !important;
+  }
+
+  .newsroom-quick-actions {
+    width: 100% !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .newsroom-quick-actions > * {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .newsroom-pulse {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .newsroom-pulse article,
+  .newsroom-pulse article:not(:first-child) {
+    padding: 16px 12px !important;
+    border-top: 1px solid rgba(225, 232, 238, .14);
+  }
+
+  .newsroom-pulse article:nth-child(odd) {
+    padding-left: 0 !important;
+  }
+
+  .newsroom-pulse article:nth-child(even) {
+    border-right: 0 !important;
+  }
+
+  .newsroom-search {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .newsroom-search input {
+    font-size: 16px !important;
+  }
+
+  .newsroom-search button {
+    width: 100% !important;
+    margin: 6px 0 10px !important;
+  }
+
+  .newsroom-page .news-toolbar {
+    width: 100%;
+    max-width: 100%;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overscroll-behavior-inline: contain;
+  }
+
+  .newsroom-page .news-grid.news-rail {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .newsroom-page .news-grid.news-rail .news-card,
+  .newsroom-page .news-grid.news-rail .news-card:nth-child(n),
+  .newsroom-page .news-card-lead,
+  .newsroom-page .news-card-lead + .news-card {
+    grid-column: 1 / -1 !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    padding: 24px 0 !important;
+    border-right: 0 !important;
+  }
+
+  .newsroom-page .news-card-lead > strong {
+    font-size: clamp(2rem, 9cqi, 3rem) !important;
+  }
+}
+
+@container focusea-newsroom (max-width: 420px) {
+  .newsroom-masthead {
+    min-height: 520px !important;
+    padding-inline: 14px !important;
+  }
+
+  .newsroom-masthead h1 {
+    font-size: clamp(2.25rem, 14cqi, 3.15rem) !important;
+  }
+
+  .newsroom-pulse {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .newsroom-pulse article,
+  .newsroom-pulse article:not(:first-child) {
+    padding-inline: 0 !important;
+    border-right: 0 !important;
+  }
+}
+/* Compact account controls on narrow screens. */
+@media (max-width: 640px) {
+  body[data-active-page="dashboard"] .top-account-bar {
+    gap: 12px;
+    padding: 10px 0 14px;
+  }
+
+  body[data-active-page="dashboard"] .top-account-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+    width: 100%;
+  }
+
+  body[data-active-page="dashboard"] .top-account-actions > *,
+  body[data-active-page="dashboard"] .top-account-actions .primary-button,
+  body[data-active-page="dashboard"] .top-account-actions .ghost-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 42px;
+    height: 42px;
+    flex: 0 0 auto;
+    padding: 0 12px;
   }
 }
