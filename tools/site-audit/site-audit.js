@@ -58,6 +58,7 @@ for (const page of requiredPublicPages) {
   }
   const source = fs.readFileSync(pagePath, "utf8");
   if (!source.includes("site-shell.css")) addIssue("missing-site-shell", page, "site-shell.css is not linked.");
+  if (!source.includes("institutional.css")) addIssue("missing-institutional-style", page, "institutional.css is not linked.");
   if (!source.includes("site-shell.js")) addIssue("missing-site-shell", page, "site-shell.js is not linked.");
 }
 
@@ -104,7 +105,7 @@ if (fs.existsSync(swPath)) {
   for (const asset of assets) {
     if (!fs.existsSync(path.join(root, asset))) addIssue("service-worker-missing-asset", "service-worker.js", asset);
   }
-  if (!/focusea-editorial-cache-1/.test(sw)) addIssue("service-worker-cache", "service-worker.js", "Cache name is not on the latest expected version.");
+  if (!/focusea-institutional-cache-1/.test(sw)) addIssue("service-worker-cache", "service-worker.js", "Cache name is not on the latest expected version.");
 } else {
   addIssue("missing-file", "service-worker.js", "Service worker file is missing.");
 }

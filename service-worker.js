@@ -1,9 +1,10 @@
-const FOCUSEA_CACHE = "focusea-editorial-cache-1";
+const FOCUSEA_CACHE = "focusea-institutional-cache-1";
 const FOCUSEA_ASSETS = [
   "./",
   "./index.html",
   "./styles.css",
   "./site-shell.css",
+  "./institutional.css",
   "./site-shell.js",
   "./landing.css",
   "./script.js",

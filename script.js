@@ -4372,7 +4372,12 @@ function activatePage(pageName = "dashboard", updateHash = true) {
     section.classList.add("page-section");
   });
   pageNavLinks.forEach((link) => {
-    link.classList.toggle("active", link.dataset.pageLink === activePage);
+    const isActive = link.dataset.pageLink === activePage;
+    link.classList.toggle("active", isActive);
+    if (isActive) {
+      const group = link.closest("details.nav-group");
+      if (group) group.open = true;
+    }
   });
   document.body.dataset.activePage = activePage;
   if (updateHash && window.location.hash !== `#${activePage}`) {
