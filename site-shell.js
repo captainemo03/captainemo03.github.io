@@ -152,7 +152,7 @@
   bottomNav.className = "site-mobile-dock";
   bottomNav.setAttribute("aria-label", "Mobile quick navigation");
   bottomNav.innerHTML = `
-    <a href="#dashboard">Home</a>
+    <a href="#dashboard">News</a>
     <a href="#workbench">Work</a>
     <a href="#market">Market</a>
     <a href="stability.html">Stability</a>

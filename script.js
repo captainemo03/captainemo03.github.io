@@ -2598,6 +2598,11 @@ const downloadCv = document.querySelector("#downloadCv");
 const newsGrid = document.querySelector("#newsGrid");
 const newsStatus = document.querySelector("#newsStatus");
 const refreshNews = document.querySelector("#refreshNews");
+const newsSearchForm = document.querySelector("#newsSearchForm");
+const newsHeadlineCount = document.querySelector("#newsHeadlineCount");
+const newsSourceCount = document.querySelector("#newsSourceCount");
+const newsFreshestTime = document.querySelector("#newsFreshestTime");
+const newsIntegrityState = document.querySelector("#newsIntegrityState");
 const newsRailPrev = document.querySelector("#newsRailPrev");
 const newsRailNext = document.querySelector("#newsRailNext");
 const smartSearchForm = document.querySelector("#smartSearchForm");
@@ -3574,7 +3579,7 @@ function applyBunkerDefaultsToForms() {
 }
 
 const pageGroups = {
-  dashboard: ["#command", ".dashboard-strip", "#productNavigator", "#newsBulletin", "#trustAutopilotCenter", ".ops-board", "#commandDeck", "#smartOps"],
+  dashboard: ["#newsBulletin"],
   workbench: ["#focuseaWorkbench"],
   controlTower: ["#controlTowerPanel"],
   seaTraffic: ["#seaTrafficPanel"],
@@ -20644,6 +20649,7 @@ function buildGoogleNewsRssUrl(query) {
 }
 
 const liveNewsCacheKey = "focusea-live-news-cache-v1";
+let liveNewsRequestId = 0;
 
 function newsCacheBust(url) {
   const separator = url.includes("?") ? "&" : "?";
@@ -20717,9 +20723,9 @@ function parseNewsItems(xmlText) {
   if (xmlText.trim().startsWith("{")) {
     const data = JSON.parse(xmlText);
     if (Array.isArray(data.items)) {
-      return data.items.slice(0, 9).map((item) => normalizeNewsItem(item, "Google News")).filter((item) => item.title && item.link);
+      return data.items.slice(0, 18).map((item) => normalizeNewsItem(item, "Google News")).filter((item) => item.title && item.link);
     }
-    return (data.articles || []).slice(0, 9).map((item) => ({
+    return (data.articles || []).slice(0, 18).map((item) => ({
       title: item.title,
       link: item.url,
       source: item.domain || item.sourceCountry || item.sourcecountry ? `GDELT · ${item.domain || item.sourceCountry || item.sourcecountry}` : "GDELT",
@@ -20728,7 +20734,7 @@ function parseNewsItems(xmlText) {
   }
 
   const xml = new DOMParser().parseFromString(xmlText, "application/xml");
-  const items = [...xml.querySelectorAll("item")].slice(0, 9);
+  const items = [...xml.querySelectorAll("item")].slice(0, 18);
   return items.map((item) => {
     const title = stripHtml(item.querySelector("title")?.textContent || "");
     const link = item.querySelector("link")?.textContent || "";
@@ -20756,7 +20762,7 @@ async function fetchGdeltNews(query) {
     query,
     mode: "artlist",
     format: "json",
-    maxrecords: "9",
+    maxrecords: "18",
     sort: "datedesc"
   });
   const url = `https://api.gdeltproject.org/api/v2/doc/doc?${params.toString()}`;
@@ -20790,25 +20796,35 @@ function renderNews(items, query, meta = {}) {
 
   if (!items.length) {
     newsGrid.innerHTML = "";
-    newsStatus.textContent = "Gerçek haber bulunamadı. Kaynak boş döndü, uydurma haber gösterilmiyor.";
+    newsStatus.textContent = "No real headlines were returned. Focusea will not display invented news.";
+    if (newsHeadlineCount) newsHeadlineCount.textContent = "0";
+    if (newsSourceCount) newsSourceCount.textContent = "0";
+    if (newsFreshestTime) newsFreshestTime.textContent = "Unavailable";
+    if (newsIntegrityState) newsIntegrityState.textContent = "No data";
     return;
   }
 
-  newsGrid.innerHTML = items.map((item) => `
-    <article class="news-card">
-      <span>${escapeHtml(item.source)}</span>
+  const datedItems = items.filter((item) => item.date instanceof Date && !Number.isNaN(item.date.getTime()));
+  const freshest = datedItems.length ? new Date(Math.max(...datedItems.map((item) => item.date.getTime()))) : null;
+  const sourceCount = new Set(items.map((item) => item.source).filter(Boolean)).size;
+  const modeLabel = meta.cached ? "Cached live feed" : meta.snapshot ? "Verified snapshot" : "Live feed";
+
+  newsGrid.innerHTML = items.map((item, index) => `
+    <article class="news-card ${index === 0 ? "news-card-lead" : ""}">
+      <div class="news-card-meta"><span>${escapeHtml(item.source)}</span><b>${String(index + 1).padStart(2, "0")}</b></div>
       <strong>${escapeHtml(item.title)}</strong>
-      <small>${item.date ? item.date.toLocaleString() : "Date unavailable"}</small>
-      <a href="${escapeHtml(safeExternalUrl(item.link))}" target="_blank" rel="noopener noreferrer">Haberi aç</a>
+      <small>${item.date ? item.date.toLocaleString() : "Publication time unavailable"}</small>
+      <a href="${escapeHtml(safeExternalUrl(item.link))}" target="_blank" rel="noopener noreferrer">Read full story</a>
     </article>
   `).join("");
 
   const baseSourceLabel = meta.sourceLabel || (items.some((item) => item.source?.startsWith("GDELT")) ? "GDELT maritime news" : "Google News RSS");
-  const modeLabel = meta.cached ? "son canlı cache" : meta.snapshot ? "verified snapshot" : "live";
-  const sourceLabel = `${baseSourceLabel} / ${modeLabel}`;
-  newsStatus.textContent = `${sourceLabel} · "${query}" · ${items.length} gerçek haber · son kontrol ${new Date().toLocaleTimeString()}`;
+  newsStatus.textContent = `${baseSourceLabel} / ${modeLabel} / "${query}" / ${items.length} source-linked headlines / checked ${new Date().toLocaleTimeString()}`;
+  if (newsHeadlineCount) newsHeadlineCount.textContent = String(items.length);
+  if (newsSourceCount) newsSourceCount.textContent = String(sourceCount);
+  if (newsFreshestTime) newsFreshestTime.textContent = freshest ? freshest.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Unavailable";
+  if (newsIntegrityState) newsIntegrityState.textContent = modeLabel;
 }
-
 function scrollFrontNewsRail(direction) {
   const railShell = newsGrid?.closest(".news-rail-shell");
   if (!railShell) return;
@@ -20819,28 +20835,31 @@ function scrollFrontNewsRail(direction) {
 
 async function loadMaritimeNews(query = activeNewsQuery) {
   if (!newsGrid || !newsStatus) return;
+  const requestId = ++liveNewsRequestId;
   activeNewsQuery = query;
-  newsStatus.textContent = `Gerçek haberler çekiliyor: ${query}...`;
-  newsGrid.innerHTML = "";
+  newsStatus.textContent = `Checking live maritime sources: ${query}...`;
+  newsGrid.innerHTML = `<div class="newsroom-loading"><span></span><strong>Building the live news desk...</strong></div>`;
+  if (newsIntegrityState) newsIntegrityState.textContent = "Checking";
 
   try {
     const xmlText = await fetchNewsWithFallback(query);
+    if (requestId !== liveNewsRequestId) return;
     const items = parseNewsItems(xmlText);
     if (!items.length) throw new Error("Live source returned zero parsed items");
     const sourceLabel = items.some((item) => item.source?.startsWith("GDELT")) ? "GDELT maritime news" : "Google News RSS via rss2json";
     setCachedLiveNews(query, items, sourceLabel);
     renderNews(items, query, { sourceLabel });
   } catch (error) {
+    if (requestId !== liveNewsRequestId) return;
     const cached = getCachedLiveNews();
     if (cached) {
       renderNews(cached.items, cached.query || query, { sourceLabel: cached.sourceLabel || "Last live maritime news", cached: true });
       return;
     }
     renderNews(verifiedNewsFallback, "verified maritime snapshot", { sourceLabel: "Verified maritime snapshot", snapshot: true });
-    newsStatus.textContent = "Live RSS/API engellendi; uydurma haber yerine doğrulanmış haber snapshot'ı gösteriliyor. Yenile butonu canlı kaynağı tekrar dener.";
+    newsStatus.textContent = "Live RSS/API access is unavailable. A verified snapshot is shown instead; no fabricated headline is used.";
   }
 }
-
 function renderCalculator(type) {
   const calculator = calculators[type];
   calculatorForm.innerHTML = "";
@@ -22534,6 +22553,15 @@ if (refreshNews) {
   refreshNews.addEventListener("click", () => loadMaritimeNews(activeNewsQuery));
 }
 
+if (newsSearchForm) {
+  newsSearchForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const query = String(new FormData(newsSearchForm).get("newsQuery") || "").trim();
+    document.querySelectorAll("[data-news-query]").forEach((button) => button.classList.remove("active"));
+    loadMaritimeNews(query || "maritime shipping");
+  });
+}
+
 if (newsRailPrev) {
   newsRailPrev.addEventListener("click", () => scrollFrontNewsRail(-1));
 }
@@ -23226,6 +23254,9 @@ setInterval(() => {
 }, 3000);
 refreshBalticLicensedFeed();
 loadMaritimeNews();
+setInterval(() => {
+  if (document.visibilityState === "visible") loadMaritimeNews(activeNewsQuery);
+}, 600000);
 normalizeEnglishUi();
 setupEnglishUiObserver();
 
