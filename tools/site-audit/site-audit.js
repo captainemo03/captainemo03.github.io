@@ -87,6 +87,10 @@ for (const file of htmlFiles) {
   }
 }
 
+const homeHtml = fs.readFileSync(path.join(root, "index.html"), "utf8");
+if (!/<html[^>]*class="[^"]*notranslate[^"]*"[^>]*translate="no"/.test(homeHtml) || !/<meta name="google" content="notranslate"/.test(homeHtml)) {
+  addIssue("translation-contract", "index.html", "English UI must opt out of browser auto-translation to prevent mixed-language mutations.");
+}
 const sitemapPath = path.join(root, "sitemap.xml");
 if (fs.existsSync(sitemapPath)) {
   const sitemap = fs.readFileSync(sitemapPath, "utf8");
@@ -105,7 +109,7 @@ if (fs.existsSync(swPath)) {
   for (const asset of assets) {
     if (!fs.existsSync(path.join(root, asset))) addIssue("service-worker-missing-asset", "service-worker.js", asset);
   }
-  if (!/focusea-stable-dashboard-1/.test(sw)) addIssue("service-worker-cache", "service-worker.js", "Cache name is not on the latest expected version.");
+  if (!/focusea-stable-language-1/.test(sw)) addIssue("service-worker-cache", "service-worker.js", "Cache name is not on the latest expected version.");
 } else {
   addIssue("missing-file", "service-worker.js", "Service worker file is missing.");
 }
@@ -119,7 +123,9 @@ if (fs.existsSync(mainScriptPath)) {
   if (/setInterval\(refreshBalticLicensedFeed\s*,\s*1000\)/.test(mainScript)) {
     addIssue("provider-overpolling", "script.js", "Licensed market providers must not be polled every second.");
   }
-  if (!mainScript.includes("simulated snapshot · not live")) {
+  if (/setupEnglishUiObserver\(\);/.test(mainScript)) {
+    addIssue("translation-loop", "script.js", "Continuous DOM translation must remain disabled.");
+  }  if (!mainScript.includes("simulated snapshot · not live")) {
     addIssue("dashboard-trust-label", "script.js", "Stable simulated snapshot label is missing.");
   }
 }

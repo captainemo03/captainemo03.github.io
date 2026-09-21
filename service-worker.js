@@ -1,4 +1,4 @@
-const FOCUSEA_CACHE = "focusea-stable-dashboard-1";
+const FOCUSEA_CACHE = "focusea-stable-language-1";
 const FOCUSEA_ASSETS = [
   "./",
   "./index.html",

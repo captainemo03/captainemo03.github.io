@@ -5527,9 +5527,11 @@ function translateUiText(value = "") {
     return text.replace(trimmed, uiEnglishPhrases.get(trimmed));
   }
 
-  uiEnglishSnippets.forEach(([snippet, replacement]) => {
-    text = text.split(snippet).join(replacement);
-  });
+  uiEnglishSnippets
+    .filter(([snippet]) => snippet.length >= 20)
+    .forEach(([snippet, replacement]) => {
+      text = text.split(snippet).join(replacement);
+    });
 
   if (/^[\d\s.,:%/$€£+\-()[\]A-Z]{1,60}$/.test(trimmed)) return text;
 
@@ -20770,7 +20772,7 @@ function setCachedLiveNews(query, items, sourceLabel) {
 if (newsroomEditionDate) {
   const editionDate = new Date();
   newsroomEditionDate.dateTime = editionDate.toISOString();
-  newsroomEditionDate.textContent = editionDate.toLocaleDateString(undefined, { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
+  newsroomEditionDate.textContent = editionDate.toLocaleDateString("en-GB", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
 }
 function renderNews(items, query, meta = {}) {
   if (!newsGrid || !newsStatus) return;
@@ -23244,7 +23246,6 @@ setInterval(() => {
   if (document.visibilityState === "visible") loadMaritimeNews(activeNewsQuery);
 }, 600000);
 normalizeEnglishUi();
-setupEnglishUiObserver();
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
