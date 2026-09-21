@@ -1,4 +1,4 @@
-const FOCUSEA_CACHE = "focusea-institutional-cache-1";
+const FOCUSEA_CACHE = "focusea-production-core-1";
 const FOCUSEA_ASSETS = [
   "./",
   "./index.html",
@@ -8,6 +8,7 @@ const FOCUSEA_ASSETS = [
   "./site-shell.js",
   "./landing.css",
   "./script.js",
+  "./backend-config.js",
   "./theme.js",
   "./monetization-config.js",
   "./monetization.js",

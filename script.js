@@ -23289,3 +23289,211 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("service-worker.js").catch(() => {});
   });
 }
+
+// Production backend bridge: tokens stay in sessionStorage and provider keys stay server-side.
+const productionSessionKey = "focusea-production-session-v1";
+const productionAuthForm = document.querySelector("#productionAuthForm");
+const productionAuthResult = document.querySelector("#productionAuthResult");
+const productionWorkflowForm = document.querySelector("#productionWorkflowForm");
+const productionWorkflowResult = document.querySelector("#productionWorkflowResult");
+const productionDealList = document.querySelector("#productionDealList");
+const productionProviderResult = document.querySelector("#productionProviderResult");
+const productionDocumentForm = document.querySelector("#productionDocumentForm");
+const productionDocumentResult = document.querySelector("#productionDocumentResult");
+const productionRefreshDeals = document.querySelector("#productionRefreshDeals");
+const productionRefreshProviders = document.querySelector("#productionRefreshProviders");
+
+function getProductionSession() {
+  try {
+    return JSON.parse(sessionStorage.getItem(productionSessionKey) || "null");
+  } catch (_) {
+    return null;
+  }
+}
+
+function saveProductionSession(session) {
+  sessionStorage.setItem(productionSessionKey, JSON.stringify(session));
+}
+
+async function productionApi(path, options = {}) {
+  const session = getProductionSession();
+  const base = String(options.apiBase || session?.apiBase || "").replace(/\/+$/, "");
+  if (!base) throw new Error("Enter the deployed Focusea API base URL first.");
+  const headers = new Headers(options.headers || {});
+  if (!(options.body instanceof FormData)) headers.set("Content-Type", "application/json");
+  if (session?.token) headers.set("Authorization", `Bearer ${session.token}`);
+  const response = await fetch(`${base}${path}`, { ...options, headers });
+  let payload = {};
+  try { payload = await response.json(); } catch (_) { payload = {}; }
+  if (!response.ok) throw new Error(payload.detail || `API request failed (${response.status}).`);
+  return payload;
+}
+
+function renderProductionAuth(session, message = "Connected") {
+  if (!productionAuthResult) return;
+  if (!session?.token) {
+    productionAuthResult.innerHTML = `<p>${escapeHtml(message)}</p>`;
+    return;
+  }
+  productionAuthResult.innerHTML = `
+    ${metricCards([
+      { label: "Account", value: session.user?.username || "Connected" },
+      { label: "Email", value: session.user?.email || "-" },
+      { label: "Resume page", value: session.user?.last_page || "dashboard" },
+      { label: "API", value: session.apiBase }
+    ])}
+    <div class="button-row"><button type="button" class="ghost-button small" id="productionLogout">Disconnect session</button></div>
+  `;
+  document.querySelector("#productionLogout")?.addEventListener("click", async () => {
+    try { await productionApi("/api/auth/logout", { method: "POST", body: "{}" }); } catch (_) { /* clear locally even if server is unavailable */ }
+    sessionStorage.removeItem(productionSessionKey);
+    renderProductionAuth(null, "Session disconnected.");
+  });
+}
+
+async function handleProductionAuth(event) {
+  event.preventDefault();
+  const values = collectFormValues(productionAuthForm);
+  const apiBase = String(values.apiBase || "").replace(/\/+$/, "");
+  const action = values.action === "login" ? "login" : "register";
+  const body = action === "register"
+    ? { username: values.username, email: values.email, password: values.password }
+    : { username_or_email: values.email || values.username, password: values.password };
+  productionAuthResult.innerHTML = "<p>Connecting securely...</p>";
+  try {
+    const payload = await productionApi(`/api/auth/${action}`, { apiBase, method: "POST", body: JSON.stringify(body) });
+    const session = { apiBase, token: payload.token, user: payload.user };
+    saveProductionSession(session);
+    productionAuthForm.elements.password.value = "";
+    renderProductionAuth(session, "Connected");
+    await Promise.all([loadProductionDeals(), loadProductionProviders()]);
+  } catch (error) {
+    renderProductionAuth(null, error.message);
+  }
+}
+
+async function handleProductionWorkflow(event) {
+  event.preventDefault();
+  if (!getProductionSession()?.token) {
+    productionWorkflowResult.innerHTML = "<p>Connect an account before creating a Deal Room.</p>";
+    return;
+  }
+  const fixtureText = String(new FormData(productionWorkflowForm).get("fixtureText") || "").trim();
+  productionWorkflowResult.innerHTML = "<p>Parsing offer, calculating voyage, reviewing clauses and creating the audit trail...</p>";
+  try {
+    const payload = await productionApi("/api/workflow/fixture", {
+      method: "POST",
+      body: JSON.stringify({ fixture_text: fixtureText, save_deal: true })
+    });
+    const dealId = payload.deal?.id;
+    if (dealId && productionDocumentForm) productionDocumentForm.elements.dealId.value = dealId;
+    productionWorkflowResult.innerHTML = `
+      ${metricCards([
+        { label: "Deal Room", value: payload.deal?.reference || "Not saved" },
+        { label: "Decision", value: payload.decision?.label || "Review" },
+        { label: "Risk", value: `${payload.decision?.risk_score ?? 0}/100` },
+        { label: "TCE", value: money(payload.voyage?.tce || 0) }
+      ])}
+      <div class="split-card-list">
+        <article><strong>Missing information</strong><p>${escapeHtml((payload.offer?.missing || []).join(", ") || "No parser gaps detected")}</p></article>
+        <article><strong>Next actions</strong><p>${escapeHtml((payload.actions || []).slice(0, 4).join(" "))}</p></article>
+        <article><strong>Counter mail</strong><pre>${escapeHtml(payload.counter_mail || "")}</pre></article>
+      </div>
+    `;
+    await loadProductionDeals();
+  } catch (error) {
+    productionWorkflowResult.innerHTML = `<p>${escapeHtml(error.message)}</p>`;
+  }
+}
+
+async function loadProductionDeals() {
+  if (!productionDealList || !getProductionSession()?.token) return;
+  productionDealList.innerHTML = "<p>Loading Deal Rooms...</p>";
+  try {
+    const payload = await productionApi("/api/deals");
+    const deals = payload.deals || [];
+    productionDealList.innerHTML = deals.length ? `
+      <div class="mini-heading"><span>Saved Deal Rooms</span><strong>${deals.length} records</strong></div>
+      <table class="mini-table"><thead><tr><th>Reference</th><th>Title</th><th>Status</th><th>Risk</th><th>TCE</th></tr></thead><tbody>
+        ${deals.map((deal) => `<tr><td>${escapeHtml(deal.reference)}</td><td>${escapeHtml(deal.title)}</td><td>${escapeHtml(deal.status)}</td><td>${Math.round(deal.risk_score || 0)}/100</td><td>${money(deal.tce || 0)}</td></tr>`).join("")}
+      </tbody></table>
+    ` : "<p>No Deal Rooms saved yet.</p>";
+  } catch (error) {
+    productionDealList.innerHTML = `<p>${escapeHtml(error.message)}</p>`;
+  }
+}
+
+async function loadProductionProviders() {
+  if (!productionProviderResult) return;
+  const session = getProductionSession();
+  if (!session?.apiBase) return;
+  productionProviderResult.innerHTML = "<p>Checking provider configuration...</p>";
+  try {
+    const payload = await productionApi("/api/providers/status");
+    productionProviderResult.innerHTML = `
+      <div class="mini-heading"><span>Data Trust</span><strong>Server-side provider status</strong></div>
+      <div class="python-capability-list">${(payload.providers || []).map((provider) => `
+        <div><span>${escapeHtml(provider.name)}</span><strong>${escapeHtml(provider.status)}</strong><small>${provider.connected ? "Endpoint connected; response still carries source and timestamp." : `Configure ${escapeHtml(provider.endpoint_env)} on the backend.`}</small></div>
+      `).join("")}</div>
+    `;
+  } catch (error) {
+    productionProviderResult.innerHTML = `<p>${escapeHtml(error.message)}</p>`;
+  }
+}
+
+async function handleProductionDocument(event) {
+  event.preventDefault();
+  if (!getProductionSession()?.token) {
+    productionDocumentResult.innerHTML = "<p>Connect an account before uploading documents.</p>";
+    return;
+  }
+  const formData = new FormData(productionDocumentForm);
+  const dealId = String(formData.get("dealId") || "");
+  const documentFile = formData.get("document");
+  const upload = new FormData();
+  upload.append("file", documentFile);
+  productionDocumentResult.innerHTML = "<p>Hashing, checking and extracting the document...</p>";
+  try {
+    const payload = await productionApi(`/api/deals/${encodeURIComponent(dealId)}/documents`, { method: "POST", body: upload });
+    productionDocumentResult.innerHTML = `
+      ${metricCards([
+        { label: "File", value: payload.document?.filename || "Document" },
+        { label: "Size", value: `${Math.round((payload.document?.size_bytes || 0) / 1024)} KB` },
+        { label: "Text", value: payload.document?.text_extracted ? "Extracted" : "OCR required" },
+        { label: "Safety", value: payload.safety?.verdict || payload.safety?.label || "Reviewed" }
+      ])}
+      <p>${escapeHtml((payload.analysis?.findings || []).map((item) => item.text).join(" ") || "Document stored with an audit record.")}</p>
+    `;
+    await loadProductionDeals();
+  } catch (error) {
+    productionDocumentResult.innerHTML = `<p>${escapeHtml(error.message)}</p>`;
+  }
+}
+
+async function syncProductionProgress() {
+  const session = getProductionSession();
+  if (!session?.token) return;
+  const lastPage = location.hash.replace(/^#/, "") || "dashboard";
+  try {
+    await productionApi("/api/auth/progress", { method: "PUT", body: JSON.stringify({ last_page: lastPage }) });
+  } catch (_) { /* resume sync is best effort */ }
+}
+
+productionAuthForm?.addEventListener("submit", handleProductionAuth);
+productionWorkflowForm?.addEventListener("submit", handleProductionWorkflow);
+productionDocumentForm?.addEventListener("submit", handleProductionDocument);
+productionRefreshDeals?.addEventListener("click", loadProductionDeals);
+productionRefreshProviders?.addEventListener("click", loadProductionProviders);
+window.addEventListener("hashchange", syncProductionProgress);
+
+const restoredProductionSession = getProductionSession();
+if (productionAuthForm && !restoredProductionSession) {
+  productionAuthForm.elements.apiBase.value = window.FOCUSEA_BACKEND_CONFIG?.apiBase || "";
+}
+
+if (restoredProductionSession) {
+  if (productionAuthForm) productionAuthForm.elements.apiBase.value = restoredProductionSession.apiBase || "";
+  renderProductionAuth(restoredProductionSession);
+  loadProductionDeals();
+  loadProductionProviders();
+}

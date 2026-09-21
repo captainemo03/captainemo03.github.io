@@ -4172,17 +4172,17 @@ Subject: Firm offer
         <section class="python-engine-panel" id="pythonEngineSuite">
           <div class="panel-heading">
             <div>
-              <p class="eyebrow">Focusea Python Engine</p>
-              <h2>FastAPI backend, PDF, SOF laytime, fixture parser ve hesap motoru</h2>
+              <p class="eyebrow">Connected Backend</p>
+              <h2>Accounts, Deal Rooms, document vault, workflow engine and licensed data gateways</h2>
             </div>
-            <div class="status-pill">Backend Ready</div>
+            <div class="status-pill">Deployment package ready</div>
           </div>
 
           <div class="python-engine-hero">
             <div>
               <span>Live API bridge</span>
-              <strong id="pythonEngineHeadline">Python backend kapaliysa panel lokal demo ile calisir.</strong>
-              <p id="pythonEngineSummary">Backend'i calistirdiginda bu sayfa ayni formla FastAPI endpointlerine baglanir; GitHub Pages statik kaldigi icin Python ayri deploy edilir.</p>
+              <strong id="pythonEngineHeadline">Connect a deployed Focusea API to use persistent accounts and Deal Rooms.</strong>
+              <p id="pythonEngineSummary">The website remains static on GitHub Pages; private accounts, documents and provider keys stay on the separate FastAPI service.</p>
             </div>
             <div class="python-runbook">
               <code>python -m pip install -r backend/requirements.txt</code>
@@ -4192,47 +4192,83 @@ Subject: Firm offer
 
           <div class="python-engine-grid">
             <article class="wide-card">
-              <div class="mini-heading"><span>1. API Test Console</span><strong>Backend varsa gercek API, yoksa local demo</strong></div>
+              <div class="mini-heading"><span>1. API Test Console</span><strong>Use the API when connected; local calculation fallback otherwise</strong></div>
               <form class="broker-form single-column" id="pythonEngineForm">
                 <div class="auto-deal-controls">
                   <label><span>API base</span><input name="apiBase" value="" placeholder="Leave blank for static demo mode" /></label>
                   <label><span>Job</span><select name="jobType" id="pythonEngineJob"><option value="parse-offer">Broker Inbox Parser</option><option value="sof-laytime">SOF to Laytime</option><option value="voyage-estimate">Voyage Estimate</option><option value="cp-diff">CP Clause Diff</option><option value="stability">Loadicator Stability</option></select></label>
                 </div>
                 <label><span>Input text / payload</span><textarea name="inputText" id="pythonEngineInput">50k coal Indonesia to India laycan 10/15 Jul freight 18.50 pmt demurrage USD 18,000/day Supramax. Subjects stem and receiver approval. Commission 2.5 pct total.</textarea></label>
-                <button type="submit">Python Engine Calistir</button>
+                <button type="submit">Run calculation</button>
               </form>
               <div class="button-row">
-                <button type="button" class="ghost-button small" data-download-python="json">Sonucu JSON Indir</button>
-                <button type="button" class="ghost-button small" data-download-python="pdf">PDF Rapor Indir</button>
-                <button type="button" class="ghost-button small" data-download-python="runbook">Backend Runbook Indir</button>
+                <button type="button" class="ghost-button small" data-download-python="json">Download JSON</button>
+                <button type="button" class="ghost-button small" data-download-python="pdf">Download PDF</button>
+                <button type="button" class="ghost-button small" data-download-python="runbook">Download runbook</button>
               </div>
               <div class="broker-output python-engine-output" id="pythonEngineResult"></div>
             </article>
 
             <article>
-              <div class="mini-heading"><span>2. Backend Capabilities</span><strong>Python tarafinda eklenenler</strong></div>
+              <div class="mini-heading"><span>2. Backend Capabilities</span><strong>Available API modules</strong></div>
               <div class="python-capability-list">
-                <div><span>/api/broker/parse-offer</span><strong>Mail / WhatsApp teklifini deal kartina cevirir.</strong></div>
-                <div><span>/api/laytime/sof</span><strong>NOR, berth, rain, completion olayindan demurrage/dispatch hesaplar.</strong></div>
-                <div><span>/api/voyage/estimate</span><strong>TCE, bunker, hire, port cost ve net P&L cikarir.</strong></div>
-                <div><span>/api/charterparty/diff</span><strong>Iki clause metninde riskli farklari bulur.</strong></div>
-                <div><span>/api/stability/evaluate</span><strong>GM, trim, heel, KG, shear/bending proxy ve ballast onerisi verir.</strong></div>
-                <div><span>/api/reports/{type}/pdf</span><strong>Fixture, laytime, voyage veya load plan PDF dondurur.</strong></div>
+                <div><span>/api/broker/parse-offer</span><strong>Parses an email or message into structured fixture terms.</strong></div>
+                <div><span>/api/laytime/sof</span><strong>Calculates laytime, demurrage and dispatch from SOF events.</strong></div>
+                <div><span>/api/voyage/estimate</span><strong>Calculates TCE, bunker, hire, port costs and net P&L.</strong></div>
+                <div><span>/api/charterparty/diff</span><strong>Finds material differences between two clauses.</strong></div>
+                <div><span>/api/stability/evaluate</span><strong>Evaluates GM, trim, heel, KG and longitudinal strength proxies.</strong></div>
+                <div><span>/api/reports/{type}/pdf</span><strong>Returns downloadable fixture, laytime, voyage and load-plan PDFs.</strong></div>
               </div>
             </article>
 
             <article>
-              <div class="mini-heading"><span>3. Storage & Alarms</span><strong>Gercek backend akisi</strong></div>
+              <div class="mini-heading"><span>3. Storage & Alarms</span><strong>Persistent product storage</strong></div>
               <ul class="compact-list">
-                <li>Offer, fixture, CRM, vault ve report history JSON storage ile baslar.</li>
-                <li>Sonraki asamada SQLite / PostgreSQL'e tasinmaya hazir schema mantigi var.</li>
-                <li>Laycan, subject deadline, time bar ve bunker alertleri scheduler ile baglanabilir.</li>
-                <li>OCR icin PDF/fotograf okuma modulu backend'e eklenebilir.</li>
+                <li>Users, sessions, Deal Rooms, documents, reports and audit events use SQLite.</li>
+                <li>The schema can be migrated to managed PostgreSQL for multi-instance deployment.</li>
+                <li>Laycan, subject, time-bar and market alerts are represented as auditable events.</li>
+                <li>PDF embedded text is extracted now; scanned images require a configured OCR worker.</li>
               </ul>
             </article>
 
+            <article class="wide-card production-core-card">
+              <div class="mini-heading"><span>4. Production Core</span><strong>Authenticated account and Deal Room workflow</strong></div>
+              <form class="broker-form" id="productionAuthForm">
+                <div class="auto-deal-controls">
+                  <label><span>API base</span><input name="apiBase" type="url" placeholder="https://your-focusea-api.example.com" required /></label>
+                  <label><span>Action</span><select name="action"><option value="register">Create account</option><option value="login">Sign in</option></select></label>
+                </div>
+                <div class="auto-deal-controls">
+                  <label><span>Username</span><input name="username" autocomplete="username" placeholder="unique username" required /></label>
+                  <label><span>Gmail / email</span><input name="email" type="email" autocomplete="email" placeholder="name@gmail.com" /></label>
+                  <label><span>Password</span><input name="password" type="password" autocomplete="current-password" placeholder="Upper + lower + number + *" required /></label>
+                </div>
+                <button type="submit">Connect account</button>
+              </form>
+              <div class="broker-output" id="productionAuthResult"><p>Connect a deployed API to create a secure server-side account.</p></div>
+              <form class="broker-form single-column production-workflow-form" id="productionWorkflowForm">
+                <label><span>Fixture message</span><textarea name="fixtureText">50k coal Indonesia to India laycan 10/15 Jul freight 18.50 pmt demurrage USD 18,000/day Supramax. Subjects stem and receiver approval. Commission 2.5 pct total.</textarea></label>
+                <div class="button-row">
+                  <button type="submit">Create Deal Room</button>
+                  <button type="button" class="ghost-button" id="productionRefreshDeals">Refresh my deals</button>
+                  <button type="button" class="ghost-button" id="productionRefreshProviders">Check data providers</button>
+                </div>
+              </form>
+              <div class="broker-output" id="productionWorkflowResult"><p>Sign in first, then run the fixture workflow.</p></div>
+              <div class="broker-output" id="productionDealList"></div>
+              <div class="broker-output" id="productionProviderResult"></div>
+              <form class="broker-form production-document-form" id="productionDocumentForm" enctype="multipart/form-data">
+                <div class="auto-deal-controls">
+                  <label><span>Deal ID</span><input name="dealId" type="number" min="1" placeholder="Created Deal Room ID" required /></label>
+                  <label><span>CP / SOF / NOR / invoice</span><input name="document" type="file" accept=".pdf,.txt,.csv,.docx,.jpg,.jpeg,.png" required /></label>
+                </div>
+                <button type="submit">Scan and attach document</button>
+              </form>
+              <div class="broker-output" id="productionDocumentResult"></div>
+            </article>
+
             <article class="wide-card">
-              <div class="mini-heading"><span>4. Python Report History</span><strong>Son calisan isler</strong></div>
+              <div class="mini-heading"><span>5. Calculation history</span><strong>Recent calculation jobs</strong></div>
               <div class="broker-output" id="pythonReportHistory"></div>
             </article>
           </div>
@@ -5623,7 +5659,8 @@ Subject: Firm offer
 
     <script src="monetization-config.js?v=adsense-readiness-1"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="script.js?v=editorial-1"></script>
+    <script src="backend-config.js?v=production-core-1"></script>
+    <script src="script.js?v=production-core-1"></script>
     <script src="monetization.js?v=adsense-readiness-1"></script>
       <script src="site-shell.js?v=shell-1"></script>
   </body>

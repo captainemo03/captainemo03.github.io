@@ -1,0 +1,44 @@
+services:
+  - type: web
+    name: focusea-api
+    runtime: docker
+    healthCheckPath: /health
+    envVars:
+      - key: FOCUSEA_ALLOWED_ORIGINS
+        value: https://captainemo03.github.io
+      - key: FOCUSEA_DATABASE_PATH
+        value: /var/data/focusea.db
+      - key: FOCUSEA_DEV_EXPOSE_RESET_TOKEN
+        value: "0"
+      - key: FOCUSEA_ADMIN_KEY
+        sync: false
+      - key: FOCUSEA_OWNER_WEBHOOK
+        sync: false
+      - key: FOCUSEA_SMTP_HOST
+        sync: false
+      - key: FOCUSEA_SMTP_PORT
+        value: "587"
+      - key: FOCUSEA_SMTP_USERNAME
+        sync: false
+      - key: FOCUSEA_SMTP_PASSWORD
+        sync: false
+      - key: FOCUSEA_SMTP_FROM
+        sync: false
+      - key: FOCUSEA_RESET_URL
+        value: https://captainemo03.github.io/#account
+      - key: FOCUSEA_AIS_ENDPOINT
+        sync: false
+      - key: FOCUSEA_AIS_API_KEY
+        sync: false
+      - key: FOCUSEA_BALTIC_ENDPOINT
+        sync: false
+      - key: FOCUSEA_BALTIC_API_KEY
+        sync: false
+      - key: FOCUSEA_BUNKER_ENDPOINT
+        sync: false
+      - key: FOCUSEA_BUNKER_API_KEY
+        sync: false
+    disk:
+      name: focusea-data
+      mountPath: /var/data
+      sizeGB: 1

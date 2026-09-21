@@ -29,15 +29,15 @@
         <section class="hero">
           <p class="eyebrow">Privacy Policy</p>
           <h1>How Focusea handles user-entered maritime data, preferences and advertising choices.</h1>
-          <p>Focusea is a maritime decision-support workspace. The current public site primarily stores demo workspace data, account form values, reports and preferences in the visitor's browser unless a future backend is connected.</p>
+          <p>Focusea is a maritime decision-support workspace. The public website can use browser storage for preferences and can connect to the Focusea API for accounts, Deal Rooms, reports and approved document uploads when the production API is enabled.</p>
         </section>
         <section class="panel">
           <h2>Scope</h2>
           <p>This policy explains how Focusea handles information connected with maritime calculators, broker workflows, account forms, report history, advertising, contact requests and user-entered shipping content.</p>
           <h2>Information users may enter</h2>
-          <p>Users may enter fixture terms, voyage estimates, laytime events, port information, cargo details, insurance quote inputs, account usernames, Gmail addresses and locally saved report notes. Users should avoid entering confidential, personal, financial, legal or commercially sensitive information unless they understand the risk of browser-local storage.</p>
+          <p>Users may enter fixture terms, voyage estimates, laytime events, port information, cargo details, insurance quote inputs, account usernames, email addresses, reports and documents. Users must have authority to submit that material and should redact unnecessary personal, financial, legal, commercially sensitive or third-party confidential information.</p>
           <h2>Account and sign-up data</h2>
-          <p>The public static version of Focusea may simulate account creation locally in the browser. Username, Gmail address, password validation state, last-opened page and saved workspace data may be kept locally so users can continue where they left off. A future backend may introduce server-side accounts, in which case this policy should be updated before launch.</p>
+          <p>When the production API is enabled, Focusea stores a unique username, email address, salted password hash, account status, last-opened page and account timestamps on the server. Plain-text passwords are not stored. Authentication sessions and one-time password-reset tokens are stored only as cryptographic hashes and expire automatically. The browser may separately retain local demo workspace data and preferences.</p>
           <h2>Local storage</h2>
           <p>Focusea may use localStorage to remember appearance settings, report history, local account details, quiz progress and workflow state. This helps users return to the last workspace page. Clearing browser data may delete these records.</p>
           <h2>Cookies, consent and analytics</h2>
@@ -47,20 +47,20 @@
           <h2>External links and data sources</h2>
           <p>Focusea links to maritime authorities, academic resources, news sources, GitHub and third-party services. Those websites have their own privacy practices. Source links, market labels and live/simulated badges are provided to help users understand where information comes from.</p>
           <h2>Retention and deletion</h2>
-          <p>Browser-local records remain until the user clears site data, resets the browser, changes device or removes saved items through Focusea controls where available. Public GitHub issues remain according to GitHub's own settings and policies.</p>
+          <p>Browser-local records remain until the user clears site data or removes saved items. Server-side account, Deal Room, audit, report and document records remain while the service needs them for the requested workspace, security, integrity or legal obligations. Users may request access, correction or deletion through the contact page. Public GitHub issues remain under GitHub's own settings and policies.</p>
           <h2>Security</h2>
-          <p>Users are responsible for protecting passwords, Gmail access and browser devices. If a password is stolen, reused, disclosed or compromised outside Focusea's control, site management is not responsible for resulting account misuse or data loss.</p>
+          <p>Focusea uses salted password hashing, expiring hashed sessions, rate limiting, file-type and size controls, access checks, audit records and security headers. No internet service can guarantee absolute security. Users must protect their email, password and devices and should promptly reset credentials after suspected compromise.</p>
           <h2>Children</h2>
           <p>Focusea is intended for maritime education and professional decision support. It is not designed for children to submit personal information.</p>
           <h2>User choices</h2>
           <p>Users can clear local browser data, avoid entering sensitive information, use privacy settings provided by the browser, manage advertising consent where available and contact Focusea through the contact page for privacy questions.</p>
           <h2>Policy updates</h2>
-          <p>This policy may be updated as Focusea adds backend accounts, file uploads, AI document processing, analytics, advertising, live data integrations or paid services.</p>
+          <p>This policy may be updated as Focusea changes accounts, file uploads, document processing, analytics, advertising, licensed data integrations or paid services. Material changes will be dated on this page.</p>
           <h2>Contact</h2>
           <p>Privacy, product and security questions can be submitted through the contact page or the public GitHub issue tracker linked there.</p>
         </section>
       </main>
-      <footer class="site-footer">Focusea privacy policy. Last updated: 20 July 2026.</footer>
+      <footer class="site-footer">Focusea privacy policy. Last updated: 21 September 2026.</footer>
     </div>
       <script src="site-shell.js?v=shell-1"></script>
   </body>
