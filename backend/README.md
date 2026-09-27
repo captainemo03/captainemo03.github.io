@@ -43,6 +43,8 @@ http://127.0.0.1:8000
 - `POST /api/ai/autopilot`
 - `POST /api/ai/copilot`
 - `POST /api/ai/knowledge-graph`
+- `POST /api/decision-lab/evaluate`
+- `POST /api/analytics/anonymous-benchmark`
 - `GET /api/analytics/performance`
 - `POST /api/stability/evaluate`
 - `POST /api/workspace/save`

@@ -89,4 +89,10 @@
     <lastmod>2026-09-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.68</priority>
-  </url></urlset>
+  </url>  <url>
+    <loc>https://captainemo03.github.io/decision-lab.html</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.86</priority>
+  </url>
+</urlset>

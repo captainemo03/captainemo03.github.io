@@ -1,4 +1,4 @@
-const FOCUSEA_CACHE = "focusea-layout-repair-1";
+const FOCUSEA_CACHE = "focusea-decision-lab-1";
 const FOCUSEA_ASSETS = [
   "./",
   "./index.html",
@@ -13,6 +13,7 @@ const FOCUSEA_ASSETS = [
   "./stability.html",
   "./insurance.html",
   "./deal-surgeon.html",
+  "./decision-lab.html",
   "./laytime-calculator.html",
   "./demurrage-calculator.html",
   "./voyage-estimate.html",
@@ -27,9 +28,11 @@ const FOCUSEA_ASSETS = [
   "./stability.css",
   "./insurance.css",
   "./deal-surgeon.css",
+  "./decision-lab.css",
   "./stability.js",
   "./insurance.js",
   "./deal-surgeon.js",
+  "./decision-lab.js",
   "./favicon-concept-b.png",
   "./stability-loadicator-basic.js",
   "./stability-3d.js",

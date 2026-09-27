@@ -24,6 +24,8 @@ from .engines import (
     client_portal_pack,
     document_safety,
     document_room_analyze,
+    decision_lab,
+    anonymous_benchmark,
     evaluate_stability,
     generate_broker_mail,
     make_pdf_bytes,
@@ -206,6 +208,28 @@ class AiKnowledgeGraphRequest(BaseModel):
     target_tce: float = 22000
 
 
+
+class DecisionLabRequest(BaseModel):
+    cargo_type: str = "coal"
+    cargo_qty: float = 50000
+    freight_rate: float = 18.5
+    distance: float = 5800
+    speed: float = 13
+    sea_cons: float = 28
+    port_days: float = 5
+    bunker_price: float = 686.5
+    daily_hire: float = 14500
+    port_costs: float = 68000
+    weather_risk: float = 32
+    current_risk: float = 20
+    wave_height: float = 2.1
+    eu_share: float = 50
+    evidence_docs: list[str] = Field(default_factory=list)
+
+
+class BenchmarkRequest(BaseModel):
+    records: list[dict[str, Any]] = Field(default_factory=list)
+
 def load_store() -> dict[str, Any]:
     if not STORE_PATH.exists():
         return {"fixtures": [], "crm": [], "documents": [], "reports": [], "audit": []}
@@ -252,6 +276,11 @@ def health() -> dict[str, Any]:
             "ai-autopilot",
             "ai-copilot",
             "ai-knowledge-graph",
+            "voyage-digital-twin",
+            "decision-replay",
+            "evidence-chain",
+            "human-approval-gate",
+            "anonymous-benchmark",
             "stability",
             "pdf",
             "audit-trail",
@@ -393,6 +422,16 @@ def api_ai_copilot(request: AiCopilotRequest) -> dict[str, Any]:
 def api_ai_knowledge_graph(request: AiKnowledgeGraphRequest) -> dict[str, Any]:
     return ai_knowledge_graph(request.model_dump())
 
+
+
+@app.post("/api/decision-lab/evaluate")
+def api_decision_lab(request: DecisionLabRequest) -> dict[str, Any]:
+    return decision_lab(request.model_dump())
+
+
+@app.post("/api/analytics/anonymous-benchmark")
+def api_anonymous_benchmark(request: BenchmarkRequest) -> dict[str, Any]:
+    return anonymous_benchmark(request.model_dump())
 
 @app.get("/api/analytics/performance")
 def api_performance_analytics() -> dict[str, Any]:

@@ -783,3 +783,72 @@ def make_pdf_bytes(title: str, body: str) -> bytes:
         pdf += f"{offset:010d} 00000 n \n"
     pdf += f"trailer\n<< /Size {len(objects) + 1} /Root 1 0 R >>\nstartxref\n{xref}\n%%EOF"
     return pdf.encode("latin-1", "replace")
+
+
+def decision_lab(payload: dict[str, Any]) -> dict[str, Any]:
+    """Transparent voyage twin, replay, evidence and approval gate."""
+    base = {
+        "cargo_type": payload.get("cargo_type", "coal"),
+        "cargo_qty": number(payload.get("cargo_qty"), 50000),
+        "freight_rate": number(payload.get("freight_rate"), 18.5),
+        "distance": number(payload.get("distance"), 5800),
+        "speed": number(payload.get("speed"), 13),
+        "sea_cons": number(payload.get("sea_cons"), 28),
+        "port_cons": 4,
+        "port_days": number(payload.get("port_days"), 5),
+        "bunker_price": number(payload.get("bunker_price"), 686.5),
+        "port_costs": number(payload.get("port_costs"), 68000),
+        "canal_costs": 0,
+        "daily_hire": number(payload.get("daily_hire"), 14500),
+        "commission": 2.5,
+    }
+    weather = clamp(number(payload.get("weather_risk"), 32), 0, 100)
+    current = clamp(number(payload.get("current_risk"), 20), 0, 100)
+    wave = clamp(number(payload.get("wave_height"), 2.1), 0, 15)
+    delay = round(weather * 0.024 + max(0, wave - 2) * 0.22, 2)
+    speed_loss = clamp(weather * 0.018 + current * 0.01 + max(0, wave - 1.5) * 0.24, 0, 3.5)
+    specs = [
+        ("Economy", max(8, base["speed"] - 1.2), -0.12, delay + 0.35),
+        ("Base", base["speed"], 0, delay),
+        ("Schedule protection", min(18, base["speed"] + 1), 0.14, max(0, delay - 0.45)),
+    ]
+    replay = []
+    for name, speed, consumption_delta, extra_days in specs:
+        result = voyage_estimate({**base, "speed": max(6, speed - speed_loss), "sea_cons": base["sea_cons"] * (1 + consumption_delta), "port_days": base["port_days"] + extra_days})
+        replay.append({"name": name, "effective_speed": round(max(6, speed - speed_loss), 1), "weather_delay_days": round(extra_days, 2), "tce": result["tce"], "net_profit": result["pnl"], "bunker_cost": result["bunker_cost"], "voyage_days": result["total_days"]})
+    best = max(replay, key=lambda item: item["net_profit"])
+    docs = ["fixture recap", "charter party", "nor", "sof", "port log", "invoice"]
+    supplied = " ".join(str(item).lower() for item in payload.get("evidence_docs", []))
+    evidence_items = [{"document": doc, "ready": doc in supplied} for doc in docs]
+    evidence = round(sum(item["ready"] for item in evidence_items) / len(docs) * 100)
+    ocean = round(clamp(weather * 0.45 + current * 0.25 + wave * 5.5, 0, 100))
+    commercial = clamp(55 - replay[1]["tce"] / 900 + delay * 7, 5, 95)
+    risk = round(clamp(commercial * 0.42 + ocean * 0.33 + (100 - evidence) * 0.25, 0, 100))
+    fuel_tons = replay[1]["bunker_cost"] / max(base["bunker_price"], 1)
+    carbon = carbon_estimate({"gt": 38000, "fuel_tons": fuel_tons, "distance": base["distance"], "cargo_qty": base["cargo_qty"], "eu_share": number(payload.get("eu_share"), 50), "eua_price": 72, "year": 2026})
+    decision = "AVOID / SENIOR REVIEW" if risk >= 72 else "WATCH / APPROVAL REQUIRED" if risk >= 48 else "FIX WITH GUARDS"
+    return {
+        "decision": decision, "risk_score": risk,
+        "approval_status": "Blocked" if risk >= 72 or evidence < 50 else "Reviewer required",
+        "digital_twin": {"effective_speed": round(max(6, base["speed"] - speed_loss), 1), "speed_loss": round(speed_loss, 1), "weather_delay_days": delay, "base": replay[1]},
+        "decision_replay": replay, "recommended_scenario": best["name"],
+        "ocean_risk": {"score": ocean, "wave_height": wave, "source": "user input / Copernicus-ready"},
+        "carbon": carbon, "evidence_chain": {"score": evidence, "items": evidence_items},
+        "explanations": [
+            {"factor": "Commercial", "score": round(commercial), "reason": "TCE, freight, bunker, hire and delay."},
+            {"factor": "Ocean", "score": ocean, "reason": "Weather, current and wave assumptions."},
+            {"factor": "Evidence", "score": 100 - evidence, "reason": f"{evidence}% core documents ready."},
+            {"factor": "Carbon", "score": carbon["fueleu_risk"], "reason": "EU ETS and FuelEU screening."},
+        ],
+        "actions": [f"Use {best['name']} as the strongest modeled result, then verify laycan.", "Attach missing evidence before approval.", "Replace ocean assumptions with a timestamped source.", "Record reviewer, conditions and decision time."],
+        "source": "python-fastapi",
+    }
+
+
+def anonymous_benchmark(payload: dict[str, Any]) -> dict[str, Any]:
+    records = [item for item in payload.get("records", []) if isinstance(item, dict)]
+    tce = sorted(number(item.get("tce")) for item in records if number(item.get("tce")))
+    freight = sorted(number(item.get("freight")) for item in records if number(item.get("freight")))
+    median = lambda values: 0 if not values else round(values[len(values) // 2] if len(values) % 2 else (values[len(values) // 2 - 1] + values[len(values) // 2]) / 2, 2)
+    fixed = sum(str(item.get("result", "")).lower() == "fixed" for item in records)
+    return {"sample_size": len(records), "median_tce": median(tce), "median_freight": median(freight), "fix_rate": round(fixed / max(1, len(records)) * 100, 2), "source": "de-identified user workspace"}
