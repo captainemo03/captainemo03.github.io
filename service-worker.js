@@ -1,4 +1,4 @@
-const FOCUSEA_CACHE = "focusea-entry-vessel-1";
+const FOCUSEA_CACHE = "focusea-close-bulker-1";
 const FOCUSEA_ASSETS = [
   "./",
   "./index.html",
@@ -38,7 +38,8 @@ const FOCUSEA_ASSETS = [
   "./stability-3d.js",
   "./stability-realism.js",
   "./assets/brand/focusea-concept-b-mark.png",
-  "./assets/hero/focusea-command-hero.png"
+  "./assets/hero/focusea-command-hero.png",
+  "./assets/hero/focusea-close-bulker-hero.png"
 ];
 
 self.addEventListener("install", (event) => {

@@ -450,7 +450,7 @@ main {
   background:
     linear-gradient(90deg, rgba(2, 8, 18, 0.97) 0%, rgba(3, 18, 31, 0.86) 36%, rgba(3, 18, 31, 0.4) 70%, rgba(3, 18, 31, 0.16) 100%),
     linear-gradient(180deg, rgba(4, 12, 22, 0.06), rgba(2, 8, 18, 0.78)),
-    url("assets/hero/focusea-command-hero.png") center right / cover no-repeat;
+    url("assets/hero/focusea-close-bulker-hero.png") center right / cover no-repeat;
   filter: saturate(1.12) contrast(1.05);
   transform: scale(1.01);
 }
@@ -9969,7 +9969,7 @@ body[data-active-page="dashboard"] .hero::before {
   background:
     linear-gradient(90deg, rgba(2, 8, 18, .98) 0%, rgba(3, 18, 31, .88) 34%, rgba(3, 18, 31, .34) 64%, rgba(3, 18, 31, .08) 100%),
     linear-gradient(180deg, rgba(4, 12, 22, .04), rgba(2, 8, 18, .72)),
-    url("assets/hero/focusea-command-hero.png") 72% center / 122% auto no-repeat;
+    url("assets/hero/focusea-close-bulker-hero.png") 72% center / 122% auto no-repeat;
   transform: scale(1.06);
   transform-origin: 72% 54%;
   filter: saturate(1.08) contrast(1.06);
@@ -10107,7 +10107,7 @@ body[data-active-page="dashboard"] .hero-actions {
   body[data-active-page="dashboard"] .hero::before {
     background:
       linear-gradient(180deg, rgba(2, 8, 18, .2), rgba(2, 8, 18, .98) 82%),
-      url("assets/hero/focusea-command-hero.png") 68% center / auto 112% no-repeat;
+      url("assets/hero/focusea-close-bulker-hero.png") 68% center / auto 112% no-repeat;
     transform: scale(1.04);
   }
 
