@@ -9955,3 +9955,197 @@ body[data-active-page="dashboard"] .top-account-bar .ghost-button {
     width: 100%;
   }
 }
+
+
+/* Entry scene: make the vessel part of the interface instead of a framed image. */
+body[data-active-page="dashboard"] .hero {
+  min-height: clamp(470px, 62vh, 650px);
+  align-items: center;
+  padding: clamp(28px, 5vw, 68px);
+  isolation: isolate;
+}
+
+body[data-active-page="dashboard"] .hero::before {
+  background:
+    linear-gradient(90deg, rgba(2, 8, 18, .98) 0%, rgba(3, 18, 31, .88) 34%, rgba(3, 18, 31, .34) 64%, rgba(3, 18, 31, .08) 100%),
+    linear-gradient(180deg, rgba(4, 12, 22, .04), rgba(2, 8, 18, .72)),
+    url("assets/hero/focusea-command-hero.png") 72% center / 122% auto no-repeat;
+  transform: scale(1.06);
+  transform-origin: 72% 54%;
+  filter: saturate(1.08) contrast(1.06);
+}
+
+body[data-active-page="dashboard"] .hero::after {
+  opacity: .34;
+}
+
+body[data-active-page="dashboard"] .hero > div:first-child {
+  max-width: 760px;
+}
+
+body[data-active-page="dashboard"] .hero h1 {
+  max-width: 720px;
+  font-size: clamp(2.75rem, 5.6vw, 5.35rem);
+}
+
+body[data-active-page="dashboard"] .hero-actions {
+  max-width: 410px;
+  align-content: center;
+  justify-content: flex-end;
+}
+
+/* The newsroom masthead now uses one cinematic vessel scene, not an image card. */
+.newsroom-masthead {
+  position: relative;
+  grid-template-columns: minmax(0, .82fr) minmax(420px, 1.18fr);
+  grid-template-areas:
+    "copy visual"
+    "actions visual";
+  min-height: clamp(520px, 62vh, 690px);
+  padding: clamp(28px, 4.5vw, 64px);
+  overflow: hidden;
+  border: 1px solid rgba(91, 255, 220, .18);
+  border-radius: 8px;
+  background: #04111e;
+  isolation: isolate;
+}
+
+.newsroom-masthead > div:first-child,
+.newsroom-quick-actions {
+  position: relative;
+  z-index: 2;
+  max-width: 690px;
+}
+
+.newsroom-masthead h1 {
+  font-size: clamp(2.65rem, 5.4vw, 5.55rem);
+  text-wrap: balance;
+}
+
+.newsroom-masthead p:not(.eyebrow) {
+  max-width: 640px;
+  color: #c7d9df;
+}
+
+.newsroom-visual {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  min-height: 0;
+  margin: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  background: #04111e;
+}
+
+.newsroom-visual::after {
+  z-index: 1;
+  background:
+    linear-gradient(90deg, rgba(2, 9, 17, .99) 0%, rgba(2, 12, 22, .92) 30%, rgba(2, 12, 22, .52) 54%, rgba(2, 12, 22, .08) 82%),
+    linear-gradient(0deg, rgba(2, 8, 16, .76), transparent 46%);
+}
+
+.newsroom-visual img {
+  position: absolute;
+  inset: -5%;
+  width: 110%;
+  height: 110%;
+  object-fit: cover;
+  object-position: 70% center;
+  transform: scale(1.14);
+  transform-origin: 70% 54%;
+  filter: saturate(1.08) contrast(1.06);
+}
+
+.newsroom-visual figcaption {
+  display: none;
+}
+
+.newsroom-quick-actions {
+  align-self: end;
+  justify-content: flex-start;
+}
+
+@media (max-width: 980px) {
+  body[data-active-page="dashboard"] .hero {
+    min-height: 520px;
+  }
+
+  body[data-active-page="dashboard"] .hero-actions {
+    max-width: none;
+    justify-content: flex-start;
+  }
+
+  .newsroom-masthead {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "copy"
+      "actions";
+    min-height: 620px;
+    align-content: space-between;
+  }
+
+  .newsroom-visual {
+    aspect-ratio: auto;
+  }
+
+  .newsroom-visual::after {
+    background:
+      linear-gradient(90deg, rgba(2, 9, 17, .96), rgba(2, 12, 22, .54) 70%, rgba(2, 12, 22, .18)),
+      linear-gradient(0deg, rgba(2, 8, 16, .86), transparent 58%);
+  }
+}
+
+@media (max-width: 640px) {
+  body[data-active-page="dashboard"] .hero {
+    min-height: 560px;
+    padding: 24px 18px;
+    align-items: end;
+  }
+
+  body[data-active-page="dashboard"] .hero::before {
+    background:
+      linear-gradient(180deg, rgba(2, 8, 18, .2), rgba(2, 8, 18, .98) 82%),
+      url("assets/hero/focusea-command-hero.png") 68% center / auto 112% no-repeat;
+    transform: scale(1.04);
+  }
+
+  body[data-active-page="dashboard"] .hero h1 {
+    font-size: clamp(2.35rem, 12vw, 3.45rem);
+  }
+
+  body[data-active-page="dashboard"] .hero-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+  }
+
+  body[data-active-page="dashboard"] .hero-actions > * {
+    width: 100%;
+    min-width: 0;
+    white-space: normal;
+  }
+
+  .newsroom-masthead {
+    min-height: 650px;
+    padding: 24px 18px;
+  }
+
+  .newsroom-masthead h1 {
+    max-width: 11ch;
+    font-size: clamp(2.5rem, 12vw, 3.5rem);
+  }
+
+  .newsroom-visual img {
+    inset: -3%;
+    width: 106%;
+    height: 106%;
+    object-position: 68% center;
+    transform: scale(1.12);
+  }
+
+  .newsroom-quick-actions {
+    width: 100%;
+  }
+}
