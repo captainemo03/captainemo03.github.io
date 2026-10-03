@@ -1,4 +1,4 @@
-const FOCUSEA_CACHE = "focusea-close-bulker-1";
+const FOCUSEA_CACHE = "focusea-decision-pro-2";
 const FOCUSEA_ASSETS = [
   "./",
   "./index.html",
@@ -29,10 +29,12 @@ const FOCUSEA_ASSETS = [
   "./insurance.css",
   "./deal-surgeon.css",
   "./decision-lab.css",
+  "./decision-lab-pro.css",
   "./stability.js",
   "./insurance.js",
   "./deal-surgeon.js",
   "./decision-lab.js",
+  "./decision-lab-pro.js",
   "./favicon-concept-b.png",
   "./stability-loadicator-basic.js",
   "./stability-3d.js",

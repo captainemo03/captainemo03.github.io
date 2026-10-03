@@ -210,6 +210,8 @@ class AiKnowledgeGraphRequest(BaseModel):
 
 
 class DecisionLabRequest(BaseModel):
+    vessel_name: str = "MV Focusea Pioneer"
+    route: str = "Tanjung Bara - Paradip"
     cargo_type: str = "coal"
     cargo_qty: float = 50000
     freight_rate: float = 18.5
@@ -220,6 +222,12 @@ class DecisionLabRequest(BaseModel):
     bunker_price: float = 686.5
     daily_hire: float = 14500
     port_costs: float = 68000
+    canal_costs: float = 0
+    commission: float = 2.5
+    target_tce: float = 22000
+    laycan_buffer: float = 3
+    delay_cost: float = 12000
+    risk_appetite: str = "balanced"
     weather_risk: float = 32
     current_risk: float = 20
     wave_height: float = 2.1

@@ -798,9 +798,9 @@ def decision_lab(payload: dict[str, Any]) -> dict[str, Any]:
         "port_days": number(payload.get("port_days"), 5),
         "bunker_price": number(payload.get("bunker_price"), 686.5),
         "port_costs": number(payload.get("port_costs"), 68000),
-        "canal_costs": 0,
+        "canal_costs": number(payload.get("canal_costs"), 0),
         "daily_hire": number(payload.get("daily_hire"), 14500),
-        "commission": 2.5,
+        "commission": number(payload.get("commission"), 2.5),
     }
     weather = clamp(number(payload.get("weather_risk"), 32), 0, 100)
     current = clamp(number(payload.get("current_risk"), 20), 0, 100)
@@ -822,8 +822,13 @@ def decision_lab(payload: dict[str, Any]) -> dict[str, Any]:
     evidence_items = [{"document": doc, "ready": doc in supplied} for doc in docs]
     evidence = round(sum(item["ready"] for item in evidence_items) / len(docs) * 100)
     ocean = round(clamp(weather * 0.45 + current * 0.25 + wave * 5.5, 0, 100))
-    commercial = clamp(55 - replay[1]["tce"] / 900 + delay * 7, 5, 95)
-    risk = round(clamp(commercial * 0.42 + ocean * 0.33 + (100 - evidence) * 0.25, 0, 100))
+    target_tce = number(payload.get("target_tce"), 22000)
+    laycan_buffer = number(payload.get("laycan_buffer"), 3)
+    target_gap = target_tce - replay[1]["tce"]
+    laycan_risk = clamp(max(0, delay - laycan_buffer) * 26 + weather * 0.28, 0, 100)
+    appetite = {"conservative": 8, "balanced": 0, "commercial": -7}.get(str(payload.get("risk_appetite", "balanced")), 0)
+    commercial = clamp(48 + max(0, target_gap) / 650 + max(0, -replay[1]["net_profit"]) / 18000 + delay * 5, 5, 95)
+    risk = round(clamp(commercial * 0.34 + ocean * 0.23 + (100 - evidence) * 0.19 + laycan_risk * 0.24 + appetite, 0, 100))
     fuel_tons = replay[1]["bunker_cost"] / max(base["bunker_price"], 1)
     carbon = carbon_estimate({"gt": 38000, "fuel_tons": fuel_tons, "distance": base["distance"], "cargo_qty": base["cargo_qty"], "eu_share": number(payload.get("eu_share"), 50), "eua_price": 72, "year": 2026})
     decision = "AVOID / SENIOR REVIEW" if risk >= 72 else "WATCH / APPROVAL REQUIRED" if risk >= 48 else "FIX WITH GUARDS"
@@ -837,6 +842,7 @@ def decision_lab(payload: dict[str, Any]) -> dict[str, Any]:
         "explanations": [
             {"factor": "Commercial", "score": round(commercial), "reason": "TCE, freight, bunker, hire and delay."},
             {"factor": "Ocean", "score": ocean, "reason": "Weather, current and wave assumptions."},
+            {"factor": "Laycan", "score": round(laycan_risk), "reason": f"Expected delay against {laycan_buffer:g} day buffer."},
             {"factor": "Evidence", "score": 100 - evidence, "reason": f"{evidence}% core documents ready."},
             {"factor": "Carbon", "score": carbon["fueleu_risk"], "reason": "EU ETS and FuelEU screening."},
         ],
